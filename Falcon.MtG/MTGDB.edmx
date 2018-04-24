@@ -1,0 +1,790 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Falcon.MtG.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="FalconMtGStoreContainer">
+    <EntitySet Name="Cards" EntityType="Falcon.MtG.Store.Cards" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Colors" EntityType="Falcon.MtG.Store.Colors" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Supertypes" EntityType="Falcon.MtG.Store.Supertypes" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Subtypes" EntityType="Falcon.MtG.Store.Subtypes" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Types" EntityType="Falcon.MtG.Store.Types" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Sets" EntityType="Falcon.MtG.Store.Sets" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Abilities" EntityType="Falcon.MtG.Store.Abilities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Rarities" EntityType="Falcon.MtG.Store.Rarities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardSet" EntityType="Falcon.MtG.Store.CardSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardColor" EntityType="Falcon.MtG.Store.CardColor" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardColorIdentity" EntityType="Falcon.MtG.Store.CardColorIdentity" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardSupertype" EntityType="Falcon.MtG.Store.CardSupertype" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardType" EntityType="Falcon.MtG.Store.CardType" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardSubtype" EntityType="Falcon.MtG.Store.CardSubtype" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardAbility" EntityType="Falcon.MtG.Store.CardAbility" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardRarity" EntityType="Falcon.MtG.Store.CardRarity" store:Type="Tables" Schema="dbo" />
+    <AssociationSet Name="FK_CardSet_Card" Association="Falcon.MtG.Store.FK_CardSet_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardSet" EntitySet="CardSet" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardSet_Set" Association="Falcon.MtG.Store.FK_CardSet_Set">
+      <End Role="Set" EntitySet="Sets" />
+      <End Role="CardSet" EntitySet="CardSet" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardColor_Card" Association="Falcon.MtG.Store.FK_CardColor_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardColor" EntitySet="CardColor" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardColor_Color" Association="Falcon.MtG.Store.FK_CardColor_Color">
+      <End Role="Color" EntitySet="Colors" />
+      <End Role="CardColor" EntitySet="CardColor" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardColorIdentity_Card" Association="Falcon.MtG.Store.FK_CardColorIdentity_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardColorIdentity" EntitySet="CardColorIdentity" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardColorIdentity_Color" Association="Falcon.MtG.Store.FK_CardColorIdentity_Color">
+      <End Role="Color" EntitySet="Colors" />
+      <End Role="CardColorIdentity" EntitySet="CardColorIdentity" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardSupertype_Card" Association="Falcon.MtG.Store.FK_CardSupertype_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardSupertype" EntitySet="CardSupertype" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardSupertype_Supertype" Association="Falcon.MtG.Store.FK_CardSupertype_Supertype">
+      <End Role="Supertype" EntitySet="Supertypes" />
+      <End Role="CardSupertype" EntitySet="CardSupertype" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardType_Card" Association="Falcon.MtG.Store.FK_CardType_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardType" EntitySet="CardType" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardType_Type" Association="Falcon.MtG.Store.FK_CardType_Type">
+      <End Role="Type" EntitySet="Types" />
+      <End Role="CardType" EntitySet="CardType" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardSubtype_Card" Association="Falcon.MtG.Store.FK_CardSubtype_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardSubtype" EntitySet="CardSubtype" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardSubtype_Subtype" Association="Falcon.MtG.Store.FK_CardSubtype_Subtype">
+      <End Role="Subtype" EntitySet="Subtypes" />
+      <End Role="CardSubtype" EntitySet="CardSubtype" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardAbility_Card" Association="Falcon.MtG.Store.FK_CardAbility_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardAbility" EntitySet="CardAbility" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardAbility_Ability" Association="Falcon.MtG.Store.FK_CardAbility_Ability">
+      <End Role="Ability" EntitySet="Abilities" />
+      <End Role="CardAbility" EntitySet="CardAbility" />
+    </AssociationSet>
+    <AssociationSet Name="CardSides" Association="Falcon.MtG.Store.CardSides">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="Card1" EntitySet="Cards" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardRarity_Card" Association="Falcon.MtG.Store.FK_CardRarity_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardRarity" EntitySet="CardRarity" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardRarity_Rarity" Association="Falcon.MtG.Store.FK_CardRarity_Rarity">
+      <End Role="Rarity" EntitySet="Rarities" />
+      <End Role="CardRarity" EntitySet="CardRarity" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Cards">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="200" />
+    <Property Name="MultiverseId" Type="int" Nullable="true" />
+    <Property Name="ManaCost" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="CMC" Type="int" Nullable="true" />
+    <Property Name="TypeLine" Type="nvarchar" Nullable="true" MaxLength="200" />
+    <Property Name="OracleText" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="FlavorText" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Power" Type="int" Nullable="true" />
+    <Property Name="Toughness" Type="int" Nullable="true" />
+    <Property Name="CommanderLegal" Type="bit" Nullable="false" />
+    <Property Name="LatestPrintDate" Type="datetime" Nullable="false" />
+    <Property Name="IsPrimarySide" Type="bit" Nullable="false" DefaultValue="true" />
+    <Property Name="OtherSide_ID" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="Colors">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Symbol" Type="nvarchar" Nullable="false" MaxLength="1" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Supertypes">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Subtypes">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Types">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="Sets">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Code" Type="nvarchar" Nullable="false" MaxLength="20" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="200" />
+    <Property Name="Date" Type="datetime" Nullable="false" />
+    <Property Name="Block" Type="nvarchar" Nullable="true" MaxLength="200" />
+    <Property Name="Type" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Border" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Abilities">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="200" />
+    <Property Name="Type" Type="nvarchar" Nullable="false" MaxLength="200" />
+  </EntityType>
+  <EntityType Name="Rarities">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardSet">
+    <Key>
+      <PropertyRef Name="CardSet_Set_ID" />
+      <PropertyRef Name="Sets_ID" />
+    </Key>
+    <Property Name="CardSet_Set_ID" Type="int" Nullable="false" />
+    <Property Name="Sets_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardColor">
+    <Key>
+      <PropertyRef Name="CardColor_Color_ID" />
+      <PropertyRef Name="Colors_ID" />
+    </Key>
+    <Property Name="CardColor_Color_ID" Type="int" Nullable="false" />
+    <Property Name="Colors_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardColorIdentity">
+    <Key>
+      <PropertyRef Name="CardColorIdentity_Color_ID" />
+      <PropertyRef Name="ColorIdentity_ID" />
+    </Key>
+    <Property Name="CardColorIdentity_Color_ID" Type="int" Nullable="false" />
+    <Property Name="ColorIdentity_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardSupertype">
+    <Key>
+      <PropertyRef Name="CardSupertype_Supertype_ID" />
+      <PropertyRef Name="Supertypes_ID" />
+    </Key>
+    <Property Name="CardSupertype_Supertype_ID" Type="int" Nullable="false" />
+    <Property Name="Supertypes_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardType">
+    <Key>
+      <PropertyRef Name="CardType_Type_ID" />
+      <PropertyRef Name="Types_ID" />
+    </Key>
+    <Property Name="CardType_Type_ID" Type="int" Nullable="false" />
+    <Property Name="Types_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardSubtype">
+    <Key>
+      <PropertyRef Name="CardSubtype_Subtype_ID" />
+      <PropertyRef Name="Subtypes_ID" />
+    </Key>
+    <Property Name="CardSubtype_Subtype_ID" Type="int" Nullable="false" />
+    <Property Name="Subtypes_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardAbility">
+    <Key>
+      <PropertyRef Name="CardAbility_Ability_ID" />
+      <PropertyRef Name="Abilities_ID" />
+    </Key>
+    <Property Name="CardAbility_Ability_ID" Type="int" Nullable="false" />
+    <Property Name="Abilities_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardRarity">
+    <Key>
+      <PropertyRef Name="CardRarity_Rarity_ID" />
+      <PropertyRef Name="Rarities_Id" />
+    </Key>
+    <Property Name="CardRarity_Rarity_ID" Type="int" Nullable="false" />
+    <Property Name="Rarities_Id" Type="int" Nullable="false" />
+  </EntityType>
+  <Association Name="CardSides">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="0..1" />
+    <End Role="Card1" Type="Falcon.MtG.Store.Cards" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Card1">
+        <PropertyRef Name="OtherSide_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardSet_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardSet" Type="Falcon.MtG.Store.CardSet" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardSet">
+        <PropertyRef Name="CardSet_Set_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardSet_Set">
+    <End Role="CardSet" Type="Falcon.MtG.Store.CardSet" Multiplicity="*" />
+    <End Role="Set" Type="Falcon.MtG.Store.Sets" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Set">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardSet">
+        <PropertyRef Name="Sets_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardColor_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardColor" Type="Falcon.MtG.Store.CardColor" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardColor">
+        <PropertyRef Name="CardColor_Color_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardColor_Color">
+    <End Role="CardColor" Type="Falcon.MtG.Store.CardColor" Multiplicity="*" />
+    <End Role="Color" Type="Falcon.MtG.Store.Colors" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Color">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardColor">
+        <PropertyRef Name="Colors_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardColorIdentity_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardColorIdentity" Type="Falcon.MtG.Store.CardColorIdentity" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardColorIdentity">
+        <PropertyRef Name="CardColorIdentity_Color_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardColorIdentity_Color">
+    <End Role="CardColorIdentity" Type="Falcon.MtG.Store.CardColorIdentity" Multiplicity="*" />
+    <End Role="Color" Type="Falcon.MtG.Store.Colors" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Color">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardColorIdentity">
+        <PropertyRef Name="ColorIdentity_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardSupertype_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardSupertype" Type="Falcon.MtG.Store.CardSupertype" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardSupertype">
+        <PropertyRef Name="CardSupertype_Supertype_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardSupertype_Supertype">
+    <End Role="CardSupertype" Type="Falcon.MtG.Store.CardSupertype" Multiplicity="*" />
+    <End Role="Supertype" Type="Falcon.MtG.Store.Supertypes" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Supertype">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardSupertype">
+        <PropertyRef Name="Supertypes_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardType_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardType" Type="Falcon.MtG.Store.CardType" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardType">
+        <PropertyRef Name="CardType_Type_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardType_Type">
+    <End Role="CardType" Type="Falcon.MtG.Store.CardType" Multiplicity="*" />
+    <End Role="Type" Type="Falcon.MtG.Store.Types" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Type">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardType">
+        <PropertyRef Name="Types_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardSubtype_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardSubtype" Type="Falcon.MtG.Store.CardSubtype" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardSubtype">
+        <PropertyRef Name="CardSubtype_Subtype_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardSubtype_Subtype">
+    <End Role="CardSubtype" Type="Falcon.MtG.Store.CardSubtype" Multiplicity="*" />
+    <End Role="Subtype" Type="Falcon.MtG.Store.Subtypes" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Subtype">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardSubtype">
+        <PropertyRef Name="Subtypes_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardAbility_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardAbility" Type="Falcon.MtG.Store.CardAbility" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardAbility">
+        <PropertyRef Name="CardAbility_Ability_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardAbility_Ability">
+    <End Role="CardAbility" Type="Falcon.MtG.Store.CardAbility" Multiplicity="*" />
+    <End Role="Ability" Type="Falcon.MtG.Store.Abilities" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Ability">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardAbility">
+        <PropertyRef Name="Abilities_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardRarity_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardRarity" Type="Falcon.MtG.Store.CardRarity" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardRarity">
+        <PropertyRef Name="CardRarity_Rarity_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardRarity_Rarity">
+    <End Role="CardRarity" Type="Falcon.MtG.Store.CardRarity" Multiplicity="*" />
+    <End Role="Rarity" Type="Falcon.MtG.Store.Rarities" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Rarity">
+        <PropertyRef Name="Id" />
+      </Principal>
+      <Dependent Role="CardRarity">
+        <PropertyRef Name="Rarities_Id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:cg="http://schemas.microsoft.com/ado/2006/04/codegeneration" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" Namespace="Falcon.MtG" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" annotation:UseStrongSpatialTypes="false">
+        <EntityContainer Name="MTGDBContainer" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Cards" EntityType="Falcon.MtG.Card" />
+          <EntitySet Name="Colors" EntityType="Falcon.MtG.Color" />
+          <EntitySet Name="Supertypes" EntityType="Falcon.MtG.Supertype" />
+          <EntitySet Name="Subtypes" EntityType="Falcon.MtG.Subtype" />
+          <EntitySet Name="Types" EntityType="Falcon.MtG.Type" />
+          <EntitySet Name="Sets" EntityType="Falcon.MtG.Set" />
+          <EntitySet Name="Abilities" EntityType="Falcon.MtG.Ability" />
+          <AssociationSet Name="CardSet" Association="Falcon.MtG.CardSet">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Set" EntitySet="Sets" />
+          </AssociationSet>
+          <AssociationSet Name="CardColor" Association="Falcon.MtG.CardColor">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Color" EntitySet="Colors" />
+          </AssociationSet>
+          <AssociationSet Name="CardColorIdentity" Association="Falcon.MtG.CardColorIdentity">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Color" EntitySet="Colors" />
+          </AssociationSet>
+          <AssociationSet Name="CardSupertype" Association="Falcon.MtG.CardSupertype">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Supertype" EntitySet="Supertypes" />
+          </AssociationSet>
+          <AssociationSet Name="CardType" Association="Falcon.MtG.CardType">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Type" EntitySet="Types" />
+          </AssociationSet>
+          <AssociationSet Name="CardSubtype" Association="Falcon.MtG.CardSubtype">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Subtype" EntitySet="Subtypes" />
+          </AssociationSet>
+          <AssociationSet Name="CardAbility" Association="Falcon.MtG.CardAbility">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Ability" EntitySet="Abilities" />
+          </AssociationSet>
+          <AssociationSet Name="CardSides" Association="Falcon.MtG.CardSides">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Card1" EntitySet="Cards" />
+          </AssociationSet>
+          <EntitySet Name="Rarities" EntityType="Falcon.MtG.Rarity" />
+          <AssociationSet Name="CardRarity" Association="Falcon.MtG.CardRarity">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Rarity" EntitySet="Rarities" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Card">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" MaxLength="200" Unicode="true" FixedLength="false" xmlns="http://schemas.microsoft.com/ado/2009/11/edm" />
+          <Property Name="MultiverseId" Type="Int32" Nullable="true" />
+          <Property Name="ManaCost" Type="String" Nullable="true" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="CMC" Type="Int32" Nullable="true" />
+          <Property Name="TypeLine" Type="String" Nullable="true" MaxLength="200" Unicode="true" FixedLength="false" />
+          <Property Name="OracleText" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="FlavorText" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="Power" Type="Int32" Nullable="true" />
+          <Property Name="Toughness" Type="Int32" Nullable="true" />
+          <Property Name="CommanderLegal" Type="Boolean" Nullable="false" />
+          <Property Name="LatestPrintDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="Sets" Relationship="Falcon.MtG.CardSet" FromRole="Card" ToRole="Set" />
+          <NavigationProperty Name="Colors" Relationship="Falcon.MtG.CardColor" FromRole="Card" ToRole="Color" />
+          <NavigationProperty Name="ColorIdentity" Relationship="Falcon.MtG.CardColorIdentity" FromRole="Card" ToRole="Color" />
+          <NavigationProperty Name="Supertypes" Relationship="Falcon.MtG.CardSupertype" FromRole="Card" ToRole="Supertype" />
+          <NavigationProperty Name="Types" Relationship="Falcon.MtG.CardType" FromRole="Card" ToRole="Type" />
+          <NavigationProperty Name="Subtypes" Relationship="Falcon.MtG.CardSubtype" FromRole="Card" ToRole="Subtype" />
+          <NavigationProperty Name="Abilities" Relationship="Falcon.MtG.CardAbility" FromRole="Card" ToRole="Ability" />
+          <NavigationProperty Name="OtherSide" Relationship="Falcon.MtG.CardSides" FromRole="Card1" ToRole="Card" />
+          <Property Name="IsPrimarySide" Type="Boolean" Nullable="false" DefaultValue="true" />
+          <NavigationProperty Name="Rarities" Relationship="Falcon.MtG.CardRarity" FromRole="Card" ToRole="Rarity" />
+        </EntityType>
+        <EntityType Name="Color">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Symbol" Type="String" Nullable="false" MaxLength="1" Unicode="true" FixedLength="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Supertype">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Subtype">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Type">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+        </EntityType>
+        <EntityType Name="Set">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" MaxLength="20" Unicode="true" FixedLength="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="200" Unicode="true" FixedLength="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Block" Type="String" Nullable="true" MaxLength="200" Unicode="true" FixedLength="false" />
+          <Property Name="Type" Type="String" Nullable="false" />
+          <Property Name="Border" Type="String" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Ability">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="200" Unicode="true" FixedLength="false" />
+          <Property Name="Type" Type="String" Nullable="false" MaxLength="200" Unicode="true" FixedLength="false" />
+        </EntityType>
+        <Association Name="CardSet">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Set" Role="Set" Multiplicity="*" />
+        </Association>
+        <Association Name="CardColor">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Color" Role="Color" Multiplicity="*" />
+        </Association>
+        <Association Name="CardColorIdentity">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Color" Role="Color" Multiplicity="*" />
+        </Association>
+        <Association Name="CardSupertype">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Supertype" Role="Supertype" Multiplicity="*" />
+        </Association>
+        <Association Name="CardType">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Type" Role="Type" Multiplicity="*" />
+        </Association>
+        <Association Name="CardSubtype">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Subtype" Role="Subtype" Multiplicity="*" />
+        </Association>
+        <Association Name="CardAbility">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Ability" Role="Ability" Multiplicity="*" />
+        </Association>
+        <Association Name="CardSides">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="0..1" />
+          <End Type="Falcon.MtG.Card" Role="Card1" Multiplicity="0..1" />
+        </Association>
+        <EntityType Name="Rarity">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+        </EntityType>
+        <Association Name="CardRarity">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Rarity" Role="Rarity" Multiplicity="*" />
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+    <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="FalconMtGStoreContainer" CdmEntityContainer="MTGDBContainer">
+    <EntitySetMapping Name="Cards">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Card)">
+        <MappingFragment StoreEntitySet="Cards">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="MultiverseId" ColumnName="MultiverseId" />
+          <ScalarProperty Name="ManaCost" ColumnName="ManaCost" />
+          <ScalarProperty Name="CMC" ColumnName="CMC" />
+          <ScalarProperty Name="TypeLine" ColumnName="TypeLine" />
+          <ScalarProperty Name="OracleText" ColumnName="OracleText" />
+          <ScalarProperty Name="FlavorText" ColumnName="FlavorText" />
+          <ScalarProperty Name="Power" ColumnName="Power" />
+          <ScalarProperty Name="Toughness" ColumnName="Toughness" />
+          <ScalarProperty Name="CommanderLegal" ColumnName="CommanderLegal" />
+          <ScalarProperty Name="LatestPrintDate" ColumnName="LatestPrintDate" />
+          <ScalarProperty Name="IsPrimarySide" ColumnName="IsPrimarySide" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Colors">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Color)">
+        <MappingFragment StoreEntitySet="Colors">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Symbol" ColumnName="Symbol" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Supertypes">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Supertype)">
+        <MappingFragment StoreEntitySet="Supertypes">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Subtypes">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Subtype)">
+        <MappingFragment StoreEntitySet="Subtypes">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Types">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Type)">
+        <MappingFragment StoreEntitySet="Types">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Sets">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Set)">
+        <MappingFragment StoreEntitySet="Sets">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Code" ColumnName="Code" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Date" ColumnName="Date" />
+          <ScalarProperty Name="Block" ColumnName="Block" />
+          <ScalarProperty Name="Type" ColumnName="Type" />
+          <ScalarProperty Name="Border" ColumnName="Border" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Abilities">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Ability)">
+        <MappingFragment StoreEntitySet="Abilities">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="Type" ColumnName="Type" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Rarities">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Rarity)">
+        <MappingFragment StoreEntitySet="Rarities">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <AssociationSetMapping Name="CardSet" TypeName="Falcon.MtG.CardSet" StoreEntitySet="CardSet">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardSet_Set_ID" />
+      </EndProperty>
+      <EndProperty Name="Set">
+        <ScalarProperty Name="ID" ColumnName="Sets_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardColor" TypeName="Falcon.MtG.CardColor" StoreEntitySet="CardColor">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardColor_Color_ID" />
+      </EndProperty>
+      <EndProperty Name="Color">
+        <ScalarProperty Name="ID" ColumnName="Colors_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardColorIdentity" TypeName="Falcon.MtG.CardColorIdentity" StoreEntitySet="CardColorIdentity">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardColorIdentity_Color_ID" />
+      </EndProperty>
+      <EndProperty Name="Color">
+        <ScalarProperty Name="ID" ColumnName="ColorIdentity_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardSupertype" TypeName="Falcon.MtG.CardSupertype" StoreEntitySet="CardSupertype">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardSupertype_Supertype_ID" />
+      </EndProperty>
+      <EndProperty Name="Supertype">
+        <ScalarProperty Name="ID" ColumnName="Supertypes_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardType" TypeName="Falcon.MtG.CardType" StoreEntitySet="CardType">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardType_Type_ID" />
+      </EndProperty>
+      <EndProperty Name="Type">
+        <ScalarProperty Name="ID" ColumnName="Types_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardSubtype" TypeName="Falcon.MtG.CardSubtype" StoreEntitySet="CardSubtype">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardSubtype_Subtype_ID" />
+      </EndProperty>
+      <EndProperty Name="Subtype">
+        <ScalarProperty Name="ID" ColumnName="Subtypes_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardAbility" TypeName="Falcon.MtG.CardAbility" StoreEntitySet="CardAbility">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardAbility_Ability_ID" />
+      </EndProperty>
+      <EndProperty Name="Ability">
+        <ScalarProperty Name="ID" ColumnName="Abilities_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardSides" TypeName="Falcon.MtG.CardSides" StoreEntitySet="Cards">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="OtherSide_ID" />
+      </EndProperty>
+      <EndProperty Name="Card1">
+        <ScalarProperty Name="ID" ColumnName="ID" />
+      </EndProperty>
+      <Condition ColumnName="OtherSide_ID" IsNull="false" />
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardRarity" TypeName="Falcon.MtG.CardRarity" StoreEntitySet="CardRarity">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardRarity_Rarity_ID" />
+      </EndProperty>
+      <EndProperty Name="Rarity">
+        <ScalarProperty Name="Id" ColumnName="Rarities_Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <edmx:Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </edmx:Connection>
+    <edmx:Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="True" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+        <DesignerProperty Name="UseLegacyProvider" Value="False" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+      </DesignerInfoPropertySet>
+    </edmx:Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

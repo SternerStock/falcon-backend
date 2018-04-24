@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="4c09a1a36d02480284806cb7ad2230bf" Name="MtGDiagram" ShowGrid="true">
+        <EntityTypeShape EntityType="Falcon.MtG.Card" Width="1.5" PointX="3.25" PointY="3.125" />
+        <EntityTypeShape EntityType="Falcon.MtG.Color" Width="1.5" PointX="5.625" PointY="0.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.Supertype" Width="1.5" PointX="0.5" PointY="0.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.Subtype" Width="1.5" PointX="0.5" PointY="5.375" />
+        <EntityTypeShape EntityType="Falcon.MtG.Type" Width="1.5" PointX="0.5" PointY="3.125" />
+        <EntityTypeShape EntityType="Falcon.MtG.Set" Width="1.5" PointX="3.25" PointY="0.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.Ability" Width="1.5" PointX="5.75" PointY="5.5" />
+        <AssociationConnector Association="Falcon.MtG.CardSet" />
+        <AssociationConnector Association="Falcon.MtG.CardType" />
+        <AssociationConnector Association="Falcon.MtG.CardColor" />
+        <AssociationConnector Association="Falcon.MtG.ColorIdentity" />
+        <AssociationConnector Association="Falcon.MtG.CardSubtype" />
+        <AssociationConnector Association="Falcon.MtG.CardSupertype" />
+        <AssociationConnector Association="Falcon.MtG.CardAbility" />
+        <AssociationConnector Association="Falcon.MtG.CardSides" />
+        <AssociationConnector Association="Falcon.MtG.CardColorIdentity" />
+        <EntityTypeShape EntityType="Falcon.MtG.Rarity" Width="1.5" PointX="0.5" PointY="7.875" />
+        <AssociationConnector Association="Falcon.MtG.CardRarity" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
