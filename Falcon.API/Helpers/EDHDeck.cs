@@ -1,12 +1,12 @@
 ﻿namespace Falcon.API.Helpers
 {
     using System.Collections.Generic;
-    using Falcon.MtG;
+    using System.Linq;
     using Falcon.API.Models;
+    using Falcon.MtG;
 
     public class EDHDeck
     {
-        public const int MaxDeckSize = 100;
         private int artifactsNeeded;
         private int aurasNeeded;
         private int basicLandsNeeded;
@@ -17,6 +17,7 @@
         private int manaProducingNeeded;
         private int nonbasicLandsNeeded;
         private int planeswalkersNeeded;
+        private int reqDeckSize;
         private int sharesTypesNeeded;
         private int spellsNeeded;
 
@@ -25,10 +26,19 @@
             this.Cards = new List<Card>();
         }
 
-        public EDHDeck(Card cmdr, GeneratorRequestModel options) : this()
+        public EDHDeck(GeneratorRequestModel options, Card cmdr1, Card cmdr2 = null) : this()
         {
-            this.Commander = cmdr;
-            this.Cards.Add(this.Commander);
+            this.Commanders = new List<Card>
+            {
+                cmdr1
+            };
+
+            if (cmdr2 != null)
+            {
+                this.Commanders.Add(cmdr2);
+            }
+
+            this.Cards.AddRange(this.Commanders);
 
             this.basicLandsNeeded = options.BasicLands.Count;
             this.nonbasicLandsNeeded = options.NonbasicLands.Count;
@@ -42,6 +52,22 @@
             this.manaProducingNeeded = options.ManaProducing.Count;
             this.sharesTypesNeeded = options.SharesTypes.Count;
             this.legendaryNeeded = options.Legendary.Count;
+
+            switch (options.Format)
+            {
+                case EdhFormat.Commander:
+                case EdhFormat.Pauper:
+                    this.ReqDeckSize = 100;
+                    break;
+
+                case EdhFormat.Brawl:
+                    this.ReqDeckSize = 60;
+                    break;
+
+                case EdhFormat.TinyLeaders:
+                    this.ReqDeckSize = 50;
+                    break;
+            }
         }
 
         public int BasicLandsNeeded
@@ -54,7 +80,15 @@
 
         public List<Card> Cards { get; set; }
 
-        public Card Commander { get; set; }
+        public List<Color> ColorIdentity
+        {
+            get
+            {
+                return this.Commanders.SelectMany(c => c.ColorIdentity).Distinct().ToList();
+            }
+        }
+
+        public List<Card> Commanders { get; set; }
 
         public int FillerNeeded
         {
@@ -68,7 +102,7 @@
         {
             get
             {
-                return this.Cards.Count == MaxDeckSize;
+                return this.Cards.Count == ReqDeckSize;
             }
         }
 
@@ -76,7 +110,7 @@
         {
             get
             {
-                return this.Cards.Count >= MaxDeckSize - this.basicLandsNeeded;
+                return this.Cards.Count >= ReqDeckSize - this.basicLandsNeeded;
             }
         }
 
@@ -104,6 +138,8 @@
                        this.legendaryNeeded <= 0;
             }
         }
+
+        public int ReqDeckSize { get => this.reqDeckSize; set => this.reqDeckSize = value; }
 
         public bool AddCard(Card candidate, bool secondPass = false)
         {
@@ -155,7 +191,7 @@
                 addCard = true;
             }
 
-            if (candidate.SharesSubtype(this.Commander.Subtypes) && this.sharesTypesNeeded > 0)
+            if (candidate.SharesSubtype(this.Commanders.SelectMany(c => c.Subtypes)) && this.sharesTypesNeeded > 0)
             {
                 this.sharesTypesNeeded--;
                 addCard = true;
@@ -183,7 +219,19 @@
 
         public override string ToString()
         {
-            return "SB: 1 " + string.Join("\r\n1 ", this.Cards);
+            string decklist = "";
+
+            foreach (var card in this.Cards.GroupBy(c => c.Name))
+            {
+                if (this.Commanders.Select(c => c.Name).Contains(card.Key))
+                {
+                    decklist += "SB: ";
+                }
+
+                decklist += card.Count() + " " + card.Key + "\r\n";
+            }
+
+            return decklist.TrimEnd("\r\n".ToCharArray());
         }
     }
 }

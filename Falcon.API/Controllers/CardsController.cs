@@ -30,8 +30,18 @@
         [ActionName("GenerateDeck")]
         public dynamic GenerateDeck([FromBody]GeneratorRequestModel options)
         {
-            Card commander = this.db.Cards.Find(options.CommanderId);
-            var deck = new EDHDeck(commander, options);
+            EDHDeck deck;
+
+            Card commander1 = this.db.Cards.Find(options.Commander1Id);
+            if (options.Commander2Id != null)
+            {
+                Card commander2 = this.db.Cards.Find(options.Commander2Id);
+                deck = new EDHDeck(options, commander1, commander2);
+            }
+            else
+            {
+                deck = new EDHDeck(options, commander1);
+            }
 
             foreach (var category in options.Categories)
             {
@@ -43,8 +53,7 @@
 
             File.WriteAllText(HostingEnvironment.MapPath(AnalyticsFolder + "/" + Guid.NewGuid().ToString("D") + ".json"), JsonConvert.SerializeObject(options));
 
-            Library library = new Library(this.db);
-            library.FilterByVariant(options.Variant);
+            Library library = new Library(this.db, options.Format);
             library.FilterSets(options.SetCodes);
             library.FilterByCmc(options.CMC);
 
@@ -54,14 +63,15 @@
             library.FilterEnchantments(options.Enchantments, options.Auras);
             library.FilterPlaneswalkers(options.Planeswalkers);
             library.FilterSpells(options.Spells);
-            library.FilterManaProducers(options.ManaProducing);
-            library.FilterLegendary(options.Legendary);
+            library.FilterManaProducers(options.ManaProducing, options.ManaProducing.Count >= deck.ReqDeckSize);
+            library.FilterLegendary(options.Legendary, options.Legendary.Count >= deck.ReqDeckSize);
 
-            var legalCards = library.NonlandCards.FilterOutCard(commander).FilterByColorIdentity(commander.ColorIdentity).Shuffle();
+            var cmdrIds = deck.Commanders.Select(cmdr => cmdr.ID);
+            var legalCards = library.NonlandCards.Where(c => !cmdrIds.Contains(c.ID)).FilterByColorIdentity(deck.ColorIdentity).Shuffle();
 
             if (options.NonbasicLands.Enabled)
             {
-                var legalLands = library.LandCards.FilterOutCard(commander).FilterByColorIdentity(commander.ColorIdentity).Shuffle();
+                var legalLands = library.LandCards.Where(c => !cmdrIds.Contains(c.ID)).FilterByColorIdentity(deck.ColorIdentity).Shuffle();
                 if (!deck.LandMinimumMet)
                 {
                     foreach (Card candidate in legalLands)
@@ -109,12 +119,12 @@
                     filler = filler.FilterOutCard(card);
                 }
 
-                filler = filler.FilterByColorIdentity(commander.ColorIdentity).Shuffle().Take(deck.FillerNeeded - deck.Cards.Count);
+                filler = filler.FilterByColorIdentity(deck.ColorIdentity).Shuffle().Take(deck.FillerNeeded - deck.Cards.Count);
 
                 deck.Cards.AddRange(filler.ToList());
             }
 
-            deck.Cards.AddRange(this.db.GetBasicLands(deck.BasicLandsNeeded, commander.ColorIdentity));
+            deck.Cards.AddRange(this.db.GetBasicLands(deck.BasicLandsNeeded, deck.ColorIdentity));
 
             string message = string.Empty;
 
@@ -125,7 +135,7 @@
 
             return new
             {
-                message = message,
+                message,
                 deck = deck.ToString()
             };
         }
@@ -150,19 +160,6 @@
                            .Select(c => new ResponseCard(c)).ToList();
         }
 
-        // GET: /api/Cards/PauperCommanders
-        [HttpGet]
-        [ActionName("PauperCommanders")]
-        public List<ResponseCard> GetPauperCommanders()
-        {
-            return this.db.CommanderLegalCards()
-                     .Where(c => (c.Types.Select(t => t.Name).Contains("Creature") || c.OracleText.Contains("can be your commander.")) &&
-                                 c.Rarities.Select(r => r.Name).Contains("Uncommon"))
-                     .OrderBy(c => c.Name)
-                     .ToList()
-                     .Select(c => new ResponseCard(c)).ToList();
-        }
-
         // GET: /api/Cards/Sets
         [HttpGet]
         [ActionName("Sets")]
@@ -175,17 +172,53 @@
                      .Select(s => new ResponseSet(s)).ToList();
         }
 
-        // GET: /api/Cards/Commanders
+        // GET: /api/Cards/Commanders/{format}
         [HttpGet]
         [ActionName("Commanders")]
-        public List<ResponseCard> GetStandardCommanders()
+        public List<ResponseCard> GetCommanders([FromUri(Name = "key")]EdhFormat format = EdhFormat.Commander)
         {
-            return this.db.CommanderLegalCards()
-                     .Where(c => (c.Types.Select(t => t.Name).Contains("Creature") && c.Supertypes.Select(t => t.Name).Contains("Legendary")) ||
-                                 c.OracleText.Contains("can be your commander."))
+            var types = new List<string>() { "Creature" };
+
+            switch (format)
+            {
+                case EdhFormat.Brawl:
+                    types.Add("Planeswalker");
+
+                    return this.db.BrawlLegalCards()
+                     .Where(c => (types.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) ||
+                                c.OracleText.Contains("can be your commander."))
                      .OrderBy(c => c.Name)
                      .ToList()
                      .Select(c => new ResponseCard(c)).ToList();
+
+                case EdhFormat.TinyLeaders:
+                    types.Add("Planeswalker");
+
+                    return this.db.TinyLeadersLegalCards()
+                             .Where(c => c.TinyLeadersCmdrLegal &&
+                                         ((types.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) ||
+                                           c.OracleText.Contains("can be your commander.")))
+                             .OrderBy(c => c.Name)
+                             .ToList()
+                             .Select(c => new ResponseCard(c)).ToList();
+
+                case EdhFormat.Pauper:
+                    return this.db.CommanderLegalCards()
+                             .Where(c => (types.Any(s => c.Types.Select(t => t.Name).Contains(s)) || c.OracleText.Contains("can be your commander.")) &&
+                                         c.Rarities.Select(r => r.Name).Contains("Uncommon"))
+                             .OrderBy(c => c.Name)
+                             .ToList()
+                             .Select(c => new ResponseCard(c)).ToList();
+
+                case EdhFormat.Commander:
+                default:
+                    return this.db.CommanderLegalCards()
+                             .Where(c => (types.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) ||
+                                         c.OracleText.Contains("can be your commander."))
+                             .OrderBy(c => c.Name)
+                             .ToList()
+                             .Select(c => new ResponseCard(c)).ToList();
+            }
         }
 
         // GET: /api/Cards/RandomFlavor

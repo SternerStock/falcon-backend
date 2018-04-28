@@ -11,7 +11,7 @@
         <EntityTypeShape EntityType="Falcon.MtG.Subtype" Width="1.5" PointX="0.5" PointY="5.375" />
         <EntityTypeShape EntityType="Falcon.MtG.Type" Width="1.5" PointX="0.5" PointY="3.125" />
         <EntityTypeShape EntityType="Falcon.MtG.Set" Width="1.5" PointX="3.25" PointY="0.5" />
-        <EntityTypeShape EntityType="Falcon.MtG.Ability" Width="1.5" PointX="5.75" PointY="5.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.Ability" Width="1.5" PointX="5.75" PointY="5.5" IsExpanded="true" />
         <AssociationConnector Association="Falcon.MtG.CardSet" />
         <AssociationConnector Association="Falcon.MtG.CardType" />
         <AssociationConnector Association="Falcon.MtG.CardColor" />

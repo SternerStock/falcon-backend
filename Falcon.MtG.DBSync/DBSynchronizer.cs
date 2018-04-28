@@ -13,6 +13,12 @@
         private bool disposedValue = false;
         private string workingDirectory;
 
+        private const string TinyLeadersBanListFileName = "TinyLeadersBanned.txt";
+        private const string TinyLeadersCmdrBanListFileName = "TinyLeadersCmdrBanned.txt";
+
+        private List<string> tinyLeadersBans;
+        private List<string> tinyLeadersCmdrBans;
+
         public DBSynchronizer(string workingDir)
         {
             this.workingDirectory = workingDir;
@@ -26,6 +32,9 @@
             this.db.Subtypes.Load();
             this.db.Cards.Load();
             this.db.Rarities.Load();
+
+            this.tinyLeadersBans = this.GetBans(Path.Combine(this.workingDirectory, TinyLeadersBanListFileName));
+            this.tinyLeadersCmdrBans = this.GetBans(Path.Combine(this.workingDirectory, TinyLeadersCmdrBanListFileName));
         }
 
         public DBSynchronizer() : this(Environment.CurrentDirectory)
@@ -37,6 +46,47 @@
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing).
             this.Dispose(true);
+        }
+
+        private List<string> GetBans(string path)
+        {
+            var content = File.ReadAllText(path);
+            var bans = content.Split("\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            return bans.Select(b => b.Trim()).ToList();
+        }
+
+        private bool IsTinyLeadersLegal(JsonCard card)
+        {
+            if (card.CMC > 3)
+            {
+                return false;
+            }
+
+            if (this.tinyLeadersBans.Contains(card.Name))
+            {
+                return false;
+            }
+
+            foreach (var legality in card.Legalities)
+            {
+                if (legality.Format == "Vintage")
+                {
+                    return legality.Legality == "Legal";
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsTinyLeadersCmdrLegal(JsonCard card)
+        {
+            if (this.IsTinyLeadersLegal(card))
+            {
+                return !tinyLeadersCmdrBans.Contains(card.Name);
+            }
+
+            return false;
         }
 
         public void Sync(IEnumerable<string> setsToUpdate, bool force)
@@ -249,6 +299,23 @@
                 dbCard.CommanderLegal = fileCard.IsCommanderLegal;
             }
 
+            if (dbCard.BrawlLegal != fileCard.IsBrawlLegal)
+            {
+                dbCard.BrawlLegal = fileCard.IsBrawlLegal;
+            }
+
+            bool isTinyLeadersLegal = this.IsTinyLeadersLegal(fileCard);
+            if (dbCard.TinyLeadersLegal != isTinyLeadersLegal)
+            {
+                dbCard.TinyLeadersLegal = isTinyLeadersLegal;
+            }
+
+            bool isTinyLeadersCmdrLegal = this.IsTinyLeadersCmdrLegal(fileCard);
+            if (dbCard.TinyLeadersCmdrLegal != isTinyLeadersCmdrLegal)
+            {
+                dbCard.TinyLeadersCmdrLegal = isTinyLeadersCmdrLegal;
+            }
+
             if (dbCard.IsPrimarySide != fileCard.IsPrimarySide)
             {
                 dbCard.IsPrimarySide = fileCard.IsPrimarySide;
@@ -291,11 +358,11 @@
 
         private void SyncSet(JsonSet fileSet)
         {
-            if (fileSet.Border == "silver")
-            {
-                // Don't deal with Unglued/Unhinged/Holiday stuff
-                return;
-            }
+            //if (fileSet.Border == "silver")
+            //{
+            //    // Don't deal with Silver-bordered stuff. Too wacky to parse.
+            //    return;
+            //}
 
             Console.WriteLine("Syncing set: " + fileSet.Name);
             var twoFaceCards = new List<JsonCard>();
@@ -358,25 +425,45 @@
 
             foreach (var twoFaceCard in twoFaceCards)
             {
-                var firstSide = this.db.Cards.SingleOrDefault(c => c.Name == twoFaceCard.Name);
+                string[] WhoWhatWhereWhenWhy = { "Who", "What", "Where", "When", "Why" };
 
-                foreach (var altName in twoFaceCard.Names)
+                if (WhoWhatWhereWhenWhy.Contains(twoFaceCard.Name))
                 {
-                    if (altName != twoFaceCard.Name)
-                    {
-                        var otherSide = this.db.Cards.SingleOrDefault(c => c.Name == altName);
-                        if (otherSide != null)
-                        {
-                            if (twoFaceCard.Layout != "meld" && firstSide.OtherSide != otherSide)
-                            {
-                                firstSide.OtherSide = otherSide;
-                            }
+                    var dbCard = this.db.Cards.SingleOrDefault(c => c.Name == twoFaceCard.Name);
 
-                            foreach (var color in otherSide.ColorIdentity)
+                    if (dbCard != null)
+                    {
+                        foreach (var color in db.Colors)
+                        {
+                            if (!dbCard.ColorIdentity.Contains(color))
                             {
-                                if (!firstSide.ColorIdentity.Contains(color))
+                                dbCard.ColorIdentity.Add(color);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var firstSide = this.db.Cards.SingleOrDefault(c => c.Name == twoFaceCard.Name);
+
+                    foreach (var altName in twoFaceCard.Names)
+                    {
+                        if (altName != twoFaceCard.Name)
+                        {
+                            var otherSide = this.db.Cards.SingleOrDefault(c => c.Name == altName);
+                            if (otherSide != null)
+                            {
+                                if (twoFaceCard.Layout != "meld" && firstSide.OtherSide != otherSide)
                                 {
-                                    firstSide.ColorIdentity.Add(color);
+                                    firstSide.OtherSide = otherSide;
+                                }
+
+                                foreach (var color in otherSide.ColorIdentity)
+                                {
+                                    if (!firstSide.ColorIdentity.Contains(color))
+                                    {
+                                        firstSide.ColorIdentity.Add(color);
+                                    }
                                 }
                             }
                         }

@@ -108,6 +108,9 @@
     <Property Name="CommanderLegal" Type="bit" Nullable="false" />
     <Property Name="LatestPrintDate" Type="datetime" Nullable="false" />
     <Property Name="IsPrimarySide" Type="bit" Nullable="false" DefaultValue="true" />
+    <Property Name="TinyLeadersLegal" Type="bit" Nullable="false" />
+    <Property Name="BrawlLegal" Type="bit" Nullable="false" />
+    <Property Name="TinyLeadersCmdrLegal" Type="bit" Nullable="false" />
     <Property Name="OtherSide_ID" Type="int" Nullable="true" />
   </EntityType>
   <EntityType Name="Colors">
@@ -510,6 +513,9 @@
           <NavigationProperty Name="OtherSide" Relationship="Falcon.MtG.CardSides" FromRole="Card1" ToRole="Card" />
           <Property Name="IsPrimarySide" Type="Boolean" Nullable="false" DefaultValue="true" />
           <NavigationProperty Name="Rarities" Relationship="Falcon.MtG.CardRarity" FromRole="Card" ToRole="Rarity" />
+          <Property Name="TinyLeadersLegal" Type="Boolean" Nullable="false" />
+          <Property Name="BrawlLegal" Type="Boolean" Nullable="false" />
+          <Property Name="TinyLeadersCmdrLegal" Type="Boolean" Nullable="false" />
         </EntityType>
         <EntityType Name="Color">
           <Key>
@@ -625,6 +631,9 @@
           <ScalarProperty Name="CommanderLegal" ColumnName="CommanderLegal" />
           <ScalarProperty Name="LatestPrintDate" ColumnName="LatestPrintDate" />
           <ScalarProperty Name="IsPrimarySide" ColumnName="IsPrimarySide" />
+          <ScalarProperty Name="TinyLeadersLegal" ColumnName="TinyLeadersLegal" />
+          <ScalarProperty Name="BrawlLegal" ColumnName="BrawlLegal" />
+          <ScalarProperty Name="TinyLeadersCmdrLegal" ColumnName="TinyLeadersCmdrLegal" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

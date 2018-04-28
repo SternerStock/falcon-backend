@@ -4,6 +4,14 @@
     using Falcon.API.Helpers;
     using Newtonsoft.Json;
 
+    public enum EdhFormat
+    {
+        Commander = 0,
+        Brawl = 1,
+        TinyLeaders = 2,
+        Pauper = 3
+    };
+
     public class GeneratorRequestModel
     {
         private const string ArtifactsKey = "artifacts";
@@ -82,8 +90,11 @@
         [JsonProperty("cmc")]
         public Range CMC { get; set; }
 
-        [JsonProperty("commanderId")]
-        public int CommanderId { get; set; }
+        [JsonProperty("commander1Id")]
+        public int Commander1Id { get; set; }
+
+        [JsonProperty("commander2Id")]
+        public int? Commander2Id { get; set; }
 
         public Category Creatures
         {
@@ -123,6 +134,9 @@
                 this[EquipmentKey] = value;
             }
         }
+
+        [JsonProperty("format")]
+        public EdhFormat Format { get; set; }
 
         public Category Legendary
         {
@@ -204,9 +218,6 @@
                 this[SpellsKey] = value;
             }
         }
-
-        [JsonProperty("variant")]
-        public string Variant { get; set; }
 
         private Dictionary<string, Category> CategoryIndex { get; set; }
 

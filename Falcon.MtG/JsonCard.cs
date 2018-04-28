@@ -46,6 +46,22 @@
                 return false;
             }
         }
+        
+        public bool IsBrawlLegal
+        {
+            get
+            {
+                foreach (var legality in this.Legalities)
+                {
+                    if (legality.Format == "Standard")
+                    {
+                        return legality.Legality == "Legal";
+                    }
+                }
+
+                return false;
+            }
+        }
 
         public bool IsPrimarySide
         {
@@ -54,7 +70,7 @@
                 // One name in array is a single-face card, so it's always primary
                 // Two names in array is a double-face card, flip card, or split card, where the first name is primary
                 // Three names in array is a meld card, so first two names are primary and share the same "back"
-                // Five names is right out, Unhinged
+                // Five names is right out
                 return this.Names.Count <= 1 || this.Name != this.Names[this.Names.Count - 1];
             }
         }

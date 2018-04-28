@@ -1,11 +1,18 @@
 ﻿namespace Falcon.MtG
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
 
     public static class Utility
     {
+        /// <summary>
+        /// Matches any mana symbol on a card, including mono, split, and phyrexian.
+        /// </summary>
+        public const string AnyManaSymbolRegex = @"\{([WUBRGC0-9])([\/])?([WUBRGP])?\}";
+
         /// <summary>
         /// Matches any symbol on a card, including Mana Symbols, Tap Symbols, etc.
         /// </summary>
@@ -13,8 +20,8 @@
 
         /// <summary>
         /// Matches any colored mana symbol on a card, including mono, split, and phyrexian. Colors
-        /// will be in $1 and $3 replacement groups. $1 may include a P or 2 in the case of
-        /// phyrexian mana or colorless split symbols.
+        /// will be in $1 and $3 replacement groups. $1 may include a P or 2 in the case of phyrexian
+        /// mana or colorless split symbols.
         /// </summary>
         public const string ColoredManaSymbolRegex = @"\{([WUBRG2])([\/])?([WUBRGP])?\}";
 

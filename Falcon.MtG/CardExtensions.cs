@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     public partial class Card
     {
@@ -81,7 +82,7 @@
         {
             get
             {
-                return this.ContainsPhrase("to your mana pool");
+                return this.MatchesRegex(Utility.AnyManaSymbolRegex);
             }
         }
 
@@ -105,7 +106,17 @@
             return this.Types.Select(t => t.Name).Contains(typeName);
         }
 
-        public bool SharesSubtype(ICollection<Subtype> subtypes)
+        public bool MatchesRegex(Regex regex)
+        {
+            return !string.IsNullOrEmpty(this.OracleText) && regex.IsMatch(this.OracleText);
+        }
+
+        public bool MatchesRegex(string regex)
+        {
+            return MatchesRegex(new Regex(regex));
+        }
+
+        public bool SharesSubtype(IEnumerable<Subtype> subtypes)
         {
             return this.Subtypes.Intersect(subtypes).Any();
         }
@@ -118,22 +129,28 @@
         /// </returns>
         public override string ToString()
         {
-            string nameToPrint = this.Name;
+            string[] WhoWhatWhereWhenWhy = { "Who", "What", "Where", "When", "Why" };
+
+            if (WhoWhatWhereWhenWhy.Contains(this.Name))
+            {
+                return "Who/What/Where/When/Why";
+            }
+            
             if (this.OtherSide != null && this.MultiverseId == this.OtherSide.MultiverseId &&
                 (this.Subtypes.Select(t => t.Name).Contains("Instant") ||
                  this.Subtypes.Select(t => t.Name).Contains("Sorcery")))
             {
                 if (this.IsPrimarySide)
                 {
-                    nameToPrint = this.Name + "/" + this.OtherSide.Name;
+                    return this.Name + "/" + this.OtherSide.Name;
                 }
                 else
                 {
-                    nameToPrint = this.OtherSide.Name + "/" + this.Name;
+                    return this.OtherSide.Name + "/" + this.Name;
                 }
             }
 
-            return nameToPrint;
+            return this.Name;
         }
     }
 }

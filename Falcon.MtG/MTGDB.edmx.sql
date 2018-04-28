@@ -2,8 +2,8 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 04/21/2018 20:11:49
--- Generated from EDMX file: D:\Stuff\Code\Repos\Falcon\Falcon.MtG\MTGDB.edmx
+-- Date Created: 04/28/2018 12:35:39
+-- Generated from EDMX file: D:\Stuff\Code\Repos\falcon-backend\Falcon.MtG\MTGDB.edmx
 -- --------------------------------------------------
 
 SET QUOTED_IDENTIFIER OFF;
@@ -141,6 +141,9 @@ CREATE TABLE [dbo].[Cards] (
     [CommanderLegal] bit  NOT NULL,
     [LatestPrintDate] datetime  NOT NULL,
     [IsPrimarySide] bit  NOT NULL,
+    [TinyLeadersLegal] bit  NOT NULL,
+    [BrawlLegal] bit  NOT NULL,
+    [TinyLeadersCmdrLegal] bit  NOT NULL,
     [OtherSide_ID] int  NULL
 );
 GO

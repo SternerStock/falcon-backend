@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Falcon.API.Models;
     using Falcon.MtG;
 
     public class Library
@@ -9,10 +10,27 @@
         private IQueryable<Card> legalCards;
         private IQueryable<Card> legalLands;
 
-        public Library(MTGDBContainer db)
+        public Library(MTGDBContainer db, EdhFormat format)
         {
-            this.LegalCards = db.CommanderLegalCards().FilterOutType("Land");
-            this.LegalLands = db.CommanderLegalCards().RestrictToType("Land").FilterOutSupertype("Basic");
+            switch (format)
+            {
+                case EdhFormat.Commander:
+                    this.LegalCards = db.CommanderLegalCards().FilterOutType("Land");
+                    this.LegalLands = db.CommanderLegalCards().RestrictToType("Land").FilterOutSupertype("Basic");
+                    break;
+                case EdhFormat.Brawl:
+                    this.LegalCards = db.BrawlLegalCards().FilterOutType("Land");
+                    this.LegalLands = db.BrawlLegalCards().RestrictToType("Land").FilterOutSupertype("Basic");
+                    break;
+                case EdhFormat.TinyLeaders:
+                    this.LegalCards = db.TinyLeadersLegalCards().FilterOutType("Land");
+                    this.LegalLands = db.TinyLeadersLegalCards().RestrictToType("Land").FilterOutSupertype("Basic");
+                    break;
+                case EdhFormat.Pauper:
+                    this.LegalCards = db.CommanderLegalCards().FilterOutType("Land").RestrictToRarity("Common");
+                    this.LegalLands = db.CommanderLegalCards().RestrictToType("Land").FilterOutSupertype("Basic").RestrictToRarity("Common");
+                    break;
+            }
         }
 
         public IQueryable<Card> LandCards
@@ -59,15 +77,6 @@
             this.LegalCards = this.LegalCards.RestrictCmcRange(cmc.Min, cmc.Max);
         }
 
-        public void FilterByVariant(string variant)
-        {
-            if (variant == "PauperCommanders")
-            {
-                this.LegalCards = this.LegalCards.RestrictToRarity("Common");
-                this.LegalLands = this.LegalLands.RestrictToRarity("Common");
-            }
-        }
-
         public void FilterCreatures(Category creatures)
         {
             if (!creatures.Enabled)
@@ -85,7 +94,7 @@
             }
             else if (!auras.Enabled)
             {
-                this.LegalCards = this.LegalCards.FilterOutSubtype("Aura").FilterOutByOracleText("Bestow");
+                this.LegalCards = this.LegalCards.FilterOutSubtype("Aura").FilterOutByOracleRegex("Bestow");
             }
             else if (enchantments.Count == auras.Count)
             {
@@ -95,31 +104,31 @@
             }
         }
 
-        public void FilterLegendary(Category legendary)
+        public void FilterLegendary(Category legendary, bool maxed)
         {
             if (!legendary.Enabled)
             {
                 this.LegalCards = this.LegalCards.FilterOutSupertype("Legendary");
                 this.LegalLands = this.LegalLands.FilterOutSupertype("Legendary");
             }
-            else if (legendary.Count >= 99)
+            else if (maxed)
             {
                 this.LegalCards = this.LegalCards.RestrictToSupertype("Legendary");
                 this.LegalLands = this.LegalLands.RestrictToSupertype("Legendary");
             }
         }
 
-        public void FilterManaProducers(Category manaProducing)
+        public void FilterManaProducers(Category manaProducing, bool maxed)
         {
             if (!manaProducing.Enabled)
             {
-                this.LegalCards = this.LegalCards.FilterOutByOracleText("to your mana pool");
-                this.LegalLands = this.LegalLands.FilterOutByOracleText("to your mana pool");
+                this.LegalCards = this.LegalCards.FilterOutByOracleRegex("Add " + Utility.AnyManaSymbolRegex);
+                this.LegalLands = this.LegalLands.FilterOutByOracleRegex("Add " + Utility.AnyManaSymbolRegex);
             }
-            else if (manaProducing.Count >= 99)
+            else if (maxed)
             {
-                this.LegalCards = this.LegalCards.RestrictByOracleText("to your mana pool");
-                this.LegalLands = this.LegalLands.RestrictByOracleText("to your mana pool");
+                this.LegalCards = this.LegalCards.RestrictByOracleRegex("Add " + Utility.AnyManaSymbolRegex);
+                this.LegalLands = this.LegalLands.RestrictByOracleRegex("Add " + Utility.AnyManaSymbolRegex);
             }
         }
 

@@ -69,6 +69,12 @@ public partial class Card
 
     public bool IsPrimarySide { get; set; }
 
+    public bool TinyLeadersLegal { get; set; }
+
+    public bool BrawlLegal { get; set; }
+
+    public bool TinyLeadersCmdrLegal { get; set; }
+
 
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

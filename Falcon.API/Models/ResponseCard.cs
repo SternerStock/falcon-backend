@@ -1,6 +1,7 @@
 ﻿namespace Falcon.API.Models
 {
     using System.Linq;
+    using System.Text.RegularExpressions;
     using Falcon.MtG;
     using Newtonsoft.Json;
 
@@ -18,7 +19,17 @@
             this.Power = c.Power;
             this.Toughness = c.Toughness;
             this.ColorIdentity = c.ColorIdentity.Select(ci => ci.Symbol).ToArray();
+
+            this.HasPartner = false;
+            if (!string.IsNullOrEmpty(c.OracleText))
+            {
+                var PartnerRegex = new Regex("(^|\n)Partner");
+                this.HasPartner = PartnerRegex.IsMatch(c.OracleText);
+            }
         }
+
+        [JsonProperty("hasPartner")]
+        public bool HasPartner { get; set; }
 
         [JsonProperty("colorIdentity")]
         public string[] ColorIdentity { get; set; }

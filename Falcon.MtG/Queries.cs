@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     public static class Queries
     {
@@ -10,6 +11,20 @@
         {
             return from c in db.Cards
                    where c.CommanderLegal && c.IsPrimarySide
+                   select c;
+        }
+
+        public static IQueryable<Card> BrawlLegalCards(this MTGDBContainer db)
+        {
+            return from c in db.Cards
+                   where c.BrawlLegal && c.IsPrimarySide
+                   select c;
+        }
+
+        public static IQueryable<Card> TinyLeadersLegalCards(this MTGDBContainer db)
+        {
+            return from c in db.Cards
+                   where c.TinyLeadersLegal && c.IsPrimarySide
                    select c;
         }
 
@@ -29,9 +44,10 @@
             return cards.Where(c => c.Sets.Select(s => s.Code).Intersect(setCodes).Any());
         }
 
-        public static IQueryable<Card> FilterOutByOracleText(this IQueryable<Card> cards, string phrase)
+        public static IQueryable<Card> FilterOutByOracleRegex(this IQueryable<Card> cards, string pattern)
         {
-            return cards.Where(c => string.IsNullOrEmpty(c.OracleText) || !c.OracleText.Contains(phrase));
+            var regex = new Regex(pattern);
+            return cards.Where(c => string.IsNullOrEmpty(c.OracleText) || !regex.IsMatch(c.OracleText));
         }
 
         public static IQueryable<Card> FilterOutCard(this IQueryable<Card> cards, Card cardToRemove)
@@ -99,9 +115,10 @@
             return cards;
         }
 
-        public static IQueryable<Card> RestrictByOracleText(this IQueryable<Card> cards, string phrase)
+        public static IQueryable<Card> RestrictByOracleRegex(this IQueryable<Card> cards, string pattern)
         {
-            return cards.Where(c => !string.IsNullOrEmpty(c.OracleText) && c.OracleText.Contains(phrase));
+            var regex = new Regex(pattern);
+            return cards.Where(c => !string.IsNullOrEmpty(c.OracleText) || regex.IsMatch(c.OracleText));
         }
 
         public static IQueryable<Card> RestrictCmcRange(this IQueryable<Card> cards, int min, int max)
