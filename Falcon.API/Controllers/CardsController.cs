@@ -153,72 +153,63 @@
             return this.Ok(new ResponseCard(c));
         }
 
-        // GET: /api/Cards
-        public List<ResponseCard> GetCards()
+        // GET: /api/Cards/Commanders/{format}
+        [HttpGet]
+        [ActionName("Commanders")]
+        public dynamic GetCommanders([FromUri(Name = "key")]EdhFormat format = EdhFormat.Commander)
         {
-            return this.db.Cards.OrderBy(c => c.Name).ToList()
-                           .Select(c => new ResponseCard(c)).ToList();
+            var cmdrTypes = new List<string>() { "Creature" };
+
+            IQueryable<Card> cards;
+
+            switch (format)
+            {
+                case EdhFormat.Brawl:
+                    cmdrTypes.Add("Planeswalker");
+                    cards = this.db.BrawlLegalCards().Where(c =>
+                        (cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) || c.OracleText.Contains("can be your commander."));
+                    break;
+
+                case EdhFormat.TinyLeaders:
+                    cmdrTypes.Add("Planeswalker");
+                    cards = this.db.TinyLeadersLegalCards().Where(c =>
+                        c.TinyLeadersCmdrLegal && ((cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) || c.OracleText.Contains("can be your commander.")));
+                    break;
+
+                case EdhFormat.Pauper:
+                    cards = this.db.CommanderLegalCards().Where(c =>
+                        (cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) || c.OracleText.Contains("can be your commander.")) && c.Rarities.Select(r => r.Name).Contains("Uncommon"));
+                    break;
+
+                case EdhFormat.Commander:
+                default:
+                    cards = this.db.CommanderLegalCards().Where(c =>
+                        (cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) || c.OracleText.Contains("can be your commander."));
+                    break;
+            }
+
+            return cards.OrderBy(c => c.Name)
+                .Select(c => new
+                {
+                    value = c.ID,
+                    label = c.Name,
+                    hasPartner = !string.IsNullOrEmpty(c.OracleText) && (c.OracleText.Contains("\nPartner") || c.OracleText.StartsWith("Partner") || c.OracleText.Contains(", Partner"))
+                });
         }
 
         // GET: /api/Cards/Sets
         [HttpGet]
         [ActionName("Sets")]
-        public List<ResponseSet> GetSets()
+        public dynamic GetSets()
         {
             return this.db.Sets
-                     .Where(s => this.possibleSetTypes.Contains(s.Type) && s.Border != "silver")
-                     .OrderByDescending(s => s.Date)
-                     .ToList()
-                     .Select(s => new ResponseSet(s)).ToList();
-        }
-
-        // GET: /api/Cards/Commanders/{format}
-        [HttpGet]
-        [ActionName("Commanders")]
-        public List<ResponseCard> GetCommanders([FromUri(Name = "key")]EdhFormat format = EdhFormat.Commander)
-        {
-            var types = new List<string>() { "Creature" };
-
-            switch (format)
-            {
-                case EdhFormat.Brawl:
-                    types.Add("Planeswalker");
-
-                    return this.db.BrawlLegalCards()
-                     .Where(c => (types.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) ||
-                                c.OracleText.Contains("can be your commander."))
-                     .OrderBy(c => c.Name)
-                     .ToList()
-                     .Select(c => new ResponseCard(c)).ToList();
-
-                case EdhFormat.TinyLeaders:
-                    types.Add("Planeswalker");
-
-                    return this.db.TinyLeadersLegalCards()
-                             .Where(c => c.TinyLeadersCmdrLegal &&
-                                         ((types.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) ||
-                                           c.OracleText.Contains("can be your commander.")))
-                             .OrderBy(c => c.Name)
-                             .ToList()
-                             .Select(c => new ResponseCard(c)).ToList();
-
-                case EdhFormat.Pauper:
-                    return this.db.CommanderLegalCards()
-                             .Where(c => (types.Any(s => c.Types.Select(t => t.Name).Contains(s)) || c.OracleText.Contains("can be your commander.")) &&
-                                         c.Rarities.Select(r => r.Name).Contains("Uncommon"))
-                             .OrderBy(c => c.Name)
-                             .ToList()
-                             .Select(c => new ResponseCard(c)).ToList();
-
-                case EdhFormat.Commander:
-                default:
-                    return this.db.CommanderLegalCards()
-                             .Where(c => (types.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) ||
-                                         c.OracleText.Contains("can be your commander."))
-                             .OrderBy(c => c.Name)
-                             .ToList()
-                             .Select(c => new ResponseCard(c)).ToList();
-            }
+                .Where(s => this.possibleSetTypes.Contains(s.Type) && s.Border != "silver")
+                .OrderByDescending(s => s.Date)
+                .Select(s => new
+                {
+                    value = s.Code,
+                    label = s.Name
+                });
         }
 
         // GET: /api/Cards/RandomFlavor
@@ -231,8 +222,8 @@
                     orderby Guid.NewGuid()
                     select new
                     {
-                        c.Name,
-                        c.FlavorText
+                        name = c.Name,
+                        flavor = c.FlavorText
                     }).FirstOrDefault();
         }
 

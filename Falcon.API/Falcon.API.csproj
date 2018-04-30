@@ -122,7 +122,6 @@
     <Compile Include="Models\GeneratorRequestModel.cs" />
     <Compile Include="Models\MinecraftPlayerModel.cs" />
     <Compile Include="Models\ResponseCard.cs" />
-    <Compile Include="Models\ResponseSet.cs" />
     <Compile Include="Models\SkaAnswer.cs" />
     <Compile Include="Models\SkaCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
