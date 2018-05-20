@@ -12,25 +12,8 @@
 
         public Library(MTGDBContainer db, EdhFormat format)
         {
-            switch (format)
-            {
-                case EdhFormat.Commander:
-                    this.LegalCards = db.CommanderLegalCards().FilterOutType("Land");
-                    this.LegalLands = db.CommanderLegalCards().RestrictToType("Land").FilterOutSupertype("Basic");
-                    break;
-                case EdhFormat.Brawl:
-                    this.LegalCards = db.BrawlLegalCards().FilterOutType("Land");
-                    this.LegalLands = db.BrawlLegalCards().RestrictToType("Land").FilterOutSupertype("Basic");
-                    break;
-                case EdhFormat.TinyLeaders:
-                    this.LegalCards = db.TinyLeadersLegalCards().FilterOutType("Land");
-                    this.LegalLands = db.TinyLeadersLegalCards().RestrictToType("Land").FilterOutSupertype("Basic");
-                    break;
-                case EdhFormat.Pauper:
-                    this.LegalCards = db.CommanderLegalCards().FilterOutType("Land").RestrictToRarity("Common");
-                    this.LegalLands = db.CommanderLegalCards().RestrictToType("Land").FilterOutSupertype("Basic").RestrictToRarity("Common");
-                    break;
-            }
+            this.LegalCards = db.LegalCards(format).FilterOutType("Land");
+            this.LegalLands = db.LegalCards(format).RestrictToType("Land").FilterOutSupertype("Basic");
         }
 
         public IQueryable<Card> LandCards

@@ -64,6 +64,9 @@
     <Compile Include="FormatLegality.cs" />
     <Compile Include="JsonCard.cs" />
     <Compile Include="JsonSet.cs" />
+    <Compile Include="Legality.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
     <Compile Include="MTGDB.Context.cs">
       <DependentUpon>MTGDB.Context.tt</DependentUpon>
       <DesignTime>True</DesignTime>

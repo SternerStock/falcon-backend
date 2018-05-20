@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="DBSynchronizer.cs" />
     <Compile Include="JsonSynchronizer.cs" />
+    <Compile Include="LegalityHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -69,6 +70,24 @@
       <Project>{558c9594-ba70-4415-a418-4d7c93dff652}</Project>
       <Name>Falcon.MtG</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ContentWithTargetPath Include="SupplementalData\KeywordAbilities.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>..\SetData\KeywordAbilities.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="SupplementalData\TinyLeadersBanned.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>..\SetData\TinyLeadersBanned.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="SupplementalData\TinyLeadersCmdrBanned.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>..\SetData\TinyLeadersCmdrBanned.txt</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="SupplementalData\TinyLeadersCmdrBanned.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>..\SetData\BrawlBanned.txt</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

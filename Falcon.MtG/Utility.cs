@@ -1,10 +1,16 @@
 ﻿namespace Falcon.MtG
 {
-    using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
+
+    public enum EdhFormat
+    {
+        Commander = 0,
+        Brawl = 1,
+        TinyLeaders = 2,
+        Pauper = 3
+    };
 
     public static class Utility
     {

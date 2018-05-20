@@ -23,7 +23,7 @@
             "core", "expansion", "commander", "planechase", "archenemy", "masters", "conspiracy", "reprint"
         };
 
-        private MTGDBContainer db = new MTGDBContainer();
+        private readonly MTGDBContainer db = new MTGDBContainer();
 
         // POST: /api/Cards/GenerateDeck
         [HttpPost]
@@ -112,7 +112,7 @@
 
             if (!deck.IsFullExceptForBasicLands)
             {
-                var filler = this.db.CommanderLegalCards();
+                var filler = this.db.LegalCards(options.Format);
 
                 foreach (var card in deck.Cards)
                 {
@@ -124,7 +124,7 @@
                 deck.Cards.AddRange(filler.ToList());
             }
 
-            deck.Cards.AddRange(this.db.GetBasicLands(deck.BasicLandsNeeded, deck.ColorIdentity));
+            deck.Cards.AddRange(this.db.GetBasicLands(deck.BasicLandsNeeded, deck.ColorIdentity, options.Format));
 
             string message = string.Empty;
 
@@ -158,43 +158,49 @@
         [ActionName("Commanders")]
         public dynamic GetCommanders([FromUri(Name = "key")]EdhFormat format = EdhFormat.Commander)
         {
-            var cmdrTypes = new List<string>() { "Creature" };
+            var cmdrs = this.db.GetCommanders(format);
 
-            IQueryable<Card> cards;
-
-            switch (format)
-            {
-                case EdhFormat.Brawl:
-                    cmdrTypes.Add("Planeswalker");
-                    cards = this.db.BrawlLegalCards().Where(c =>
-                        (cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) || c.OracleText.Contains("can be your commander."));
-                    break;
-
-                case EdhFormat.TinyLeaders:
-                    cmdrTypes.Add("Planeswalker");
-                    cards = this.db.TinyLeadersLegalCards().Where(c =>
-                        c.TinyLeadersCmdrLegal && ((cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) || c.OracleText.Contains("can be your commander.")));
-                    break;
-
-                case EdhFormat.Pauper:
-                    cards = this.db.CommanderLegalCards().Where(c =>
-                        (cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) || c.OracleText.Contains("can be your commander.")) && c.Rarities.Select(r => r.Name).Contains("Uncommon"));
-                    break;
-
-                case EdhFormat.Commander:
-                default:
-                    cards = this.db.CommanderLegalCards().Where(c =>
-                        (cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) || c.OracleText.Contains("can be your commander."));
-                    break;
-            }
-
-            return cards.OrderBy(c => c.Name)
+            return cmdrs.OrderBy(c => c.Name).ToList()
                 .Select(c => new
                 {
                     value = c.ID,
                     label = c.Name,
-                    hasPartner = !string.IsNullOrEmpty(c.OracleText) && (c.OracleText.Contains("\nPartner") || c.OracleText.StartsWith("Partner") || c.OracleText.Contains(", Partner"))
+                    hasPartner = c.HasKeyword("Partner")
                 });
+        }
+
+        // POST: /api/Cards/RandomCommander
+        [HttpPost]
+        [ActionName("RandomCommander")]
+        public dynamic RandomCommander([FromBody]RandomCommanderRequestModel request)
+        {
+            var cmdrs = this.db.GetCommanders(request.Format);
+
+            if (request.MatchAll)
+            {
+                cmdrs = cmdrs.Where(c => c.Colors.Select(color => color.Symbol).Intersect(request.Colors).Count() == c.Colors.Count);
+            }
+            else
+            {
+                cmdrs = cmdrs.Where(c => c.Colors.Count == 0 || c.Colors.Select(color => color.Symbol).Intersect(request.Colors).Any());
+            }
+
+            var results = new List<Card>();
+            var cmdr1 = cmdrs.Shuffle().FirstOrDefault();
+
+            results.Add(cmdr1);
+
+            if (results[0].Abilities.Select(a => a.Name).Contains("Partner"))
+            {
+                results.Add(cmdrs.Where(c => c.Name != cmdr1.Name && c.Abilities.Select(a => a.Name).Contains("Partner")).Shuffle().FirstOrDefault());
+            }
+
+            return results.Select(c => new
+            {
+                value = c.ID,
+                label = c.Name,
+                hasPartner = c.HasKeyword("Partner")
+            });
         }
 
         // GET: /api/Cards/Sets

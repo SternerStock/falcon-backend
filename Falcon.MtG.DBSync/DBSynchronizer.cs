@@ -12,12 +12,10 @@
         private MTGDBContainer db;
         private bool disposedValue = false;
         private string workingDirectory;
-
-        private const string TinyLeadersBanListFileName = "TinyLeadersBanned.txt";
-        private const string TinyLeadersCmdrBanListFileName = "TinyLeadersCmdrBanned.txt";
-
-        private List<string> tinyLeadersBans;
-        private List<string> tinyLeadersCmdrBans;
+        private LegalityHelper legalityHelper;
+        private List<string> abilityKeywords;
+        private const string KeywordListFileName = "KeywordAbilities.txt";
+        private readonly string[] WhoWhatWhereWhenWhy = { "Who", "What", "Where", "When", "Why" };
 
         public DBSynchronizer(string workingDir)
         {
@@ -32,9 +30,12 @@
             this.db.Subtypes.Load();
             this.db.Cards.Load();
             this.db.Rarities.Load();
+            legalityHelper = new LegalityHelper(workingDir);
 
-            this.tinyLeadersBans = this.GetBans(Path.Combine(this.workingDirectory, TinyLeadersBanListFileName));
-            this.tinyLeadersCmdrBans = this.GetBans(Path.Combine(this.workingDirectory, TinyLeadersCmdrBanListFileName));
+            var keywordsFileContent = File.ReadAllText(Path.Combine(workingDirectory, KeywordListFileName));
+            var keywords = keywordsFileContent.Split("\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+            abilityKeywords = keywords.Select(b => b.Trim()).ToList();
         }
 
         public DBSynchronizer() : this(Environment.CurrentDirectory)
@@ -48,53 +49,8 @@
             this.Dispose(true);
         }
 
-        private List<string> GetBans(string path)
+        public void Sync(IEnumerable<string> setsToUpdate)
         {
-            var content = File.ReadAllText(path);
-            var bans = content.Split("\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            return bans.Select(b => b.Trim()).ToList();
-        }
-
-        private bool IsTinyLeadersLegal(JsonCard card)
-        {
-            if (card.CMC > 3)
-            {
-                return false;
-            }
-
-            if (this.tinyLeadersBans.Contains(card.Name))
-            {
-                return false;
-            }
-
-            foreach (var legality in card.Legalities)
-            {
-                if (legality.Format == "Vintage")
-                {
-                    return legality.Legality == "Legal";
-                }
-            }
-
-            return false;
-        }
-
-        private bool IsTinyLeadersCmdrLegal(JsonCard card)
-        {
-            if (this.IsTinyLeadersLegal(card))
-            {
-                return !tinyLeadersCmdrBans.Contains(card.Name);
-            }
-
-            return false;
-        }
-
-        public void Sync(IEnumerable<string> setsToUpdate, bool force)
-        {
-            if (this.db.Colors.Local.Count == 0)
-            {
-            }
-
             foreach (var setFileName in setsToUpdate)
             {
                 string setJson = File.ReadAllText(Path.Combine(this.workingDirectory, setFileName));
@@ -294,26 +250,11 @@
                 dbCard.Toughness = parsedToughness;
             }
 
-            if (dbCard.CommanderLegal != fileCard.IsCommanderLegal)
-            {
-                dbCard.CommanderLegal = fileCard.IsCommanderLegal;
-            }
+            this.SyncLegalities(dbCard, fileCard);
 
-            if (dbCard.BrawlLegal != fileCard.IsBrawlLegal)
+            foreach(var keyword in abilityKeywords)
             {
-                dbCard.BrawlLegal = fileCard.IsBrawlLegal;
-            }
-
-            bool isTinyLeadersLegal = this.IsTinyLeadersLegal(fileCard);
-            if (dbCard.TinyLeadersLegal != isTinyLeadersLegal)
-            {
-                dbCard.TinyLeadersLegal = isTinyLeadersLegal;
-            }
-
-            bool isTinyLeadersCmdrLegal = this.IsTinyLeadersCmdrLegal(fileCard);
-            if (dbCard.TinyLeadersCmdrLegal != isTinyLeadersCmdrLegal)
-            {
-                dbCard.TinyLeadersCmdrLegal = isTinyLeadersCmdrLegal;
+                this.SyncKeywordAbility(dbCard, keyword);
             }
 
             if (dbCard.IsPrimarySide != fileCard.IsPrimarySide)
@@ -353,6 +294,53 @@
             if (!dbCard.Rarities.Contains(dbRarity))
             {
                 dbCard.Rarities.Add(dbRarity);
+            }
+        }
+
+        private void SyncLegalities(Card dbCard, JsonCard fileCard)
+        {
+            var formats = Enum.GetValues(typeof(EdhFormat));
+
+            foreach(var format in formats)
+            {
+                var fileLegality = legalityHelper.GetLegality((EdhFormat)format, fileCard);
+
+                var dbLegality = this.db.Legalities.Local.SingleOrDefault(l =>
+                    l.Format == fileLegality.Format &&
+                    l.Legal == fileLegality.Legal &&
+                    l.LegalAsCommander == fileLegality.LegalAsCommander);
+
+                if (dbLegality == null)
+                {
+                    dbLegality = this.db.Legalities.Create();
+                    dbLegality.Format = fileLegality.Format;
+                    dbLegality.Legal = fileLegality.Legal;
+                    dbLegality.LegalAsCommander = fileLegality.LegalAsCommander;
+                    dbLegality = this.db.Legalities.Add(dbLegality);
+                }
+
+                if (!dbCard.Legalities.Contains(dbLegality))
+                {
+                    dbCard.Legalities.Add(dbLegality);
+                }
+            }
+        }
+
+        private void SyncKeywordAbility(Card dbCard, string keyword)
+        {
+            var dbAbility = this.db.Abilities.Local.SingleOrDefault(a => a.Name == keyword);
+
+            if (dbAbility == null)
+            {
+                dbAbility = this.db.Abilities.Create();
+                dbAbility.Name = keyword;
+                dbAbility.Type = "Keyword";
+                dbAbility = this.db.Abilities.Add(dbAbility);
+            }
+
+            if (dbCard.HasKeyword(keyword) && !dbCard.Abilities.Contains(dbAbility))
+            {
+                dbCard.Abilities.Add(dbAbility);
             }
         }
 
@@ -425,7 +413,6 @@
 
             foreach (var twoFaceCard in twoFaceCards)
             {
-                string[] WhoWhatWhereWhenWhy = { "Who", "What", "Where", "When", "Why" };
 
                 if (WhoWhatWhereWhenWhy.Contains(twoFaceCard.Name))
                 {

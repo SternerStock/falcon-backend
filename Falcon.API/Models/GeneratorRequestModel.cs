@@ -2,15 +2,8 @@
 {
     using System.Collections.Generic;
     using Falcon.API.Helpers;
+    using Falcon.MtG;
     using Newtonsoft.Json;
-
-    public enum EdhFormat
-    {
-        Commander = 0,
-        Brawl = 1,
-        TinyLeaders = 2,
-        Pauper = 3
-    };
 
     public class GeneratorRequestModel
     {
@@ -90,11 +83,14 @@
         [JsonProperty("cmc")]
         public Range CMC { get; set; }
 
-        [JsonProperty("commander1Id")]
-        public int Commander1Id { get; set; }
+        [JsonProperty("cmdr1Id")]
+        public int? Commander1Id { get; set; }
 
-        [JsonProperty("commander2Id")]
+        [JsonProperty("cmdr2Id")]
         public int? Commander2Id { get; set; }
+
+        [JsonProperty("format")]
+        public EdhFormat Format { get; set; }
 
         public Category Creatures
         {
@@ -134,9 +130,6 @@
                 this[EquipmentKey] = value;
             }
         }
-
-        [JsonProperty("format")]
-        public EdhFormat Format { get; set; }
 
         public Category Legendary
         {

@@ -7,25 +7,67 @@
 
     public static class Queries
     {
-        public static IQueryable<Card> CommanderLegalCards(this MTGDBContainer db)
+        public static IQueryable<Card> LegalCards(this MTGDBContainer db, EdhFormat format = EdhFormat.Commander, bool cmdrsOnly = false)
         {
-            return from c in db.Cards
-                   where c.CommanderLegal && c.IsPrimarySide
-                   select c;
+            var legalities = db.Legalities.Where(l => l.Format == format.ToString());
+            
+            if (cmdrsOnly)
+            {
+                legalities = legalities.Where(l => l.LegalAsCommander);
+            }
+            else
+            {
+                legalities = legalities.Where(l => l.Legal);
+            }
+
+            var test = legalities.ToList();
+
+            var cards = db.Cards.Where(c => c.Legalities.Intersect(legalities).Any());
+
+            if (format == EdhFormat.Pauper)
+            {
+                if (cmdrsOnly)
+                {
+                    cards = cards.Where(c => c.Rarities.Select(r => r.Name).Contains("Uncommon"));
+                }
+                else
+                {
+                    cards = cards.Where(c => c.Rarities.Select(r => r.Name).Contains("Common"));
+                }
+            }
+
+            return cards;
         }
 
-        public static IQueryable<Card> BrawlLegalCards(this MTGDBContainer db)
+        public static IQueryable<Card> GetCommanders(this MTGDBContainer db, EdhFormat format = EdhFormat.Commander)
         {
-            return from c in db.Cards
-                   where c.BrawlLegal && c.IsPrimarySide
-                   select c;
+            var cmdrTypes = new List<string>() { "Creature" };
+
+            if (format == EdhFormat.Brawl || format == EdhFormat.TinyLeaders)
+            {
+                cmdrTypes.Add("Planeswalker");
+            }
+
+            var cards = db.LegalCards(format, true);
+            
+            if (format == EdhFormat.Pauper)
+            {
+                cards = cards.Where(c => cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) || c.OracleText.Contains("can be your commander."));
+            }
+            else
+            {
+                cards = cards.Where(c => (cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) && c.Supertypes.Select(t => t.Name).Contains("Legendary")) || c.OracleText.Contains("can be your commander."));
+            }
+
+            return cards;
         }
 
-        public static IQueryable<Card> TinyLeadersLegalCards(this MTGDBContainer db)
+        public static bool HasKeyword(this Card card, string keyword)
         {
-            return from c in db.Cards
-                   where c.TinyLeadersLegal && c.IsPrimarySide
-                   select c;
+            return !string.IsNullOrEmpty(card.OracleText) &&
+                (card.OracleText.Contains("\n" + keyword) ||
+                    card.OracleText.StartsWith(keyword) ||
+                    card.OracleText.Contains(", " + keyword));
         }
 
         public static IQueryable<Card> FilterByColorIdentity(this IQueryable<Card> cards, ICollection<Color> identity)
@@ -70,21 +112,29 @@
             return cards.Where(c => !c.Types.Select(t => t.Name).Contains(typeName));
         }
 
-        public static List<Card> GetBasicLands(this MTGDBContainer db, int count, ICollection<Color> colors)
+        public static List<Card> GetBasicLands(this MTGDBContainer db, int count, ICollection<Color> colors, EdhFormat format)
         {
             Card plains = db.Cards.Where(c => c.Name == "Plains").First();
             Card island = db.Cards.Where(c => c.Name == "Island").First();
             Card swamp = db.Cards.Where(c => c.Name == "Swamp").First();
             Card mountain = db.Cards.Where(c => c.Name == "Mountain").First();
             Card forest = db.Cards.Where(c => c.Name == "Forest").First();
-            Card wastes = db.Cards.Where(c => c.Name == "Wastes").First();
+            
+            Card colorlessFiller = db.LegalCards(format).Where(c => c.Name == "Wastes").FirstOrDefault();
+            if (colorlessFiller == default(Card))
+            {
+                var rng = new Random();
+                var basicLands = new Card[] { plains, island, swamp, mountain, forest };
+
+                colorlessFiller = basicLands[rng.Next(0, basicLands.Length)];
+            }
 
             var cards = new List<Card>();
             while (cards.Count < count)
             {
                 if (colors.Count == 0)
                 {
-                    cards.Add(wastes);
+                    cards.Add(colorlessFiller);
                 }
 
                 foreach (var color in colors)

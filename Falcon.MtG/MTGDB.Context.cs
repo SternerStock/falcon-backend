@@ -48,6 +48,8 @@ public partial class MTGDBContainer : DbContext
 
     public virtual DbSet<Rarity> Rarities { get; set; }
 
+    public virtual DbSet<Legality> Legalities { get; set; }
+
 }
 
 }

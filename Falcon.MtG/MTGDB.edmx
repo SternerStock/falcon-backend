@@ -14,6 +14,7 @@
     <EntitySet Name="Sets" EntityType="Falcon.MtG.Store.Sets" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Abilities" EntityType="Falcon.MtG.Store.Abilities" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Rarities" EntityType="Falcon.MtG.Store.Rarities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Legalities" EntityType="Falcon.MtG.Store.Legalities" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardSet" EntityType="Falcon.MtG.Store.CardSet" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardColor" EntityType="Falcon.MtG.Store.CardColor" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardColorIdentity" EntityType="Falcon.MtG.Store.CardColorIdentity" store:Type="Tables" Schema="dbo" />
@@ -22,6 +23,7 @@
     <EntitySet Name="CardSubtype" EntityType="Falcon.MtG.Store.CardSubtype" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardAbility" EntityType="Falcon.MtG.Store.CardAbility" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardRarity" EntityType="Falcon.MtG.Store.CardRarity" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardLegality" EntityType="Falcon.MtG.Store.CardLegality" store:Type="Tables" Schema="dbo" />
     <AssociationSet Name="FK_CardSet_Card" Association="Falcon.MtG.Store.FK_CardSet_Card">
       <End Role="Card" EntitySet="Cards" />
       <End Role="CardSet" EntitySet="CardSet" />
@@ -90,6 +92,14 @@
       <End Role="Rarity" EntitySet="Rarities" />
       <End Role="CardRarity" EntitySet="CardRarity" />
     </AssociationSet>
+    <AssociationSet Name="FK_CardLegality_Card" Association="Falcon.MtG.Store.FK_CardLegality_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardLegality" EntitySet="CardLegality" />
+    </AssociationSet>
+    <AssociationSet Name="FK_CardLegality_Legality" Association="Falcon.MtG.Store.FK_CardLegality_Legality">
+      <End Role="Legality" EntitySet="Legalities" />
+      <End Role="CardLegality" EntitySet="CardLegality" />
+    </AssociationSet>
   </EntityContainer>
   <EntityType Name="Cards">
     <Key>
@@ -105,12 +115,8 @@
     <Property Name="FlavorText" Type="nvarchar(max)" Nullable="true" />
     <Property Name="Power" Type="int" Nullable="true" />
     <Property Name="Toughness" Type="int" Nullable="true" />
-    <Property Name="CommanderLegal" Type="bit" Nullable="false" />
     <Property Name="LatestPrintDate" Type="datetime" Nullable="false" />
     <Property Name="IsPrimarySide" Type="bit" Nullable="false" DefaultValue="true" />
-    <Property Name="TinyLeadersLegal" Type="bit" Nullable="false" />
-    <Property Name="BrawlLegal" Type="bit" Nullable="false" />
-    <Property Name="TinyLeadersCmdrLegal" Type="bit" Nullable="false" />
     <Property Name="OtherSide_ID" Type="int" Nullable="true" />
   </EntityType>
   <EntityType Name="Colors">
@@ -168,6 +174,15 @@
     </Key>
     <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Legalities">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Format" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="LegalAsCommander" Type="bit" Nullable="false" />
+    <Property Name="Legal" Type="bit" Nullable="false" />
   </EntityType>
   <EntityType Name="CardSet">
     <Key>
@@ -232,6 +247,14 @@
     </Key>
     <Property Name="CardRarity_Rarity_ID" Type="int" Nullable="false" />
     <Property Name="Rarities_Id" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="CardLegality">
+    <Key>
+      <PropertyRef Name="CardLegality_Legality_ID" />
+      <PropertyRef Name="Legalities_ID" />
+    </Key>
+    <Property Name="CardLegality_Legality_ID" Type="int" Nullable="false" />
+    <Property Name="Legalities_ID" Type="int" Nullable="false" />
   </EntityType>
   <Association Name="CardSides">
     <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="0..1" />
@@ -437,6 +460,30 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
+  <Association Name="FK_CardLegality_Card">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="CardLegality" Type="Falcon.MtG.Store.CardLegality" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardLegality">
+        <PropertyRef Name="CardLegality_Legality_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardLegality_Legality">
+    <End Role="CardLegality" Type="Falcon.MtG.Store.CardLegality" Multiplicity="*" />
+    <End Role="Legality" Type="Falcon.MtG.Store.Legalities" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Legality">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="CardLegality">
+        <PropertyRef Name="Legalities_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
 </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
@@ -486,6 +533,11 @@
             <End Role="Card" EntitySet="Cards" />
             <End Role="Rarity" EntitySet="Rarities" />
           </AssociationSet>
+          <EntitySet Name="Legalities" EntityType="Falcon.MtG.Legality" />
+          <AssociationSet Name="CardLegality" Association="Falcon.MtG.CardLegality">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Legality" EntitySet="Legalities" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="Card">
           <Key>
@@ -501,7 +553,6 @@
           <Property Name="FlavorText" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
           <Property Name="Power" Type="Int32" Nullable="true" />
           <Property Name="Toughness" Type="Int32" Nullable="true" />
-          <Property Name="CommanderLegal" Type="Boolean" Nullable="false" />
           <Property Name="LatestPrintDate" Type="DateTime" Nullable="false" Precision="3" />
           <NavigationProperty Name="Sets" Relationship="Falcon.MtG.CardSet" FromRole="Card" ToRole="Set" />
           <NavigationProperty Name="Colors" Relationship="Falcon.MtG.CardColor" FromRole="Card" ToRole="Color" />
@@ -513,9 +564,7 @@
           <NavigationProperty Name="OtherSide" Relationship="Falcon.MtG.CardSides" FromRole="Card1" ToRole="Card" />
           <Property Name="IsPrimarySide" Type="Boolean" Nullable="false" DefaultValue="true" />
           <NavigationProperty Name="Rarities" Relationship="Falcon.MtG.CardRarity" FromRole="Card" ToRole="Rarity" />
-          <Property Name="TinyLeadersLegal" Type="Boolean" Nullable="false" />
-          <Property Name="BrawlLegal" Type="Boolean" Nullable="false" />
-          <Property Name="TinyLeadersCmdrLegal" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Legalities" Relationship="Falcon.MtG.CardLegality" FromRole="Card" ToRole="Legality" />
         </EntityType>
         <EntityType Name="Color">
           <Key>
@@ -609,6 +658,19 @@
           <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
           <End Type="Falcon.MtG.Rarity" Role="Rarity" Multiplicity="*" />
         </Association>
+        <EntityType Name="Legality">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Format" Type="String" Nullable="false" />
+          <Property Name="LegalAsCommander" Type="Boolean" Nullable="false" />
+          <Property Name="Legal" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <Association Name="CardLegality">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Legality" Role="Legality" Multiplicity="*" />
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -628,12 +690,8 @@
           <ScalarProperty Name="FlavorText" ColumnName="FlavorText" />
           <ScalarProperty Name="Power" ColumnName="Power" />
           <ScalarProperty Name="Toughness" ColumnName="Toughness" />
-          <ScalarProperty Name="CommanderLegal" ColumnName="CommanderLegal" />
           <ScalarProperty Name="LatestPrintDate" ColumnName="LatestPrintDate" />
           <ScalarProperty Name="IsPrimarySide" ColumnName="IsPrimarySide" />
-          <ScalarProperty Name="TinyLeadersLegal" ColumnName="TinyLeadersLegal" />
-          <ScalarProperty Name="BrawlLegal" ColumnName="BrawlLegal" />
-          <ScalarProperty Name="TinyLeadersCmdrLegal" ColumnName="TinyLeadersCmdrLegal" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -697,6 +755,16 @@
         <MappingFragment StoreEntitySet="Rarities">
           <ScalarProperty Name="Id" ColumnName="Id" />
           <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Legalities">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Legality)">
+        <MappingFragment StoreEntitySet="Legalities">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Format" ColumnName="Format" />
+          <ScalarProperty Name="LegalAsCommander" ColumnName="LegalAsCommander" />
+          <ScalarProperty Name="Legal" ColumnName="Legal" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -771,6 +839,14 @@
       </EndProperty>
       <EndProperty Name="Rarity">
         <ScalarProperty Name="Id" ColumnName="Rarities_Id" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardLegality" TypeName="Falcon.MtG.CardLegality" StoreEntitySet="CardLegality">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="CardLegality_Legality_ID" />
+      </EndProperty>
+      <EndProperty Name="Legality">
+        <ScalarProperty Name="ID" ColumnName="Legalities_ID" />
       </EndProperty>
     </AssociationSetMapping>
   </EntityContainerMapping>

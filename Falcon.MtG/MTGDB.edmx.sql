@@ -2,13 +2,11 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 04/28/2018 12:35:39
+-- Date Created: 05/19/2018 20:29:23
 -- Generated from EDMX file: D:\Stuff\Code\Repos\falcon-backend\Falcon.MtG\MTGDB.edmx
 -- --------------------------------------------------
 
 SET QUOTED_IDENTIFIER OFF;
-GO
-USE [MtGLocalDB];
 GO
 IF SCHEMA_ID(N'dbo') IS NULL EXECUTE(N'CREATE SCHEMA [dbo]');
 GO
@@ -68,6 +66,12 @@ GO
 IF OBJECT_ID(N'[dbo].[FK_CardRarity_Rarity]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[CardRarity] DROP CONSTRAINT [FK_CardRarity_Rarity];
 GO
+IF OBJECT_ID(N'[dbo].[FK_CardLegality_Card]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[CardLegality] DROP CONSTRAINT [FK_CardLegality_Card];
+GO
+IF OBJECT_ID(N'[dbo].[FK_CardLegality_Legality]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[CardLegality] DROP CONSTRAINT [FK_CardLegality_Legality];
+GO
 
 -- --------------------------------------------------
 -- Dropping existing tables
@@ -97,6 +101,9 @@ GO
 IF OBJECT_ID(N'[dbo].[Rarities]', 'U') IS NOT NULL
     DROP TABLE [dbo].[Rarities];
 GO
+IF OBJECT_ID(N'[dbo].[Legalities]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Legalities];
+GO
 IF OBJECT_ID(N'[dbo].[CardSet]', 'U') IS NOT NULL
     DROP TABLE [dbo].[CardSet];
 GO
@@ -121,6 +128,9 @@ GO
 IF OBJECT_ID(N'[dbo].[CardRarity]', 'U') IS NOT NULL
     DROP TABLE [dbo].[CardRarity];
 GO
+IF OBJECT_ID(N'[dbo].[CardLegality]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[CardLegality];
+GO
 
 -- --------------------------------------------------
 -- Creating all tables
@@ -138,12 +148,8 @@ CREATE TABLE [dbo].[Cards] (
     [FlavorText] nvarchar(max)  NULL,
     [Power] int  NULL,
     [Toughness] int  NULL,
-    [CommanderLegal] bit  NOT NULL,
     [LatestPrintDate] datetime  NOT NULL,
     [IsPrimarySide] bit  NOT NULL,
-    [TinyLeadersLegal] bit  NOT NULL,
-    [BrawlLegal] bit  NOT NULL,
-    [TinyLeadersCmdrLegal] bit  NOT NULL,
     [OtherSide_ID] int  NULL
 );
 GO
@@ -204,6 +210,15 @@ CREATE TABLE [dbo].[Rarities] (
 );
 GO
 
+-- Creating table 'Legalities'
+CREATE TABLE [dbo].[Legalities] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Format] nvarchar(max)  NOT NULL,
+    [LegalAsCommander] bit  NOT NULL,
+    [Legal] bit  NOT NULL
+);
+GO
+
 -- Creating table 'CardSet'
 CREATE TABLE [dbo].[CardSet] (
     [CardSet_Set_ID] int  NOT NULL,
@@ -260,6 +275,13 @@ CREATE TABLE [dbo].[CardRarity] (
 );
 GO
 
+-- Creating table 'CardLegality'
+CREATE TABLE [dbo].[CardLegality] (
+    [CardLegality_Legality_ID] int  NOT NULL,
+    [Legalities_ID] int  NOT NULL
+);
+GO
+
 -- --------------------------------------------------
 -- Creating all PRIMARY KEY constraints
 -- --------------------------------------------------
@@ -312,6 +334,12 @@ ADD CONSTRAINT [PK_Rarities]
     PRIMARY KEY CLUSTERED ([Id] ASC);
 GO
 
+-- Creating primary key on [ID] in table 'Legalities'
+ALTER TABLE [dbo].[Legalities]
+ADD CONSTRAINT [PK_Legalities]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
 -- Creating primary key on [CardSet_Set_ID], [Sets_ID] in table 'CardSet'
 ALTER TABLE [dbo].[CardSet]
 ADD CONSTRAINT [PK_CardSet]
@@ -358,6 +386,12 @@ GO
 ALTER TABLE [dbo].[CardRarity]
 ADD CONSTRAINT [PK_CardRarity]
     PRIMARY KEY CLUSTERED ([CardRarity_Rarity_ID], [Rarities_Id] ASC);
+GO
+
+-- Creating primary key on [CardLegality_Legality_ID], [Legalities_ID] in table 'CardLegality'
+ALTER TABLE [dbo].[CardLegality]
+ADD CONSTRAINT [PK_CardLegality]
+    PRIMARY KEY CLUSTERED ([CardLegality_Legality_ID], [Legalities_ID] ASC);
 GO
 
 -- --------------------------------------------------
@@ -569,6 +603,30 @@ GO
 CREATE INDEX [IX_FK_CardRarity_Rarity]
 ON [dbo].[CardRarity]
     ([Rarities_Id]);
+GO
+
+-- Creating foreign key on [CardLegality_Legality_ID] in table 'CardLegality'
+ALTER TABLE [dbo].[CardLegality]
+ADD CONSTRAINT [FK_CardLegality_Card]
+    FOREIGN KEY ([CardLegality_Legality_ID])
+    REFERENCES [dbo].[Cards]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating foreign key on [Legalities_ID] in table 'CardLegality'
+ALTER TABLE [dbo].[CardLegality]
+ADD CONSTRAINT [FK_CardLegality_Legality]
+    FOREIGN KEY ([Legalities_ID])
+    REFERENCES [dbo].[Legalities]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_CardLegality_Legality'
+CREATE INDEX [IX_FK_CardLegality_Legality]
+ON [dbo].[CardLegality]
+    ([Legalities_ID]);
 GO
 
 -- --------------------------------------------------

@@ -40,6 +40,8 @@ public partial class Card
 
         this.Rarities = new HashSet<Rarity>();
 
+        this.Legalities = new HashSet<Legality>();
+
     }
 
 
@@ -63,17 +65,9 @@ public partial class Card
 
     public Nullable<int> Toughness { get; set; }
 
-    public bool CommanderLegal { get; set; }
-
     public System.DateTime LatestPrintDate { get; set; }
 
     public bool IsPrimarySide { get; set; }
-
-    public bool TinyLeadersLegal { get; set; }
-
-    public bool BrawlLegal { get; set; }
-
-    public bool TinyLeadersCmdrLegal { get; set; }
 
 
 
@@ -110,6 +104,10 @@ public partial class Card
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 
     public virtual ICollection<Rarity> Rarities { get; set; }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<Legality> Legalities { get; set; }
 
 }
 

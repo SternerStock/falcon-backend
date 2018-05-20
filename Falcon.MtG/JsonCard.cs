@@ -31,38 +31,6 @@
         [JsonProperty("flavor")]
         public string Flavor { get; set; }
 
-        public bool IsCommanderLegal
-        {
-            get
-            {
-                foreach (var legality in this.Legalities)
-                {
-                    if (legality.Format == "Commander")
-                    {
-                        return legality.Legality == "Legal";
-                    }
-                }
-
-                return false;
-            }
-        }
-        
-        public bool IsBrawlLegal
-        {
-            get
-            {
-                foreach (var legality in this.Legalities)
-                {
-                    if (legality.Format == "Standard")
-                    {
-                        return legality.Legality == "Legal";
-                    }
-                }
-
-                return false;
-            }
-        }
-
         public bool IsPrimarySide
         {
             get

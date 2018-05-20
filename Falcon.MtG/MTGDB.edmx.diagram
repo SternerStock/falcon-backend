@@ -6,12 +6,12 @@
     <edmx:Diagrams>
       <Diagram DiagramId="4c09a1a36d02480284806cb7ad2230bf" Name="MtGDiagram" ShowGrid="true">
         <EntityTypeShape EntityType="Falcon.MtG.Card" Width="1.5" PointX="3.25" PointY="3.125" />
-        <EntityTypeShape EntityType="Falcon.MtG.Color" Width="1.5" PointX="5.625" PointY="0.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.Color" Width="1.5" PointX="5.375" PointY="0.75" />
         <EntityTypeShape EntityType="Falcon.MtG.Supertype" Width="1.5" PointX="0.5" PointY="0.5" />
         <EntityTypeShape EntityType="Falcon.MtG.Subtype" Width="1.5" PointX="0.5" PointY="5.375" />
         <EntityTypeShape EntityType="Falcon.MtG.Type" Width="1.5" PointX="0.5" PointY="3.125" />
         <EntityTypeShape EntityType="Falcon.MtG.Set" Width="1.5" PointX="3.25" PointY="0.5" />
-        <EntityTypeShape EntityType="Falcon.MtG.Ability" Width="1.5" PointX="5.75" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Falcon.MtG.Ability" Width="1.5" PointX="6.5" PointY="6.125" IsExpanded="true" />
         <AssociationConnector Association="Falcon.MtG.CardSet" />
         <AssociationConnector Association="Falcon.MtG.CardType" />
         <AssociationConnector Association="Falcon.MtG.CardColor" />
@@ -23,6 +23,8 @@
         <AssociationConnector Association="Falcon.MtG.CardColorIdentity" />
         <EntityTypeShape EntityType="Falcon.MtG.Rarity" Width="1.5" PointX="0.5" PointY="7.875" />
         <AssociationConnector Association="Falcon.MtG.CardRarity" />
+        <EntityTypeShape EntityType="Falcon.MtG.Legality" Width="1.5" PointX="6.5" PointY="3.375" />
+        <AssociationConnector Association="Falcon.MtG.CardLegality" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

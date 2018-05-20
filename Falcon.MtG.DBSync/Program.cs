@@ -50,7 +50,7 @@
                 timer.Restart();
 
                 var dbSync = new DBSynchronizer(workingDirectory);
-                dbSync.Sync(setsToUpdate, force);
+                dbSync.Sync(setsToUpdate);
 
                 Console.WriteLine("Database sync completed in " + timer.Elapsed);
                 timer.Stop();
