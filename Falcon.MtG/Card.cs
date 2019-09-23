@@ -22,23 +22,21 @@ public partial class Card
     public Card()
     {
 
-        this.IsPrimarySide = true;
-
-        this.Sets = new HashSet<Set>();
-
         this.Colors = new HashSet<Color>();
 
         this.ColorIdentity = new HashSet<Color>();
 
         this.Supertypes = new HashSet<Supertype>();
 
-        this.Types = new HashSet<Type>();
+        this.Types = new HashSet<CardType>();
 
         this.Subtypes = new HashSet<Subtype>();
 
-        this.Abilities = new HashSet<Ability>();
+        this.Printings = new HashSet<Printing>();
 
-        this.Rarities = new HashSet<Rarity>();
+        this.Keywords = new HashSet<Keyword>();
+
+        this.OtherSides = new HashSet<Card>();
 
         this.Legalities = new HashSet<Legality>();
 
@@ -49,31 +47,29 @@ public partial class Card
 
     public string Name { get; set; }
 
-    public Nullable<int> MultiverseId { get; set; }
-
     public string ManaCost { get; set; }
 
-    public Nullable<int> CMC { get; set; }
+    public double CMC { get; set; }
 
     public string TypeLine { get; set; }
 
     public string OracleText { get; set; }
 
-    public string FlavorText { get; set; }
+    public string Power { get; set; }
 
-    public Nullable<int> Power { get; set; }
+    public string Toughness { get; set; }
 
-    public Nullable<int> Toughness { get; set; }
+    public string Loyalty { get; set; }
 
-    public System.DateTime LatestPrintDate { get; set; }
+    public int LayoutID { get; set; }
 
-    public bool IsPrimarySide { get; set; }
+    public Nullable<int> MainSideID { get; set; }
+
+    public string Side { get; set; }
+
+    public Nullable<int> EDHRECRank { get; set; }
 
 
-
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-
-    public virtual ICollection<Set> Sets { get; set; }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 
@@ -89,7 +85,7 @@ public partial class Card
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 
-    public virtual ICollection<Type> Types { get; set; }
+    public virtual ICollection<CardType> Types { get; set; }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 
@@ -97,13 +93,19 @@ public partial class Card
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 
-    public virtual ICollection<Ability> Abilities { get; set; }
-
-    public virtual Card OtherSide { get; set; }
+    public virtual ICollection<Printing> Printings { get; set; }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 
-    public virtual ICollection<Rarity> Rarities { get; set; }
+    public virtual ICollection<Keyword> Keywords { get; set; }
+
+    public virtual Layout Layout { get; set; }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<Card> OtherSides { get; set; }
+
+    public virtual Card MainSide { get; set; }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 

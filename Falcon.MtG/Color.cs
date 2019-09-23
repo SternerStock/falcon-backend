@@ -24,6 +24,8 @@ public partial class Color
 
     public string Name { get; set; }
 
+    public string BasicLandName { get; set; }
+
 }
 
 }

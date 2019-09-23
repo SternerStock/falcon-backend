@@ -18,19 +18,38 @@ using System;
 public partial class Set
 {
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+    public Set()
+    {
+
+        this.Printings = new HashSet<Printing>();
+
+    }
+
+
     public int ID { get; set; }
 
     public string Code { get; set; }
+
+    public string KeyruneCode { get; set; }
 
     public string Name { get; set; }
 
     public System.DateTime Date { get; set; }
 
-    public string Block { get; set; }
+    public Nullable<int> SetTypeID { get; set; }
 
-    public string Type { get; set; }
+    public Nullable<int> BlockID { get; set; }
 
-    public string Border { get; set; }
+
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<Printing> Printings { get; set; }
+
+    public virtual SetType SetType { get; set; }
+
+    public virtual Block Block { get; set; }
 
 }
 

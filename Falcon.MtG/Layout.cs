@@ -15,14 +15,14 @@ namespace Falcon.MtG
 using System;
     using System.Collections.Generic;
     
-public partial class Rarity
+public partial class Layout
 {
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-    public Rarity()
+    public Layout()
     {
 
-        this.Printings = new HashSet<Printing>();
+        this.Cards = new HashSet<Card>();
 
     }
 
@@ -35,7 +35,7 @@ public partial class Rarity
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
 
-    public virtual ICollection<Printing> Printings { get; set; }
+    public virtual ICollection<Card> Cards { get; set; }
 
 }
 

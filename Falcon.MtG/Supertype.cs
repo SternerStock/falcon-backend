@@ -18,9 +18,30 @@ using System;
 public partial class Supertype
 {
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+    public Supertype()
+    {
+
+        this.Cards = new HashSet<Card>();
+
+        this.Types = new HashSet<CardType>();
+
+    }
+
+
     public int ID { get; set; }
 
     public string Name { get; set; }
+
+
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<Card> Cards { get; set; }
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<CardType> Types { get; set; }
 
 }
 

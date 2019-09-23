@@ -1,71 +1,96 @@
 ﻿namespace Falcon.MtG.DBSync
 {
+    using Falcon.MtG.MtgJsonModels;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.IO;
     using System.Linq;
-    using Newtonsoft.Json;
+    using System.Net;
+    using System.Threading.Tasks;
 
     public class DBSynchronizer : IDisposable
     {
-        private MTGDBContainer db;
+        private const string AllSetsFileName = "AllSets.json";
+        private const string CardTypesFileName = "CardTypes.json";
+        private const string KeywordsFileName = "Keywords.json";
+        private const string MtgJsonUrl = "https://mtgjson.com/json/";
+        private const string VersionFileName = "version.json";
+
+        private readonly MTGDBContainer db;
         private bool disposedValue = false;
-        private string workingDirectory;
         private LegalityHelper legalityHelper;
-        private List<string> abilityKeywords;
-        private const string KeywordListFileName = "KeywordAbilities.txt";
-        private readonly string[] WhoWhatWhereWhenWhy = { "Who", "What", "Where", "When", "Why" };
+        private string workingDirectory;
 
         public DBSynchronizer(string workingDir)
         {
+            this.CurrentMtgJsonVersion = new JsonVersion();
             this.workingDirectory = workingDir;
             this.db = new MTGDBContainer();
             this.db.Configuration.AutoDetectChangesEnabled = false;
-            this.db.Sets.Load();
-            this.db.Abilities.Load();
-            this.db.Colors.Load();
-            this.db.Supertypes.Load();
-            this.db.Types.Load();
-            this.db.Subtypes.Load();
-            this.db.Cards.Load();
-            this.db.Rarities.Load();
-            legalityHelper = new LegalityHelper(workingDir);
-
-            var keywordsFileContent = File.ReadAllText(Path.Combine(workingDirectory, KeywordListFileName));
-            var keywords = keywordsFileContent.Split("\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-
-            abilityKeywords = keywords.Select(b => b.Trim()).ToList();
+            this.legalityHelper = new LegalityHelper(workingDir);
         }
 
         public DBSynchronizer() : this(Environment.CurrentDirectory)
         {
         }
 
-        // This code added to correctly implement the disposable pattern.
+        public JsonVersion CurrentMtgJsonVersion { get; set; }
+
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing).
             this.Dispose(true);
         }
 
-        public void Sync(IEnumerable<string> setsToUpdate)
+        public async Task Sync(bool force)
         {
-            foreach (var setFileName in setsToUpdate)
+            var update = await this.DownloadJson(force);
+            if (update)
             {
-                string setJson = File.ReadAllText(Path.Combine(this.workingDirectory, setFileName));
-                if (string.IsNullOrEmpty(setJson))
+                var keywordsFilePath = Path.Combine(this.workingDirectory, KeywordsFileName);
+                string keywordsText = await FileUtility.ReadAllTextAsync(keywordsFilePath);
+
+                var typesFilePath = Path.Combine(this.workingDirectory, CardTypesFileName);
+                string cardTypesText = await FileUtility.ReadAllTextAsync(typesFilePath);
+
+                var setsFilePath = Path.Combine(this.workingDirectory, AllSetsFileName);
+                string setsText = await FileUtility.ReadAllTextAsync(setsFilePath);
+
+                var keywords = JsonConvert.DeserializeObject<JsonKeywords>(keywordsText);
+
+                await this.SyncKeywords(keywords);
+
+                dynamic parsedCardTypes = JsonConvert.DeserializeObject(cardTypesText);
+
+                await this.SyncCardTypes(parsedCardTypes.types);
+
+                await this.db.SeedColorData();
+
+                await this.SaveChanges();
+
+                JObject parsedSetData = JsonConvert.DeserializeObject<JObject>(setsText);
+
+                var setList = new List<JsonSet>();
+                foreach (var set in parsedSetData)
                 {
-                    Console.WriteLine("Skipping " + setFileName + ": file empty.");
-                    continue;
+                    setList.Add(set.Value.ToObject<JsonSet>());
                 }
 
-                JsonSet setData = JsonConvert.DeserializeObject<JsonSet>(setJson);
+                setList.Sort(new JsonSetComparer());
 
-                this.SyncSet(setData);
+                foreach (var set in setList)
+                {
+                    await this.SyncSet(set);
+                }
+
+                await this.SaveChanges();
+
+                // Save successfully synced version number
+                var versionFilePath = Path.Combine(this.workingDirectory, VersionFileName);
+                File.WriteAllText(versionFilePath, JsonConvert.SerializeObject(this.CurrentMtgJsonVersion));
             }
-
-            this.SaveChanges();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -81,435 +106,461 @@
             }
         }
 
-        private HashSet<Color> GetMissingColors(ICollection<Color> existingColors, IEnumerable<string> potentialColors)
+        /// <summary>
+        /// Update JSON files from MtGJson.
+        /// </summary>
+        /// <param name="force">If true, update regardless of version difference.</param>
+        private async Task<bool> DownloadJson(bool force)
         {
-            var colorsToAdd = new HashSet<Color>();
+            var versionFilePath = Path.Combine(this.workingDirectory, VersionFileName);
+            var setsFilePath = Path.Combine(this.workingDirectory, AllSetsFileName);
+            var keywordsFilePath = Path.Combine(this.workingDirectory, KeywordsFileName);
+            var typesFilePath = Path.Combine(this.workingDirectory, CardTypesFileName);
 
-            foreach (var color in potentialColors)
+            using (var client = new WebClient())
             {
-                var dbColor = this.db.Colors.Local.SingleOrDefault(c => c.Name == color);
+                client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2;)");
 
-                if (dbColor == null)
+                if (File.Exists(versionFilePath))
                 {
-                    dbColor = this.db.Colors.Create();
-                    dbColor.Name = color;
-                    string symbol = color[0].ToString();
-                    if (color == "Blue")
-                    {
-                        symbol = "U";
-                    }
-
-                    dbColor.Symbol = symbol;
-                    dbColor = this.db.Colors.Add(dbColor);
+                    this.CurrentMtgJsonVersion = JsonConvert.DeserializeObject<JsonVersion>(File.ReadAllText(versionFilePath));
                 }
 
-                if (!existingColors.Contains(dbColor))
+                Console.WriteLine("Current Version: " + this.CurrentMtgJsonVersion.Version);
+
+                var newVersion = JsonConvert.DeserializeObject<JsonVersion>(client.DownloadString(MtgJsonUrl + VersionFileName));
+                Console.WriteLine("Server Version:  " + newVersion.Version);
+
+                if (force || this.CurrentMtgJsonVersion != newVersion)
                 {
-                    colorsToAdd.Add(dbColor);
+                    this.CurrentMtgJsonVersion = newVersion;
+                    Console.WriteLine("Database will be updated.");
+
+                    await client.DownloadFileTaskAsync(MtgJsonUrl + KeywordsFileName, keywordsFilePath);
+                    await client.DownloadFileTaskAsync(MtgJsonUrl + CardTypesFileName, typesFilePath);
+                    await client.DownloadFileTaskAsync(MtgJsonUrl + AllSetsFileName, setsFilePath);
+
+                    return true;
                 }
             }
 
-            return colorsToAdd;
+            Console.WriteLine("Version matches; no need to sync.");
+            return false;
         }
 
-        private void SaveChanges()
+        private async Task LinkSides(JsonCard jsonCard)
+        {
+            var sideAName = jsonCard.Names?.FirstOrDefault();
+            if (sideAName != null && jsonCard.Side != null && jsonCard.Side != "a")
+            {
+                var mainSide = await db.Cards
+                    .Include(c => c.OtherSides)
+                    .Where(c => c.Name == sideAName)
+                    .SingleOrDefaultAsync();
+
+                var altCard = await db.Cards
+                    .Include(c => c.MainSide)
+                    .Where(c => c.Name == jsonCard.Name)
+                    .SingleOrDefaultAsync();
+
+                if (altCard != null)
+                {
+                    altCard.MainSide = mainSide;
+                }
+            }
+        }
+
+        private async Task<List<Keyword>> ParseKeywords(string OracleText)
+        {
+            // TODO: Figure out better parsing instead of just contains the name or phrase
+            return await db.Keywords.Where(k => OracleText.ToLower().Contains(k.Name.ToLower())).ToListAsync();
+        }
+
+        private async Task SaveChanges()
         {
             try
             {
-                this.db.Configuration.AutoDetectChangesEnabled = true;
+                this.db.ChangeTracker.DetectChanges();
                 if (this.db.ChangeTracker.HasChanges())
                 {
-                    this.db.SaveChanges();
+                    await this.db.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-            }
-            finally
-            {
-                this.db.Configuration.AutoDetectChangesEnabled = false;
+                var changes = this.db.ChangeTracker.Entries().Where(e => e.State != EntityState.Unchanged);
+                foreach (var entity in changes)
+                {
+                    await entity.ReloadAsync();
+                }
             }
         }
 
-        private void SyncCard(Set dbSet, JsonCard fileCard)
+        private async Task SyncCardTypes(JObject cardTypes)
         {
-            var dbCard = this.db.Cards.Local.SingleOrDefault(c => c.Name == fileCard.Name);
+            Console.WriteLine("Syncing card types...");
+            foreach (var cardType in cardTypes)
+            {
+                await this.UpsertCardType(cardType.Key, cardType.Value.ToObject<JsonCardTypes>());
+            }
+        }
+
+        private async Task SyncKeywords(JsonKeywords keywords)
+        {
+            Console.WriteLine("Syncing keywords...");
+            foreach (var keyword in keywords.AbilityWords)
+            {
+                await this.UpsertKeyword(keyword, "Ability Word");
+            }
+
+            foreach (var keyword in keywords.KeywordAbilities)
+            {
+                await this.UpsertKeyword(keyword, "Keyword Ability");
+            }
+
+            foreach (var keyword in keywords.KeywordActions)
+            {
+                await this.UpsertKeyword(keyword, "Keyword Action");
+            }
+        }
+
+        private async Task SyncSet(JsonSet set)
+        {
+            Console.WriteLine("Syncing set {0} - {1}", set.Code, set.Name);
+
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                await this.UpsertSet(set);
+                await this.SaveChanges();
+
+                transaction.Commit();
+            }
+
+            var multiSideCards = set.Cards.Where(c => c.Side != null && c.Side != "a").ToList();
+            foreach (var card in multiSideCards)
+            {
+                await this.LinkSides(card);
+            }
+
+            await this.SaveChanges();
+        }
+
+        private async Task<Card> UpsertCard(JsonCard printing)
+        {
+            var dbCard = db.Cards.Local
+            .Where(c => c.Name == printing.Name)
+            .SingleOrDefault();
 
             if (dbCard == null)
             {
-                dbCard = this.db.Cards.Create();
-                dbCard.Name = fileCard.Name;
-                dbCard.LatestPrintDate = dbSet.Date;
-                dbCard = this.db.Cards.Add(dbCard);
+                dbCard = await db.Cards
+                .Include(c => c.Colors)
+                .Include(c => c.ColorIdentity)
+                .Include(c => c.Supertypes)
+                .Include(c => c.Types)
+                .Include(c => c.Subtypes)
+                .Include(c => c.Layout)
+                .Include(c => c.Legalities)
+                .Include(c => c.Keywords)
+                .Include(c => c.MainSide)
+                .Where(c => c.Name == printing.Name)
+                .SingleOrDefaultAsync();
             }
 
-            if (!dbCard.Sets.Contains(dbSet))
+            if (dbCard == null)
             {
-                dbCard.Sets.Add(dbSet);
-            }
-
-            DateTime latestPrinting = DateTime.MinValue;
-            foreach (var set in dbCard.Sets)
-            {
-                if (set.Date > latestPrinting)
+                dbCard = db.Cards.Add(new Card()
                 {
-                    latestPrinting = set.Date;
-                }
+                    Name = printing.Name
+                });
             }
 
-            if (latestPrinting == DateTime.MinValue || dbCard.LatestPrintDate <= latestPrinting)
+            dbCard.ManaCost = printing.ManaCost;
+            dbCard.CMC = printing.ConvertedManaCost;
+            dbCard.TypeLine = printing.Type;
+            dbCard.OracleText = printing.Text ?? string.Empty;
+            dbCard.Power = printing.Power;
+            dbCard.Toughness = printing.Toughness;
+            dbCard.Loyalty = printing.Loyalty;
+            dbCard.EDHRECRank = printing.EDHRECRank;
+
+            if (dbCard.Colors.Select(t => t.Symbol).Except(printing.Colors).Any() ||
+                printing.Colors.Except(dbCard.Colors.Select(t => t.Symbol)).Any())
             {
-                // Only get multiverseId and flavor text for latest printing of the card.
-                if (fileCard.MultiverseId.HasValue && dbCard.MultiverseId != fileCard.MultiverseId)
-                {
-                    dbCard.MultiverseId = fileCard.MultiverseId;
-                }
-
-                if (dbCard.LatestPrintDate != latestPrinting)
-                {
-                    dbCard.LatestPrintDate = latestPrinting;
-                }
-
-                if (!string.IsNullOrEmpty(fileCard.Flavor) && dbCard.FlavorText != fileCard.Flavor)
-                {
-                    dbCard.FlavorText = fileCard.Flavor;
-                }
+                dbCard.Colors = new List<Color>();
+                dbCard.Colors = await db.Colors.Where(t => printing.Colors.Contains(t.Name)).ToListAsync();
             }
 
-            if (dbCard.ManaCost != fileCard.ManaCost)
+            if (dbCard.ColorIdentity.Select(t => t.Symbol).Except(printing.Colors).Any() ||
+                printing.Colors.Except(dbCard.ColorIdentity.Select(t => t.Symbol)).Any())
             {
-                dbCard.ManaCost = fileCard.ManaCost;
+                dbCard.ColorIdentity = new List<Color>();
+                dbCard.ColorIdentity = await db.Colors.Where(t => printing.Colors.Contains(t.Name)).ToListAsync();
             }
 
-            int parsedCmc = Convert.ToInt32(fileCard.CMC);
-            if (dbCard.CMC != parsedCmc)
+            if (dbCard.Supertypes.Select(t => t.Name).Except(printing.Supertypes).Any() ||
+                printing.Supertypes.Except(dbCard.Supertypes.Select(t => t.Name)).Any())
             {
-                dbCard.CMC = parsedCmc;
+                dbCard.Supertypes = new List<Supertype>();
+                dbCard.Supertypes = await db.Supertypes.Where(t => printing.Supertypes.Contains(t.Name)).ToListAsync();
             }
 
-            if (dbCard.TypeLine != fileCard.Type)
+            if (dbCard.Types.Select(t => t.Name).Except(printing.Types).Any() ||
+                printing.Types.Except(dbCard.Types.Select(t => t.Name)).Any())
             {
-                dbCard.TypeLine = fileCard.Type;
+                dbCard.Types = new List<CardType>();
+                dbCard.Types = await db.CardTypes.Where(t => printing.Types.Contains(t.Name)).ToListAsync();
             }
 
-            if (dbCard.OracleText != fileCard.OracleText)
+            if (dbCard.Subtypes.Select(t => t.Name).Except(printing.Subtypes).Any() ||
+                printing.Subtypes.Except(dbCard.Subtypes.Select(t => t.Name)).Any())
             {
-                dbCard.OracleText = fileCard.OracleText;
+                dbCard.Subtypes = new List<Subtype>();
+                dbCard.Subtypes = await db.Subtypes.Where(t => printing.Subtypes.Contains(t.Name)).ToListAsync();
             }
 
-            HashSet<Color> colorsToAdd = this.GetMissingColors(dbCard.Colors, fileCard.Colors);
-            foreach (var dbColor in colorsToAdd)
+            dbCard.Layout = await UpsertSimpleLookup(db.Layouts, printing.Layout);
+
+            dbCard.Legalities = legalityHelper.UpsertLegalities(db, dbCard, printing.Legalities);
+
+            var keywords = (await ParseKeywords(printing.Text)).Select(k => k.Name);
+            if (dbCard.Keywords.Select(t => t.Name).Except(keywords).Any() ||
+                keywords.Except(dbCard.Subtypes.Select(t => t.Name)).Any())
             {
-                dbCard.Colors.Add(dbColor);
+                dbCard.Keywords = new List<Keyword>();
+                dbCard.Keywords = await db.Keywords.Where(t => keywords.Contains(t.Name)).ToListAsync();
             }
 
-            var colorIdentity = new HashSet<string>();
-            foreach (var color in fileCard.Colors)
+            dbCard.Side = printing.Side;
+            if (printing.Side == null || printing.Side == "a")
             {
-                colorIdentity.Add(color);
+                dbCard.MainSide = null;
             }
 
-            HashSet<string> parsedColors = Utility.GetColorIdentityFromText(fileCard.ManaCost);
-            foreach (var color in parsedColors)
-            {
-                colorIdentity.Add(color);
-            }
-
-            parsedColors = Utility.GetColorIdentityFromText(fileCard.OriginalText);
-            foreach (var color in parsedColors)
-            {
-                colorIdentity.Add(color);
-            }
-
-            parsedColors = Utility.GetColorIdentityFromTypes(fileCard.Subtypes);
-            foreach (var color in parsedColors)
-            {
-                colorIdentity.Add(color);
-            }
-
-            colorsToAdd = this.GetMissingColors(dbCard.ColorIdentity, colorIdentity);
-            foreach (var dbColor in colorsToAdd)
-            {
-                dbCard.ColorIdentity.Add(dbColor);
-            }
-
-            int parsedPower = 0;
-            int.TryParse(fileCard.Power, out parsedPower);
-
-            if (dbCard.Power != parsedPower)
-            {
-                dbCard.Power = parsedPower;
-            }
-
-            int parsedToughness = 0;
-            int.TryParse(fileCard.Toughness, out parsedToughness);
-
-            if (dbCard.Toughness != parsedToughness)
-            {
-                dbCard.Toughness = parsedToughness;
-            }
-
-            this.SyncLegalities(dbCard, fileCard);
-
-            foreach(var keyword in abilityKeywords)
-            {
-                this.SyncKeywordAbility(dbCard, keyword);
-            }
-
-            if (dbCard.IsPrimarySide != fileCard.IsPrimarySide)
-            {
-                dbCard.IsPrimarySide = fileCard.IsPrimarySide;
-            }
-
-            this.SyncRarity(dbCard, fileCard.Rarity);
-
-            foreach (var supertype in fileCard.Supertypes)
-            {
-                this.SyncSupertype(dbCard, supertype);
-            }
-
-            foreach (var type in fileCard.Types)
-            {
-                this.SyncType(dbCard, type);
-            }
-
-            foreach (var subtype in fileCard.Subtypes)
-            {
-                this.SyncSubtype(dbCard, subtype);
-            }
+            return dbCard;
         }
 
-        private void SyncRarity(Card dbCard, string rarity)
+        private async Task<CardType> UpsertCardType(string cardType, JsonCardTypes cardTypeTypes)
         {
-            var dbRarity = this.db.Rarities.Local.SingleOrDefault(r => r.Name == rarity);
+            var dbCardType = await db.CardTypes
+                .Include(t => t.Subtypes)
+                .Include(t => t.Supertypes)
+                .Where(t => t.Name == cardType)
+                .SingleOrDefaultAsync();
 
-            if (dbRarity == null)
+            if (dbCardType == null)
             {
-                dbRarity = this.db.Rarities.Create();
-                dbRarity.Name = rarity;
-                dbRarity = this.db.Rarities.Add(dbRarity);
+                dbCardType = db.CardTypes.Add(new CardType()
+                {
+                    Name = cardType
+                });
             }
 
-            if (!dbCard.Rarities.Contains(dbRarity))
+            var subtypes = new List<Subtype>();
+            foreach (var subtype in cardTypeTypes.SubTypes)
             {
-                dbCard.Rarities.Add(dbRarity);
+                var type = await UpsertSimpleLookup(db.Subtypes, subtype);
+                if (type != null)
+                {
+                    subtypes.Add(type);
+                }
             }
+
+            dbCardType.Subtypes = subtypes;
+
+            var supertypes = new List<Supertype>();
+            foreach (var supertype in cardTypeTypes.SuperTypes)
+            {
+                var type = await UpsertSimpleLookup(db.Supertypes, supertype);
+                if (type != null)
+                {
+                    supertypes.Add(type);
+                }
+            }
+
+            dbCardType.Supertypes = supertypes;
+
+            return dbCardType;
         }
 
-        private void SyncLegalities(Card dbCard, JsonCard fileCard)
+        private async Task<Keyword> UpsertKeyword(string keyword, string keywordType)
         {
-            var formats = Enum.GetValues(typeof(EdhFormat));
-
-            foreach(var format in formats)
+            if (string.IsNullOrEmpty(keyword))
             {
-                var fileLegality = legalityHelper.GetLegality((EdhFormat)format, fileCard);
+                return null;
+            }
 
-                var dbLegality = this.db.Legalities.Local.SingleOrDefault(l =>
-                    l.Format == fileLegality.Format &&
-                    l.Legal == fileLegality.Legal &&
-                    l.LegalAsCommander == fileLegality.LegalAsCommander);
+            var existingKeyword = db.Keywords.Local.Where(k => k.Name == keyword).SingleOrDefault();
+            if (existingKeyword == null)
+            {
+                existingKeyword = await db.Keywords.Where(k => k.Name == keyword).SingleOrDefaultAsync();
+            }
 
-                if (dbLegality == null)
+            if (existingKeyword == null)
+            {
+                existingKeyword = db.Keywords.Add(new Keyword()
                 {
-                    dbLegality = this.db.Legalities.Create();
-                    dbLegality.Format = fileLegality.Format;
-                    dbLegality.Legal = fileLegality.Legal;
-                    dbLegality.LegalAsCommander = fileLegality.LegalAsCommander;
-                    dbLegality = this.db.Legalities.Add(dbLegality);
-                }
+                    Name = keyword
+                });
+            }
 
-                if (!dbCard.Legalities.Contains(dbLegality))
+            existingKeyword.Type = keywordType;
+
+            return existingKeyword;
+        }
+
+        private void UpsertPricing(Printing printing, JObject prices, bool foil)
+        {
+            var properties = prices.Properties();
+            foreach (var property in properties)
+            {
+                if (DateTime.TryParse(property.Name, out DateTime date))
                 {
-                    dbCard.Legalities.Add(dbLegality);
+                    var dbPricing = printing.Pricings.Where(p => p.Date.Date == date.Date && p.Foil == foil).SingleOrDefault();
+                    if (dbPricing == null)
+                    {
+                        dbPricing = db.Pricings.Add(new Pricing()
+                        {
+                            Printing = printing,
+                            Foil = foil,
+                            Date = date
+                        });
+                    }
+
+                    dbPricing.Price = (double)property.Value;
                 }
             }
         }
 
-        private void SyncKeywordAbility(Card dbCard, string keyword)
+        private async Task<Printing> UpsertPrinting(JsonCard printing)
         {
-            var dbAbility = this.db.Abilities.Local.SingleOrDefault(a => a.Name == keyword);
+            var card = await this.UpsertCard(printing);
 
-            if (dbAbility == null)
+            if (!printing.MultiverseId.HasValue)
             {
-                dbAbility = this.db.Abilities.Create();
-                dbAbility.Name = keyword;
-                dbAbility.Type = "Keyword";
-                dbAbility = this.db.Abilities.Add(dbAbility);
+                return null;
             }
 
-            if (dbCard.HasKeyword(keyword) && !dbCard.Abilities.Contains(dbAbility))
+            var dbPrinting = await db.Printings
+                .Include(p => p.Card)
+                .Include(p => p.Set)
+                .Include(p => p.Artist)
+                .Include(p => p.Watermark)
+                .Include(p => p.Frame)
+                .Include(p => p.Rarity)
+                .Include(p => p.Border)
+                .Include(p => p.Pricings)
+                .Where(p => p.MultiverseId == printing.MultiverseId.Value && p.Side == printing.Side)
+                .SingleOrDefaultAsync();
+
+            if (dbPrinting == null)
             {
-                dbCard.Abilities.Add(dbAbility);
+                dbPrinting = db.Printings.Add(new Printing()
+                {
+                    MultiverseId = printing.MultiverseId.Value,
+                    Side = printing.Side
+                });
             }
+
+            dbPrinting.FlavorText = printing.FlavorText;
+            dbPrinting.CollectorNumber = printing.Number;
+
+            dbPrinting.Artist = await UpsertSimpleLookup(db.Artists, printing.Artist);
+            dbPrinting.Watermark = await UpsertSimpleLookup(db.Watermarks, printing.Watermark);
+            dbPrinting.Frame = await UpsertSimpleLookup(db.Frames, printing.FrameVersion);
+            dbPrinting.Rarity = await UpsertSimpleLookup(db.Rarities, printing.Rarity);
+            dbPrinting.Border = await UpsertSimpleLookup(db.Borders, printing.BorderColor);
+
+            if (printing.Prices?.Paper != null)
+            {
+                UpsertPricing(dbPrinting, printing.Prices.Paper, false);
+            }
+
+            if (printing.Prices?.PaperFoil != null)
+            {
+                UpsertPricing(dbPrinting, printing.Prices.PaperFoil, true);
+            }
+
+            dbPrinting.Card = card;
+
+            return dbPrinting;
         }
 
-        private void SyncSet(JsonSet fileSet)
+        private async Task UpsertSet(JsonSet set)
         {
-            //if (fileSet.Border == "silver")
-            //{
-            //    // Don't deal with Silver-bordered stuff. Too wacky to parse.
-            //    return;
-            //}
+            var setType = await UpsertSimpleLookup(db.SetTypes, set.Type);
+            var block = await UpsertSimpleLookup(db.Blocks, set.Block);
 
-            Console.WriteLine("Syncing set: " + fileSet.Name);
-            var twoFaceCards = new List<JsonCard>();
-            int cardCount = 0;
+            var dbSet = await db.Sets
+                .Include(s => s.SetType)
+                .Include(s => s.Block)
+                .Include(s => s.Printings)
+                .Where(s => s.Name == set.Name)
+                .SingleOrDefaultAsync();
 
-            DateTime releaseDate = DateTime.MinValue;
-            DateTime.TryParse(fileSet.ReleaseDate, out releaseDate);
-
-            var dbSet = this.db.Sets.Local.SingleOrDefault(s => s.Code == fileSet.Code);
             if (dbSet == null)
             {
-                dbSet = this.db.Sets.Create();
-                dbSet = this.db.Sets.Add(dbSet);
-            }
-
-            if (dbSet.Code != fileSet.Code)
-            {
-                dbSet.Code = fileSet.Code;
-            }
-
-            if (dbSet.Name != fileSet.Name)
-            {
-                dbSet.Name = fileSet.Name;
-            }
-
-            if (dbSet.Block != fileSet.Block)
-            {
-                dbSet.Block = fileSet.Block;
-            }
-
-            if (dbSet.Date != releaseDate)
-            {
-                dbSet.Date = releaseDate;
-            }
-
-            if (dbSet.Border != fileSet.Border)
-            {
-                dbSet.Border = fileSet.Border;
-            }
-
-            if (dbSet.Type != fileSet.Type)
-            {
-                dbSet.Type = fileSet.Type;
-            }
-
-            foreach (var fileCard in fileSet.Cards)
-            {
-                this.SyncCard(dbSet, fileCard);
-
-                if (fileCard.Names.Count > 1)
+                dbSet = db.Sets.Add(new Set()
                 {
-                    twoFaceCards.Add(fileCard);
-                }
-
-                cardCount++;
-                Console.Write(cardCount + "/" + fileSet.Cards.Count + "\r");
+                    Name = set.Name
+                });
             }
 
-            this.SaveChanges();
+            dbSet.Code = set.Code;
+            dbSet.KeyruneCode = set.KeyruneCode;
+            dbSet.Date = set.ReleaseDate;
+            dbSet.SetType = setType;
+            dbSet.Block = block;
 
-            foreach (var twoFaceCard in twoFaceCards)
+            foreach (var card in set.Cards)
             {
-
-                if (WhoWhatWhereWhenWhy.Contains(twoFaceCard.Name))
+                // Add missing sides property to Who/What/Where/When/Why because that card is the worst
+                if (string.IsNullOrEmpty(card.Side))
                 {
-                    var dbCard = this.db.Cards.SingleOrDefault(c => c.Name == twoFaceCard.Name);
-
-                    if (dbCard != null)
+                    switch (card.Name)
                     {
-                        foreach (var color in db.Colors)
-                        {
-                            if (!dbCard.ColorIdentity.Contains(color))
-                            {
-                                dbCard.ColorIdentity.Add(color);
-                            }
-                        }
+                        case "What":
+                            card.Side = "b";
+                            break;
+                        case "When":
+                            card.Side = "c";
+                            break;
+                        case "Where":
+                            card.Side = "d";
+                            break;
+                        case "Why":
+                            card.Side = "e";
+                            break;
                     }
                 }
-                else
+
+                dbSet.Printings.Add(await this.UpsertPrinting(card));
+            }
+        }
+
+        private async Task<T> UpsertSimpleLookup<T>(DbSet<T> lookups, string name) where T : class, ISimpleLookup, new()
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+
+            var existingLookup = lookups.Local.Where(t => t.Name == name).SingleOrDefault();
+            if (existingLookup == null)
+            {
+                existingLookup = await lookups.Where(t => t.Name == name).SingleOrDefaultAsync();
+            }
+
+            if (existingLookup == null)
+            {
+                existingLookup = lookups.Add(new T()
                 {
-                    var firstSide = this.db.Cards.SingleOrDefault(c => c.Name == twoFaceCard.Name);
-
-                    foreach (var altName in twoFaceCard.Names)
-                    {
-                        if (altName != twoFaceCard.Name)
-                        {
-                            var otherSide = this.db.Cards.SingleOrDefault(c => c.Name == altName);
-                            if (otherSide != null)
-                            {
-                                if (twoFaceCard.Layout != "meld" && firstSide.OtherSide != otherSide)
-                                {
-                                    firstSide.OtherSide = otherSide;
-                                }
-
-                                foreach (var color in otherSide.ColorIdentity)
-                                {
-                                    if (!firstSide.ColorIdentity.Contains(color))
-                                    {
-                                        firstSide.ColorIdentity.Add(color);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                    Name = name
+                });
             }
 
-            this.SaveChanges();
-        }
-
-        private void SyncSubtype(Card dbCard, string subtype)
-        {
-            var dbSubtype = this.db.Subtypes.Local.SingleOrDefault(t => t.Name == subtype);
-
-            if (dbSubtype == null)
-            {
-                dbSubtype = this.db.Subtypes.Create();
-                dbSubtype.Name = subtype;
-                dbSubtype = this.db.Subtypes.Add(dbSubtype);
-            }
-
-            if (!dbCard.Subtypes.Contains(dbSubtype))
-            {
-                dbCard.Subtypes.Add(dbSubtype);
-            }
-        }
-
-        private void SyncSupertype(Card dbCard, string supertype)
-        {
-            var dbSuperType = this.db.Supertypes.Local.SingleOrDefault(t => t.Name == supertype);
-
-            if (dbSuperType == null)
-            {
-                dbSuperType = this.db.Supertypes.Create();
-                dbSuperType.Name = supertype;
-                dbSuperType = this.db.Supertypes.Add(dbSuperType);
-            }
-
-            if (!dbCard.Supertypes.Contains(dbSuperType))
-            {
-                dbCard.Supertypes.Add(dbSuperType);
-            }
-        }
-
-        private void SyncType(Card dbCard, string type)
-        {
-            var dbType = this.db.Types.Local.SingleOrDefault(t => t.Name == type);
-
-            if (dbType == null)
-            {
-                dbType = this.db.Types.Create();
-                dbType.Name = type;
-                dbType = this.db.Types.Add(dbType);
-            }
-
-            if (!dbCard.Types.Contains(dbType))
-            {
-                dbCard.Types.Add(dbType);
-            }
+            return existingLookup;
         }
     }
 }

@@ -90,7 +90,7 @@
         public int? Commander2Id { get; set; }
 
         [JsonProperty("format")]
-        public EdhFormat Format { get; set; }
+        public Format Format { get; set; }
 
         public Category Creatures
         {

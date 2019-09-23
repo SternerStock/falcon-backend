@@ -26,6 +26,12 @@ public partial class Legality
 
     public bool Legal { get; set; }
 
+    public int CardID { get; set; }
+
+
+
+    public virtual Card Card { get; set; }
+
 }
 
 }

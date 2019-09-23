@@ -4,26 +4,49 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="4c09a1a36d02480284806cb7ad2230bf" Name="MtGDiagram" ShowGrid="true">
-        <EntityTypeShape EntityType="Falcon.MtG.Card" Width="1.5" PointX="3.25" PointY="3.125" />
-        <EntityTypeShape EntityType="Falcon.MtG.Color" Width="1.5" PointX="5.375" PointY="0.75" />
-        <EntityTypeShape EntityType="Falcon.MtG.Supertype" Width="1.5" PointX="0.5" PointY="0.5" />
-        <EntityTypeShape EntityType="Falcon.MtG.Subtype" Width="1.5" PointX="0.5" PointY="5.375" />
-        <EntityTypeShape EntityType="Falcon.MtG.Type" Width="1.5" PointX="0.5" PointY="3.125" />
-        <EntityTypeShape EntityType="Falcon.MtG.Set" Width="1.5" PointX="3.25" PointY="0.5" />
-        <EntityTypeShape EntityType="Falcon.MtG.Ability" Width="1.5" PointX="6.5" PointY="6.125" IsExpanded="true" />
-        <AssociationConnector Association="Falcon.MtG.CardSet" />
-        <AssociationConnector Association="Falcon.MtG.CardType" />
+      <Diagram DiagramId="4c09a1a36d02480284806cb7ad2230bf" Name="MtGDiagram" ShowGrid="true" ZoomLevel="94">
+        <EntityTypeShape EntityType="Falcon.MtG.Card" Width="1.5" PointX="5.5" PointY="0.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.Color" Width="1.5" PointX="7.625" PointY="0.75" />
+        <EntityTypeShape EntityType="Falcon.MtG.Supertype" Width="1.5" PointX="2.75" PointY="0.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.Subtype" Width="1.5" PointX="2.75" PointY="5.5" />
+        <EntityTypeShape EntityType="Falcon.MtG.CardType" Width="1.5" PointX="2.75" PointY="2.875" />
+        <EntityTypeShape EntityType="Falcon.MtG.Set" Width="1.5" PointX="2.75" PointY="7.875" />
+        <EntityTypeShape EntityType="Falcon.MtG.Keyword" Width="1.5" PointX="9.375" PointY="4.125" IsExpanded="true" />
+        <AssociationConnector Association="Falcon.MtG.CardCardType" />
         <AssociationConnector Association="Falcon.MtG.CardColor" />
         <AssociationConnector Association="Falcon.MtG.ColorIdentity" />
-        <AssociationConnector Association="Falcon.MtG.CardSubtype" />
+        <AssociationConnector Association="Falcon.MtG.CardSubtype" ManuallyRouted="false" >
+        </AssociationConnector>
         <AssociationConnector Association="Falcon.MtG.CardSupertype" />
-        <AssociationConnector Association="Falcon.MtG.CardAbility" />
-        <AssociationConnector Association="Falcon.MtG.CardSides" />
         <AssociationConnector Association="Falcon.MtG.CardColorIdentity" />
-        <EntityTypeShape EntityType="Falcon.MtG.Rarity" Width="1.5" PointX="0.5" PointY="7.875" />
-        <AssociationConnector Association="Falcon.MtG.CardRarity" />
-        <EntityTypeShape EntityType="Falcon.MtG.Legality" Width="1.5" PointX="6.5" PointY="3.375" />
+        <EntityTypeShape EntityType="Falcon.MtG.Legality" Width="1.5" PointX="9.375" PointY="1" />
+        <EntityTypeShape EntityType="Falcon.MtG.Printing" Width="1.5" PointX="5.375" PointY="6.75" />
+        <AssociationConnector Association="Falcon.MtG.TypeSubtype" />
+        <AssociationConnector Association="Falcon.MtG.TypeSupertype" />
+        <EntityTypeShape EntityType="Falcon.MtG.Rarity" Width="1.5" PointX="7.625" PointY="7" />
+        <EntityTypeShape EntityType="Falcon.MtG.ExceptionLog" Width="1.5" PointX="0.5" PointY="1" />
+        <EntityTypeShape EntityType="Falcon.MtG.Layout" Width="1.5" PointX="7.625" PointY="3" />
+        <EntityTypeShape EntityType="Falcon.MtG.Artist" Width="1.5" PointX="2.75" PointY="11.125" />
+        <EntityTypeShape EntityType="Falcon.MtG.Watermark" Width="1.5" PointX="4.125" PointY="13.125" />
+        <EntityTypeShape EntityType="Falcon.MtG.Frame" Width="1.5" PointX="6.625" PointY="13.125" />
+        <AssociationConnector Association="Falcon.MtG.PrintingArtist" />
+        <AssociationConnector Association="Falcon.MtG.PrintingWatermark" />
+        <AssociationConnector Association="Falcon.MtG.PrintingFrame" />
+        <AssociationConnector Association="Falcon.MtG.PrintingRarity" />
+        <EntityTypeShape EntityType="Falcon.MtG.Border" Width="1.5" PointX="7.625" PointY="8.875" />
+        <AssociationConnector Association="Falcon.MtG.PrintingBorder" />
+        <AssociationConnector Association="Falcon.MtG.PrintingSet" />
+        <AssociationConnector Association="Falcon.MtG.CardPrinting" />
+        <AssociationConnector Association="Falcon.MtG.CardKeyword" />
+        <AssociationConnector Association="Falcon.MtG.CardLayout" />
+        <AssociationConnector Association="Falcon.MtG.CardCard" />
+        <EntityTypeShape EntityType="Falcon.MtG.SetType" Width="1.5" PointX="0.5" PointY="7.875" />
+        <AssociationConnector Association="Falcon.MtG.SetSetType" />
+        <EntityTypeShape EntityType="Falcon.MtG.Pricing" Width="1.5" PointX="7.625" PointY="10.75" />
+        <AssociationConnector Association="Falcon.MtG.PrintingPrice" ManuallyRouted="false" >
+        </AssociationConnector>
+        <EntityTypeShape EntityType="Falcon.MtG.Block" Width="1.5" PointX="0.5" PointY="9.875" />
+        <AssociationConnector Association="Falcon.MtG.BlockSet" />
         <AssociationConnector Association="Falcon.MtG.CardLegality" />
         </Diagram>
     </edmx:Diagrams>

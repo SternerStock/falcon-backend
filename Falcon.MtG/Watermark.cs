@@ -15,14 +15,27 @@ namespace Falcon.MtG
 using System;
     using System.Collections.Generic;
     
-public partial class Ability
+public partial class Watermark
 {
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+    public Watermark()
+    {
+
+        this.Printings = new HashSet<Printing>();
+
+    }
+
 
     public int ID { get; set; }
 
     public string Name { get; set; }
 
-    public string Type { get; set; }
+
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<Printing> Printings { get; set; }
 
 }
 

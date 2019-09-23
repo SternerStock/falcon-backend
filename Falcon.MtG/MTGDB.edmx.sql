@@ -2,11 +2,13 @@
 -- --------------------------------------------------
 -- Entity Designer DDL Script for SQL Server 2005, 2008, 2012 and Azure
 -- --------------------------------------------------
--- Date Created: 05/19/2018 20:29:23
+-- Date Created: 09/22/2019 19:38:07
 -- Generated from EDMX file: D:\Stuff\Code\Repos\falcon-backend\Falcon.MtG\MTGDB.edmx
 -- --------------------------------------------------
 
 SET QUOTED_IDENTIFIER OFF;
+GO
+USE [MtG-Dev];
 GO
 IF SCHEMA_ID(N'dbo') IS NULL EXECUTE(N'CREATE SCHEMA [dbo]');
 GO
@@ -15,12 +17,6 @@ GO
 -- Dropping existing FOREIGN KEY constraints
 -- --------------------------------------------------
 
-IF OBJECT_ID(N'[dbo].[FK_CardSet_Card]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardSet] DROP CONSTRAINT [FK_CardSet_Card];
-GO
-IF OBJECT_ID(N'[dbo].[FK_CardSet_Set]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardSet] DROP CONSTRAINT [FK_CardSet_Set];
-GO
 IF OBJECT_ID(N'[dbo].[FK_CardColor_Card]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[CardColor] DROP CONSTRAINT [FK_CardColor_Card];
 GO
@@ -39,11 +35,11 @@ GO
 IF OBJECT_ID(N'[dbo].[FK_CardSupertype_Supertype]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[CardSupertype] DROP CONSTRAINT [FK_CardSupertype_Supertype];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardType_Card]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardType] DROP CONSTRAINT [FK_CardType_Card];
+IF OBJECT_ID(N'[dbo].[FK_CardCardType_Card]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[CardCardType] DROP CONSTRAINT [FK_CardCardType_Card];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardType_Type]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardType] DROP CONSTRAINT [FK_CardType_Type];
+IF OBJECT_ID(N'[dbo].[FK_CardCardType_Type]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[CardCardType] DROP CONSTRAINT [FK_CardCardType_Type];
 GO
 IF OBJECT_ID(N'[dbo].[FK_CardSubtype_Card]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[CardSubtype] DROP CONSTRAINT [FK_CardSubtype_Card];
@@ -51,26 +47,62 @@ GO
 IF OBJECT_ID(N'[dbo].[FK_CardSubtype_Subtype]', 'F') IS NOT NULL
     ALTER TABLE [dbo].[CardSubtype] DROP CONSTRAINT [FK_CardSubtype_Subtype];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardAbility_Card]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardAbility] DROP CONSTRAINT [FK_CardAbility_Card];
+IF OBJECT_ID(N'[dbo].[FK_TypeSubtype_Type]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TypeSubtype] DROP CONSTRAINT [FK_TypeSubtype_Type];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardAbility_Ability]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardAbility] DROP CONSTRAINT [FK_CardAbility_Ability];
+IF OBJECT_ID(N'[dbo].[FK_TypeSubtype_Subtype]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TypeSubtype] DROP CONSTRAINT [FK_TypeSubtype_Subtype];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardSides]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[Cards] DROP CONSTRAINT [FK_CardSides];
+IF OBJECT_ID(N'[dbo].[FK_TypeSupertype_Type]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TypeSupertype] DROP CONSTRAINT [FK_TypeSupertype_Type];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardRarity_Card]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardRarity] DROP CONSTRAINT [FK_CardRarity_Card];
+IF OBJECT_ID(N'[dbo].[FK_TypeSupertype_Supertype]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[TypeSupertype] DROP CONSTRAINT [FK_TypeSupertype_Supertype];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardRarity_Rarity]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardRarity] DROP CONSTRAINT [FK_CardRarity_Rarity];
+IF OBJECT_ID(N'[dbo].[FK_PrintingArtist]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Printings] DROP CONSTRAINT [FK_PrintingArtist];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardLegality_Card]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardLegality] DROP CONSTRAINT [FK_CardLegality_Card];
+IF OBJECT_ID(N'[dbo].[FK_PrintingWatermark]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Printings] DROP CONSTRAINT [FK_PrintingWatermark];
 GO
-IF OBJECT_ID(N'[dbo].[FK_CardLegality_Legality]', 'F') IS NOT NULL
-    ALTER TABLE [dbo].[CardLegality] DROP CONSTRAINT [FK_CardLegality_Legality];
+IF OBJECT_ID(N'[dbo].[FK_PrintingFrame]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Printings] DROP CONSTRAINT [FK_PrintingFrame];
+GO
+IF OBJECT_ID(N'[dbo].[FK_PrintingRarity]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Printings] DROP CONSTRAINT [FK_PrintingRarity];
+GO
+IF OBJECT_ID(N'[dbo].[FK_PrintingBorder]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Printings] DROP CONSTRAINT [FK_PrintingBorder];
+GO
+IF OBJECT_ID(N'[dbo].[FK_PrintingSet]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Printings] DROP CONSTRAINT [FK_PrintingSet];
+GO
+IF OBJECT_ID(N'[dbo].[FK_CardPrinting]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Printings] DROP CONSTRAINT [FK_CardPrinting];
+GO
+IF OBJECT_ID(N'[dbo].[FK_CardKeyword_Card]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[CardKeyword] DROP CONSTRAINT [FK_CardKeyword_Card];
+GO
+IF OBJECT_ID(N'[dbo].[FK_CardKeyword_Keyword]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[CardKeyword] DROP CONSTRAINT [FK_CardKeyword_Keyword];
+GO
+IF OBJECT_ID(N'[dbo].[FK_CardLayout]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Cards] DROP CONSTRAINT [FK_CardLayout];
+GO
+IF OBJECT_ID(N'[dbo].[FK_CardCard]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Cards] DROP CONSTRAINT [FK_CardCard];
+GO
+IF OBJECT_ID(N'[dbo].[FK_SetSetType]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Sets] DROP CONSTRAINT [FK_SetSetType];
+GO
+IF OBJECT_ID(N'[dbo].[FK_PrintingPrice]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Pricings] DROP CONSTRAINT [FK_PrintingPrice];
+GO
+IF OBJECT_ID(N'[dbo].[FK_BlockSet]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Sets] DROP CONSTRAINT [FK_BlockSet];
+GO
+IF OBJECT_ID(N'[dbo].[FK_CardLegality]', 'F') IS NOT NULL
+    ALTER TABLE [dbo].[Legalities] DROP CONSTRAINT [FK_CardLegality];
 GO
 
 -- --------------------------------------------------
@@ -89,23 +121,50 @@ GO
 IF OBJECT_ID(N'[dbo].[Subtypes]', 'U') IS NOT NULL
     DROP TABLE [dbo].[Subtypes];
 GO
-IF OBJECT_ID(N'[dbo].[Types]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[Types];
+IF OBJECT_ID(N'[dbo].[CardTypes]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[CardTypes];
 GO
 IF OBJECT_ID(N'[dbo].[Sets]', 'U') IS NOT NULL
     DROP TABLE [dbo].[Sets];
 GO
-IF OBJECT_ID(N'[dbo].[Abilities]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[Abilities];
-GO
-IF OBJECT_ID(N'[dbo].[Rarities]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[Rarities];
+IF OBJECT_ID(N'[dbo].[Keywords]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Keywords];
 GO
 IF OBJECT_ID(N'[dbo].[Legalities]', 'U') IS NOT NULL
     DROP TABLE [dbo].[Legalities];
 GO
-IF OBJECT_ID(N'[dbo].[CardSet]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[CardSet];
+IF OBJECT_ID(N'[dbo].[Printings]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Printings];
+GO
+IF OBJECT_ID(N'[dbo].[Rarities]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Rarities];
+GO
+IF OBJECT_ID(N'[dbo].[ExceptionLogEntries]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[ExceptionLogEntries];
+GO
+IF OBJECT_ID(N'[dbo].[Layouts]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Layouts];
+GO
+IF OBJECT_ID(N'[dbo].[Artists]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Artists];
+GO
+IF OBJECT_ID(N'[dbo].[Watermarks]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Watermarks];
+GO
+IF OBJECT_ID(N'[dbo].[Frames]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Frames];
+GO
+IF OBJECT_ID(N'[dbo].[Borders]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Borders];
+GO
+IF OBJECT_ID(N'[dbo].[SetTypes]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[SetTypes];
+GO
+IF OBJECT_ID(N'[dbo].[Pricings]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Pricings];
+GO
+IF OBJECT_ID(N'[dbo].[Blocks]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[Blocks];
 GO
 IF OBJECT_ID(N'[dbo].[CardColor]', 'U') IS NOT NULL
     DROP TABLE [dbo].[CardColor];
@@ -116,20 +175,20 @@ GO
 IF OBJECT_ID(N'[dbo].[CardSupertype]', 'U') IS NOT NULL
     DROP TABLE [dbo].[CardSupertype];
 GO
-IF OBJECT_ID(N'[dbo].[CardType]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[CardType];
+IF OBJECT_ID(N'[dbo].[CardCardType]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[CardCardType];
 GO
 IF OBJECT_ID(N'[dbo].[CardSubtype]', 'U') IS NOT NULL
     DROP TABLE [dbo].[CardSubtype];
 GO
-IF OBJECT_ID(N'[dbo].[CardAbility]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[CardAbility];
+IF OBJECT_ID(N'[dbo].[TypeSubtype]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[TypeSubtype];
 GO
-IF OBJECT_ID(N'[dbo].[CardRarity]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[CardRarity];
+IF OBJECT_ID(N'[dbo].[TypeSupertype]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[TypeSupertype];
 GO
-IF OBJECT_ID(N'[dbo].[CardLegality]', 'U') IS NOT NULL
-    DROP TABLE [dbo].[CardLegality];
+IF OBJECT_ID(N'[dbo].[CardKeyword]', 'U') IS NOT NULL
+    DROP TABLE [dbo].[CardKeyword];
 GO
 
 -- --------------------------------------------------
@@ -140,17 +199,17 @@ GO
 CREATE TABLE [dbo].[Cards] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [Name] nvarchar(200)  NOT NULL,
-    [MultiverseId] int  NULL,
     [ManaCost] nvarchar(50)  NULL,
-    [CMC] int  NULL,
-    [TypeLine] nvarchar(200)  NULL,
-    [OracleText] nvarchar(max)  NULL,
-    [FlavorText] nvarchar(max)  NULL,
-    [Power] int  NULL,
-    [Toughness] int  NULL,
-    [LatestPrintDate] datetime  NOT NULL,
-    [IsPrimarySide] bit  NOT NULL,
-    [OtherSide_ID] int  NULL
+    [CMC] float  NOT NULL,
+    [TypeLine] nvarchar(200)  NOT NULL,
+    [OracleText] nvarchar(max)  NOT NULL,
+    [Power] nvarchar(max)  NULL,
+    [Toughness] nvarchar(max)  NULL,
+    [Loyalty] nvarchar(max)  NULL,
+    [LayoutID] int  NOT NULL,
+    [MainSideID] int  NULL,
+    [Side] nvarchar(max)  NULL,
+    [EDHRECRank] int  NULL
 );
 GO
 
@@ -158,7 +217,8 @@ GO
 CREATE TABLE [dbo].[Colors] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [Symbol] nvarchar(1)  NOT NULL,
-    [Name] nvarchar(50)  NOT NULL
+    [Name] nvarchar(50)  NOT NULL,
+    [BasicLandName] nvarchar(max)  NOT NULL
 );
 GO
 
@@ -176,8 +236,8 @@ CREATE TABLE [dbo].[Subtypes] (
 );
 GO
 
--- Creating table 'Types'
-CREATE TABLE [dbo].[Types] (
+-- Creating table 'CardTypes'
+CREATE TABLE [dbo].[CardTypes] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [Name] nvarchar(50)  NOT NULL
 );
@@ -187,26 +247,19 @@ GO
 CREATE TABLE [dbo].[Sets] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [Code] nvarchar(20)  NOT NULL,
+    [KeyruneCode] nvarchar(max)  NOT NULL,
     [Name] nvarchar(200)  NOT NULL,
     [Date] datetime  NOT NULL,
-    [Block] nvarchar(200)  NULL,
-    [Type] nvarchar(max)  NOT NULL,
-    [Border] nvarchar(max)  NOT NULL
+    [SetTypeID] int  NULL,
+    [BlockID] int  NULL
 );
 GO
 
--- Creating table 'Abilities'
-CREATE TABLE [dbo].[Abilities] (
+-- Creating table 'Keywords'
+CREATE TABLE [dbo].[Keywords] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [Name] nvarchar(200)  NOT NULL,
     [Type] nvarchar(200)  NOT NULL
-);
-GO
-
--- Creating table 'Rarities'
-CREATE TABLE [dbo].[Rarities] (
-    [Id] int IDENTITY(1,1) NOT NULL,
-    [Name] nvarchar(max)  NOT NULL
 );
 GO
 
@@ -215,14 +268,100 @@ CREATE TABLE [dbo].[Legalities] (
     [ID] int IDENTITY(1,1) NOT NULL,
     [Format] nvarchar(max)  NOT NULL,
     [LegalAsCommander] bit  NOT NULL,
-    [Legal] bit  NOT NULL
+    [Legal] bit  NOT NULL,
+    [CardID] int  NOT NULL
 );
 GO
 
--- Creating table 'CardSet'
-CREATE TABLE [dbo].[CardSet] (
-    [CardSet_Set_ID] int  NOT NULL,
-    [Sets_ID] int  NOT NULL
+-- Creating table 'Printings'
+CREATE TABLE [dbo].[Printings] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [MultiverseId] int  NOT NULL,
+    [FlavorText] nvarchar(max)  NULL,
+    [CollectorNumber] nvarchar(max)  NULL,
+    [Side] nvarchar(max)  NULL,
+    [ArtistID] int  NULL,
+    [WatermarkID] int  NULL,
+    [FrameID] int  NOT NULL,
+    [RarityID] int  NOT NULL,
+    [BorderID] int  NOT NULL,
+    [SetID] int  NOT NULL,
+    [CardID] int  NOT NULL
+);
+GO
+
+-- Creating table 'Rarities'
+CREATE TABLE [dbo].[Rarities] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'ExceptionLogEntries'
+CREATE TABLE [dbo].[ExceptionLogEntries] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [RequestJson] nvarchar(max)  NOT NULL,
+    [Outcome] nvarchar(200)  NOT NULL,
+    [Exception] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Layouts'
+CREATE TABLE [dbo].[Layouts] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Artists'
+CREATE TABLE [dbo].[Artists] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Watermarks'
+CREATE TABLE [dbo].[Watermarks] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Frames'
+CREATE TABLE [dbo].[Frames] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Borders'
+CREATE TABLE [dbo].[Borders] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'SetTypes'
+CREATE TABLE [dbo].[SetTypes] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
+);
+GO
+
+-- Creating table 'Pricings'
+CREATE TABLE [dbo].[Pricings] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [PrintingID] int  NOT NULL,
+    [Date] datetime  NOT NULL,
+    [Price] float  NOT NULL,
+    [Foil] bit  NOT NULL
+);
+GO
+
+-- Creating table 'Blocks'
+CREATE TABLE [dbo].[Blocks] (
+    [ID] int IDENTITY(1,1) NOT NULL,
+    [Name] nvarchar(max)  NOT NULL
 );
 GO
 
@@ -242,43 +381,43 @@ GO
 
 -- Creating table 'CardSupertype'
 CREATE TABLE [dbo].[CardSupertype] (
-    [CardSupertype_Supertype_ID] int  NOT NULL,
+    [Cards_ID] int  NOT NULL,
     [Supertypes_ID] int  NOT NULL
 );
 GO
 
--- Creating table 'CardType'
-CREATE TABLE [dbo].[CardType] (
-    [CardType_Type_ID] int  NOT NULL,
+-- Creating table 'CardCardType'
+CREATE TABLE [dbo].[CardCardType] (
+    [Cards_ID] int  NOT NULL,
     [Types_ID] int  NOT NULL
 );
 GO
 
 -- Creating table 'CardSubtype'
 CREATE TABLE [dbo].[CardSubtype] (
-    [CardSubtype_Subtype_ID] int  NOT NULL,
+    [Cards_ID] int  NOT NULL,
     [Subtypes_ID] int  NOT NULL
 );
 GO
 
--- Creating table 'CardAbility'
-CREATE TABLE [dbo].[CardAbility] (
-    [CardAbility_Ability_ID] int  NOT NULL,
-    [Abilities_ID] int  NOT NULL
+-- Creating table 'TypeSubtype'
+CREATE TABLE [dbo].[TypeSubtype] (
+    [Types_ID] int  NOT NULL,
+    [Subtypes_ID] int  NOT NULL
 );
 GO
 
--- Creating table 'CardRarity'
-CREATE TABLE [dbo].[CardRarity] (
-    [CardRarity_Rarity_ID] int  NOT NULL,
-    [Rarities_Id] int  NOT NULL
+-- Creating table 'TypeSupertype'
+CREATE TABLE [dbo].[TypeSupertype] (
+    [Types_ID] int  NOT NULL,
+    [Supertypes_ID] int  NOT NULL
 );
 GO
 
--- Creating table 'CardLegality'
-CREATE TABLE [dbo].[CardLegality] (
-    [CardLegality_Legality_ID] int  NOT NULL,
-    [Legalities_ID] int  NOT NULL
+-- Creating table 'CardKeyword'
+CREATE TABLE [dbo].[CardKeyword] (
+    [Cards_ID] int  NOT NULL,
+    [Keywords_ID] int  NOT NULL
 );
 GO
 
@@ -310,9 +449,9 @@ ADD CONSTRAINT [PK_Subtypes]
     PRIMARY KEY CLUSTERED ([ID] ASC);
 GO
 
--- Creating primary key on [ID] in table 'Types'
-ALTER TABLE [dbo].[Types]
-ADD CONSTRAINT [PK_Types]
+-- Creating primary key on [ID] in table 'CardTypes'
+ALTER TABLE [dbo].[CardTypes]
+ADD CONSTRAINT [PK_CardTypes]
     PRIMARY KEY CLUSTERED ([ID] ASC);
 GO
 
@@ -322,16 +461,10 @@ ADD CONSTRAINT [PK_Sets]
     PRIMARY KEY CLUSTERED ([ID] ASC);
 GO
 
--- Creating primary key on [ID] in table 'Abilities'
-ALTER TABLE [dbo].[Abilities]
-ADD CONSTRAINT [PK_Abilities]
+-- Creating primary key on [ID] in table 'Keywords'
+ALTER TABLE [dbo].[Keywords]
+ADD CONSTRAINT [PK_Keywords]
     PRIMARY KEY CLUSTERED ([ID] ASC);
-GO
-
--- Creating primary key on [Id] in table 'Rarities'
-ALTER TABLE [dbo].[Rarities]
-ADD CONSTRAINT [PK_Rarities]
-    PRIMARY KEY CLUSTERED ([Id] ASC);
 GO
 
 -- Creating primary key on [ID] in table 'Legalities'
@@ -340,10 +473,70 @@ ADD CONSTRAINT [PK_Legalities]
     PRIMARY KEY CLUSTERED ([ID] ASC);
 GO
 
--- Creating primary key on [CardSet_Set_ID], [Sets_ID] in table 'CardSet'
-ALTER TABLE [dbo].[CardSet]
-ADD CONSTRAINT [PK_CardSet]
-    PRIMARY KEY CLUSTERED ([CardSet_Set_ID], [Sets_ID] ASC);
+-- Creating primary key on [ID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [PK_Printings]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Rarities'
+ALTER TABLE [dbo].[Rarities]
+ADD CONSTRAINT [PK_Rarities]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'ExceptionLogEntries'
+ALTER TABLE [dbo].[ExceptionLogEntries]
+ADD CONSTRAINT [PK_ExceptionLogEntries]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Layouts'
+ALTER TABLE [dbo].[Layouts]
+ADD CONSTRAINT [PK_Layouts]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Artists'
+ALTER TABLE [dbo].[Artists]
+ADD CONSTRAINT [PK_Artists]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Watermarks'
+ALTER TABLE [dbo].[Watermarks]
+ADD CONSTRAINT [PK_Watermarks]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Frames'
+ALTER TABLE [dbo].[Frames]
+ADD CONSTRAINT [PK_Frames]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Borders'
+ALTER TABLE [dbo].[Borders]
+ADD CONSTRAINT [PK_Borders]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'SetTypes'
+ALTER TABLE [dbo].[SetTypes]
+ADD CONSTRAINT [PK_SetTypes]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Pricings'
+ALTER TABLE [dbo].[Pricings]
+ADD CONSTRAINT [PK_Pricings]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
+GO
+
+-- Creating primary key on [ID] in table 'Blocks'
+ALTER TABLE [dbo].[Blocks]
+ADD CONSTRAINT [PK_Blocks]
+    PRIMARY KEY CLUSTERED ([ID] ASC);
 GO
 
 -- Creating primary key on [CardColor_Color_ID], [Colors_ID] in table 'CardColor'
@@ -358,69 +551,45 @@ ADD CONSTRAINT [PK_CardColorIdentity]
     PRIMARY KEY CLUSTERED ([CardColorIdentity_Color_ID], [ColorIdentity_ID] ASC);
 GO
 
--- Creating primary key on [CardSupertype_Supertype_ID], [Supertypes_ID] in table 'CardSupertype'
+-- Creating primary key on [Cards_ID], [Supertypes_ID] in table 'CardSupertype'
 ALTER TABLE [dbo].[CardSupertype]
 ADD CONSTRAINT [PK_CardSupertype]
-    PRIMARY KEY CLUSTERED ([CardSupertype_Supertype_ID], [Supertypes_ID] ASC);
+    PRIMARY KEY CLUSTERED ([Cards_ID], [Supertypes_ID] ASC);
 GO
 
--- Creating primary key on [CardType_Type_ID], [Types_ID] in table 'CardType'
-ALTER TABLE [dbo].[CardType]
-ADD CONSTRAINT [PK_CardType]
-    PRIMARY KEY CLUSTERED ([CardType_Type_ID], [Types_ID] ASC);
+-- Creating primary key on [Cards_ID], [Types_ID] in table 'CardCardType'
+ALTER TABLE [dbo].[CardCardType]
+ADD CONSTRAINT [PK_CardCardType]
+    PRIMARY KEY CLUSTERED ([Cards_ID], [Types_ID] ASC);
 GO
 
--- Creating primary key on [CardSubtype_Subtype_ID], [Subtypes_ID] in table 'CardSubtype'
+-- Creating primary key on [Cards_ID], [Subtypes_ID] in table 'CardSubtype'
 ALTER TABLE [dbo].[CardSubtype]
 ADD CONSTRAINT [PK_CardSubtype]
-    PRIMARY KEY CLUSTERED ([CardSubtype_Subtype_ID], [Subtypes_ID] ASC);
+    PRIMARY KEY CLUSTERED ([Cards_ID], [Subtypes_ID] ASC);
 GO
 
--- Creating primary key on [CardAbility_Ability_ID], [Abilities_ID] in table 'CardAbility'
-ALTER TABLE [dbo].[CardAbility]
-ADD CONSTRAINT [PK_CardAbility]
-    PRIMARY KEY CLUSTERED ([CardAbility_Ability_ID], [Abilities_ID] ASC);
+-- Creating primary key on [Types_ID], [Subtypes_ID] in table 'TypeSubtype'
+ALTER TABLE [dbo].[TypeSubtype]
+ADD CONSTRAINT [PK_TypeSubtype]
+    PRIMARY KEY CLUSTERED ([Types_ID], [Subtypes_ID] ASC);
 GO
 
--- Creating primary key on [CardRarity_Rarity_ID], [Rarities_Id] in table 'CardRarity'
-ALTER TABLE [dbo].[CardRarity]
-ADD CONSTRAINT [PK_CardRarity]
-    PRIMARY KEY CLUSTERED ([CardRarity_Rarity_ID], [Rarities_Id] ASC);
+-- Creating primary key on [Types_ID], [Supertypes_ID] in table 'TypeSupertype'
+ALTER TABLE [dbo].[TypeSupertype]
+ADD CONSTRAINT [PK_TypeSupertype]
+    PRIMARY KEY CLUSTERED ([Types_ID], [Supertypes_ID] ASC);
 GO
 
--- Creating primary key on [CardLegality_Legality_ID], [Legalities_ID] in table 'CardLegality'
-ALTER TABLE [dbo].[CardLegality]
-ADD CONSTRAINT [PK_CardLegality]
-    PRIMARY KEY CLUSTERED ([CardLegality_Legality_ID], [Legalities_ID] ASC);
+-- Creating primary key on [Cards_ID], [Keywords_ID] in table 'CardKeyword'
+ALTER TABLE [dbo].[CardKeyword]
+ADD CONSTRAINT [PK_CardKeyword]
+    PRIMARY KEY CLUSTERED ([Cards_ID], [Keywords_ID] ASC);
 GO
 
 -- --------------------------------------------------
 -- Creating all FOREIGN KEY constraints
 -- --------------------------------------------------
-
--- Creating foreign key on [CardSet_Set_ID] in table 'CardSet'
-ALTER TABLE [dbo].[CardSet]
-ADD CONSTRAINT [FK_CardSet_Card]
-    FOREIGN KEY ([CardSet_Set_ID])
-    REFERENCES [dbo].[Cards]
-        ([ID])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
-GO
-
--- Creating foreign key on [Sets_ID] in table 'CardSet'
-ALTER TABLE [dbo].[CardSet]
-ADD CONSTRAINT [FK_CardSet_Set]
-    FOREIGN KEY ([Sets_ID])
-    REFERENCES [dbo].[Sets]
-        ([ID])
-    ON DELETE NO ACTION ON UPDATE NO ACTION;
-GO
-
--- Creating non-clustered index for FOREIGN KEY 'FK_CardSet_Set'
-CREATE INDEX [IX_FK_CardSet_Set]
-ON [dbo].[CardSet]
-    ([Sets_ID]);
-GO
 
 -- Creating foreign key on [CardColor_Color_ID] in table 'CardColor'
 ALTER TABLE [dbo].[CardColor]
@@ -470,10 +639,10 @@ ON [dbo].[CardColorIdentity]
     ([ColorIdentity_ID]);
 GO
 
--- Creating foreign key on [CardSupertype_Supertype_ID] in table 'CardSupertype'
+-- Creating foreign key on [Cards_ID] in table 'CardSupertype'
 ALTER TABLE [dbo].[CardSupertype]
 ADD CONSTRAINT [FK_CardSupertype_Card]
-    FOREIGN KEY ([CardSupertype_Supertype_ID])
+    FOREIGN KEY ([Cards_ID])
     REFERENCES [dbo].[Cards]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
@@ -494,34 +663,34 @@ ON [dbo].[CardSupertype]
     ([Supertypes_ID]);
 GO
 
--- Creating foreign key on [CardType_Type_ID] in table 'CardType'
-ALTER TABLE [dbo].[CardType]
-ADD CONSTRAINT [FK_CardType_Card]
-    FOREIGN KEY ([CardType_Type_ID])
+-- Creating foreign key on [Cards_ID] in table 'CardCardType'
+ALTER TABLE [dbo].[CardCardType]
+ADD CONSTRAINT [FK_CardCardType_Card]
+    FOREIGN KEY ([Cards_ID])
     REFERENCES [dbo].[Cards]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating foreign key on [Types_ID] in table 'CardType'
-ALTER TABLE [dbo].[CardType]
-ADD CONSTRAINT [FK_CardType_Type]
+-- Creating foreign key on [Types_ID] in table 'CardCardType'
+ALTER TABLE [dbo].[CardCardType]
+ADD CONSTRAINT [FK_CardCardType_Type]
     FOREIGN KEY ([Types_ID])
-    REFERENCES [dbo].[Types]
+    REFERENCES [dbo].[CardTypes]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating non-clustered index for FOREIGN KEY 'FK_CardType_Type'
-CREATE INDEX [IX_FK_CardType_Type]
-ON [dbo].[CardType]
+-- Creating non-clustered index for FOREIGN KEY 'FK_CardCardType_Type'
+CREATE INDEX [IX_FK_CardCardType_Type]
+ON [dbo].[CardCardType]
     ([Types_ID]);
 GO
 
--- Creating foreign key on [CardSubtype_Subtype_ID] in table 'CardSubtype'
+-- Creating foreign key on [Cards_ID] in table 'CardSubtype'
 ALTER TABLE [dbo].[CardSubtype]
 ADD CONSTRAINT [FK_CardSubtype_Card]
-    FOREIGN KEY ([CardSubtype_Subtype_ID])
+    FOREIGN KEY ([Cards_ID])
     REFERENCES [dbo].[Cards]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
@@ -542,91 +711,271 @@ ON [dbo].[CardSubtype]
     ([Subtypes_ID]);
 GO
 
--- Creating foreign key on [CardAbility_Ability_ID] in table 'CardAbility'
-ALTER TABLE [dbo].[CardAbility]
-ADD CONSTRAINT [FK_CardAbility_Card]
-    FOREIGN KEY ([CardAbility_Ability_ID])
-    REFERENCES [dbo].[Cards]
+-- Creating foreign key on [Types_ID] in table 'TypeSubtype'
+ALTER TABLE [dbo].[TypeSubtype]
+ADD CONSTRAINT [FK_TypeSubtype_Type]
+    FOREIGN KEY ([Types_ID])
+    REFERENCES [dbo].[CardTypes]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating foreign key on [Abilities_ID] in table 'CardAbility'
-ALTER TABLE [dbo].[CardAbility]
-ADD CONSTRAINT [FK_CardAbility_Ability]
-    FOREIGN KEY ([Abilities_ID])
-    REFERENCES [dbo].[Abilities]
+-- Creating foreign key on [Subtypes_ID] in table 'TypeSubtype'
+ALTER TABLE [dbo].[TypeSubtype]
+ADD CONSTRAINT [FK_TypeSubtype_Subtype]
+    FOREIGN KEY ([Subtypes_ID])
+    REFERENCES [dbo].[Subtypes]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating non-clustered index for FOREIGN KEY 'FK_CardAbility_Ability'
-CREATE INDEX [IX_FK_CardAbility_Ability]
-ON [dbo].[CardAbility]
-    ([Abilities_ID]);
+-- Creating non-clustered index for FOREIGN KEY 'FK_TypeSubtype_Subtype'
+CREATE INDEX [IX_FK_TypeSubtype_Subtype]
+ON [dbo].[TypeSubtype]
+    ([Subtypes_ID]);
 GO
 
--- Creating foreign key on [OtherSide_ID] in table 'Cards'
-ALTER TABLE [dbo].[Cards]
-ADD CONSTRAINT [FK_CardSides]
-    FOREIGN KEY ([OtherSide_ID])
-    REFERENCES [dbo].[Cards]
+-- Creating foreign key on [Types_ID] in table 'TypeSupertype'
+ALTER TABLE [dbo].[TypeSupertype]
+ADD CONSTRAINT [FK_TypeSupertype_Type]
+    FOREIGN KEY ([Types_ID])
+    REFERENCES [dbo].[CardTypes]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating non-clustered index for FOREIGN KEY 'FK_CardSides'
-CREATE INDEX [IX_FK_CardSides]
-ON [dbo].[Cards]
-    ([OtherSide_ID]);
-GO
-
--- Creating foreign key on [CardRarity_Rarity_ID] in table 'CardRarity'
-ALTER TABLE [dbo].[CardRarity]
-ADD CONSTRAINT [FK_CardRarity_Card]
-    FOREIGN KEY ([CardRarity_Rarity_ID])
-    REFERENCES [dbo].[Cards]
+-- Creating foreign key on [Supertypes_ID] in table 'TypeSupertype'
+ALTER TABLE [dbo].[TypeSupertype]
+ADD CONSTRAINT [FK_TypeSupertype_Supertype]
+    FOREIGN KEY ([Supertypes_ID])
+    REFERENCES [dbo].[Supertypes]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating foreign key on [Rarities_Id] in table 'CardRarity'
-ALTER TABLE [dbo].[CardRarity]
-ADD CONSTRAINT [FK_CardRarity_Rarity]
-    FOREIGN KEY ([Rarities_Id])
+-- Creating non-clustered index for FOREIGN KEY 'FK_TypeSupertype_Supertype'
+CREATE INDEX [IX_FK_TypeSupertype_Supertype]
+ON [dbo].[TypeSupertype]
+    ([Supertypes_ID]);
+GO
+
+-- Creating foreign key on [ArtistID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [FK_PrintingArtist]
+    FOREIGN KEY ([ArtistID])
+    REFERENCES [dbo].[Artists]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PrintingArtist'
+CREATE INDEX [IX_FK_PrintingArtist]
+ON [dbo].[Printings]
+    ([ArtistID]);
+GO
+
+-- Creating foreign key on [WatermarkID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [FK_PrintingWatermark]
+    FOREIGN KEY ([WatermarkID])
+    REFERENCES [dbo].[Watermarks]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PrintingWatermark'
+CREATE INDEX [IX_FK_PrintingWatermark]
+ON [dbo].[Printings]
+    ([WatermarkID]);
+GO
+
+-- Creating foreign key on [FrameID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [FK_PrintingFrame]
+    FOREIGN KEY ([FrameID])
+    REFERENCES [dbo].[Frames]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PrintingFrame'
+CREATE INDEX [IX_FK_PrintingFrame]
+ON [dbo].[Printings]
+    ([FrameID]);
+GO
+
+-- Creating foreign key on [RarityID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [FK_PrintingRarity]
+    FOREIGN KEY ([RarityID])
     REFERENCES [dbo].[Rarities]
-        ([Id])
+        ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating non-clustered index for FOREIGN KEY 'FK_CardRarity_Rarity'
-CREATE INDEX [IX_FK_CardRarity_Rarity]
-ON [dbo].[CardRarity]
-    ([Rarities_Id]);
+-- Creating non-clustered index for FOREIGN KEY 'FK_PrintingRarity'
+CREATE INDEX [IX_FK_PrintingRarity]
+ON [dbo].[Printings]
+    ([RarityID]);
 GO
 
--- Creating foreign key on [CardLegality_Legality_ID] in table 'CardLegality'
-ALTER TABLE [dbo].[CardLegality]
-ADD CONSTRAINT [FK_CardLegality_Card]
-    FOREIGN KEY ([CardLegality_Legality_ID])
+-- Creating foreign key on [BorderID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [FK_PrintingBorder]
+    FOREIGN KEY ([BorderID])
+    REFERENCES [dbo].[Borders]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PrintingBorder'
+CREATE INDEX [IX_FK_PrintingBorder]
+ON [dbo].[Printings]
+    ([BorderID]);
+GO
+
+-- Creating foreign key on [SetID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [FK_PrintingSet]
+    FOREIGN KEY ([SetID])
+    REFERENCES [dbo].[Sets]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PrintingSet'
+CREATE INDEX [IX_FK_PrintingSet]
+ON [dbo].[Printings]
+    ([SetID]);
+GO
+
+-- Creating foreign key on [CardID] in table 'Printings'
+ALTER TABLE [dbo].[Printings]
+ADD CONSTRAINT [FK_CardPrinting]
+    FOREIGN KEY ([CardID])
     REFERENCES [dbo].[Cards]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating foreign key on [Legalities_ID] in table 'CardLegality'
-ALTER TABLE [dbo].[CardLegality]
-ADD CONSTRAINT [FK_CardLegality_Legality]
-    FOREIGN KEY ([Legalities_ID])
-    REFERENCES [dbo].[Legalities]
+-- Creating non-clustered index for FOREIGN KEY 'FK_CardPrinting'
+CREATE INDEX [IX_FK_CardPrinting]
+ON [dbo].[Printings]
+    ([CardID]);
+GO
+
+-- Creating foreign key on [Cards_ID] in table 'CardKeyword'
+ALTER TABLE [dbo].[CardKeyword]
+ADD CONSTRAINT [FK_CardKeyword_Card]
+    FOREIGN KEY ([Cards_ID])
+    REFERENCES [dbo].[Cards]
         ([ID])
     ON DELETE NO ACTION ON UPDATE NO ACTION;
 GO
 
--- Creating non-clustered index for FOREIGN KEY 'FK_CardLegality_Legality'
-CREATE INDEX [IX_FK_CardLegality_Legality]
-ON [dbo].[CardLegality]
-    ([Legalities_ID]);
+-- Creating foreign key on [Keywords_ID] in table 'CardKeyword'
+ALTER TABLE [dbo].[CardKeyword]
+ADD CONSTRAINT [FK_CardKeyword_Keyword]
+    FOREIGN KEY ([Keywords_ID])
+    REFERENCES [dbo].[Keywords]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_CardKeyword_Keyword'
+CREATE INDEX [IX_FK_CardKeyword_Keyword]
+ON [dbo].[CardKeyword]
+    ([Keywords_ID]);
+GO
+
+-- Creating foreign key on [LayoutID] in table 'Cards'
+ALTER TABLE [dbo].[Cards]
+ADD CONSTRAINT [FK_CardLayout]
+    FOREIGN KEY ([LayoutID])
+    REFERENCES [dbo].[Layouts]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_CardLayout'
+CREATE INDEX [IX_FK_CardLayout]
+ON [dbo].[Cards]
+    ([LayoutID]);
+GO
+
+-- Creating foreign key on [MainSideID] in table 'Cards'
+ALTER TABLE [dbo].[Cards]
+ADD CONSTRAINT [FK_CardCard]
+    FOREIGN KEY ([MainSideID])
+    REFERENCES [dbo].[Cards]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_CardCard'
+CREATE INDEX [IX_FK_CardCard]
+ON [dbo].[Cards]
+    ([MainSideID]);
+GO
+
+-- Creating foreign key on [SetTypeID] in table 'Sets'
+ALTER TABLE [dbo].[Sets]
+ADD CONSTRAINT [FK_SetSetType]
+    FOREIGN KEY ([SetTypeID])
+    REFERENCES [dbo].[SetTypes]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_SetSetType'
+CREATE INDEX [IX_FK_SetSetType]
+ON [dbo].[Sets]
+    ([SetTypeID]);
+GO
+
+-- Creating foreign key on [PrintingID] in table 'Pricings'
+ALTER TABLE [dbo].[Pricings]
+ADD CONSTRAINT [FK_PrintingPrice]
+    FOREIGN KEY ([PrintingID])
+    REFERENCES [dbo].[Printings]
+        ([ID])
+    ON DELETE CASCADE ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_PrintingPrice'
+CREATE INDEX [IX_FK_PrintingPrice]
+ON [dbo].[Pricings]
+    ([PrintingID]);
+GO
+
+-- Creating foreign key on [BlockID] in table 'Sets'
+ALTER TABLE [dbo].[Sets]
+ADD CONSTRAINT [FK_BlockSet]
+    FOREIGN KEY ([BlockID])
+    REFERENCES [dbo].[Blocks]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_BlockSet'
+CREATE INDEX [IX_FK_BlockSet]
+ON [dbo].[Sets]
+    ([BlockID]);
+GO
+
+-- Creating foreign key on [CardID] in table 'Legalities'
+ALTER TABLE [dbo].[Legalities]
+ADD CONSTRAINT [FK_CardLegality]
+    FOREIGN KEY ([CardID])
+    REFERENCES [dbo].[Cards]
+        ([ID])
+    ON DELETE NO ACTION ON UPDATE NO ACTION;
+GO
+
+-- Creating non-clustered index for FOREIGN KEY 'FK_CardLegality'
+CREATE INDEX [IX_FK_CardLegality]
+ON [dbo].[Legalities]
+    ([CardID]);
 GO
 
 -- --------------------------------------------------

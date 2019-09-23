@@ -8,9 +8,10 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Falcon.MtG.DBSync</RootNamespace>
     <AssemblyName>Falcon.MtG.DBSync</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,8 +39,8 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -54,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBSynchronizer.cs" />
-    <Compile Include="JsonSynchronizer.cs" />
+    <Compile Include="FileUtility.cs" />
     <Compile Include="LegalityHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -72,21 +73,17 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ContentWithTargetPath Include="SupplementalData\KeywordAbilities.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>..\SetData\KeywordAbilities.txt</TargetPath>
-    </ContentWithTargetPath>
     <ContentWithTargetPath Include="SupplementalData\TinyLeadersBanned.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>..\SetData\TinyLeadersBanned.txt</TargetPath>
     </ContentWithTargetPath>
-    <ContentWithTargetPath Include="SupplementalData\TinyLeadersCmdrBanned.txt">
+    <ContentWithTargetPath Include="SupplementalData\OathbreakerBanned.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>..\SetData\TinyLeadersCmdrBanned.txt</TargetPath>
+      <TargetPath>..\SetData\OathbreakerBanned.txt</TargetPath>
     </ContentWithTargetPath>
     <ContentWithTargetPath Include="SupplementalData\TinyLeadersCmdrBanned.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>..\SetData\BrawlBanned.txt</TargetPath>
+      <TargetPath>..\SetData\TinyLeadersCmdrBanned.txt</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -129,28 +129,27 @@
         /// </returns>
         public override string ToString()
         {
-            string[] WhoWhatWhereWhenWhy = { "Who", "What", "Where", "When", "Why" };
-
-            if (WhoWhatWhereWhenWhy.Contains(this.Name))
+            Card mainSide;
+            if (this.MainSide == null)
             {
-                return "Who/What/Where/When/Why";
+                mainSide = this;
             }
-            
-            if (this.OtherSide != null && this.MultiverseId == this.OtherSide.MultiverseId &&
-                (this.Subtypes.Select(t => t.Name).Contains("Instant") ||
-                 this.Subtypes.Select(t => t.Name).Contains("Sorcery")))
+            else
             {
-                if (this.IsPrimarySide)
-                {
-                    return this.Name + "/" + this.OtherSide.Name;
-                }
-                else
-                {
-                    return this.OtherSide.Name + "/" + this.Name;
-                }
+                mainSide = this.OtherSides.First();
             }
 
-            return this.Name;
+            var typesWithJoinedNames = new List<string>()
+            {
+                "split", "aftermath", "adventure"
+            };
+
+            if (typesWithJoinedNames.Contains(mainSide.Layout.Name.ToLower()))
+            {
+                return string.Join("/", mainSide.Name, mainSide.OtherSides.Select(s => s.Name));
+            }
+
+            return mainSide.Name;
         }
     }
 }

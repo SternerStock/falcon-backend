@@ -15,12 +15,27 @@ namespace Falcon.MtG
 using System;
     using System.Collections.Generic;
     
-public partial class Type
+public partial class Artist
 {
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+    public Artist()
+    {
+
+        this.Printings = new HashSet<Printing>();
+
+    }
+
 
     public int ID { get; set; }
 
     public string Name { get; set; }
+
+
+
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+
+    public virtual ICollection<Printing> Printings { get; set; }
 
 }
 

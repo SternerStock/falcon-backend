@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Falcon.MtG</RootNamespace>
     <AssemblyName>Falcon.MtG</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,12 +37,18 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="EntityFramework.SqlServerCompact, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.SqlServerCompact.6.2.0\lib\net45\EntityFramework.SqlServerCompact.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.SqlServer.Compact.4.0.8876.1\lib\net40\System.Data.SqlServerCe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,23 +57,64 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ability.cs">
+    <Compile Include="Artist.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Block.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Border.cs">
       <DependentUpon>MTGDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Card.cs">
       <DependentUpon>MTGDB.tt</DependentUpon>
     </Compile>
     <Compile Include="CardExtensions.cs" />
-    <Compile Include="Change.cs" />
+    <Compile Include="CardType.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
     <Compile Include="Color.cs">
       <DependentUpon>MTGDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="FormatLegality.cs" />
-    <Compile Include="JsonCard.cs" />
-    <Compile Include="JsonSet.cs" />
+    <Compile Include="ExceptionLog.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Frame.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Keyword.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Layout.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
     <Compile Include="Legality.cs">
       <DependentUpon>MTGDB.tt</DependentUpon>
     </Compile>
+    <Compile Include="MtgJsonModels\JsonPrices.cs" />
+    <Compile Include="Pricing.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Printing.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Rarity.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Set.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SetType.cs">
+      <DependentUpon>MTGDB.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SimpleLookup.cs" />
+    <Compile Include="MtgJsonModels\JsonKeywords.cs" />
+    <Compile Include="MtgJsonModels\JsonCardTypes.cs" />
+    <Compile Include="MtgJsonModels\JsonTypesFile.cs" />
+    <Compile Include="MtgJsonModels\JsonLegality.cs" />
+    <Compile Include="MtgJsonModels\JsonCard.cs" />
+    <Compile Include="MtgJsonModels\JsonSet.cs" />
+    <Compile Include="MtgJsonModels\JsonVersion.cs" />
     <Compile Include="MTGDB.Context.cs">
       <DependentUpon>MTGDB.Context.tt</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -84,22 +132,16 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries.cs" />
-    <Compile Include="Rarity.cs">
-      <DependentUpon>MTGDB.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Set.cs">
-      <DependentUpon>MTGDB.tt</DependentUpon>
-    </Compile>
     <Compile Include="Subtype.cs">
       <DependentUpon>MTGDB.tt</DependentUpon>
     </Compile>
     <Compile Include="Supertype.cs">
       <DependentUpon>MTGDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Type.cs">
+    <Compile Include="Utility.cs" />
+    <Compile Include="Watermark.cs">
       <DependentUpon>MTGDB.tt</DependentUpon>
     </Compile>
-    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -129,4 +171,11 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    if not exist "$(TargetDir)x86" md "$(TargetDir)x86"
+    xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\x86\*.*" "$(TargetDir)x86"
+    if not exist "$(TargetDir)amd64" md "$(TargetDir)amd64"
+    xcopy /s /y "$(SolutionDir)packages\Microsoft.SqlServer.Compact.4.0.8876.1\NativeBinaries\amd64\*.*" "$(TargetDir)amd64"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

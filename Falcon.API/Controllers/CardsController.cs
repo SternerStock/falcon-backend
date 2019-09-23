@@ -150,13 +150,13 @@
                 return this.NotFound();
             }
 
-            return this.Ok(new ResponseCard(c));
+            return this.Ok(new CardDto(c));
         }
 
         // GET: /api/Cards/Commanders/{format}
         [HttpGet]
         [ActionName("Commanders")]
-        public dynamic GetCommanders([FromUri(Name = "key")]EdhFormat format = EdhFormat.Commander)
+        public dynamic GetCommanders([FromUri(Name = "key")]Format format = Format.Commander)
         {
             var cmdrs = this.db.GetCommanders(format);
 
@@ -190,9 +190,9 @@
 
             results.Add(cmdr1);
 
-            if (results[0].Abilities.Select(a => a.Name).Contains("Partner"))
+            if (results[0].Keywords.Select(a => a.Name).Contains("Partner"))
             {
-                results.Add(cmdrs.Where(c => c.Name != cmdr1.Name && c.Abilities.Select(a => a.Name).Contains("Partner")).Shuffle().FirstOrDefault());
+                results.Add(cmdrs.Where(c => c.Name != cmdr1.Name && c.Keywords.Select(a => a.Name).Contains("Partner")).Shuffle().FirstOrDefault());
             }
 
             return results.Select(c => new
@@ -209,7 +209,7 @@
         public dynamic GetSets()
         {
             return this.db.Sets
-                .Where(s => this.possibleSetTypes.Contains(s.Type) && s.Border != "silver")
+                .Where(s => this.possibleSetTypes.Contains(s.SetType.Name))
                 .OrderByDescending(s => s.Date)
                 .Select(s => new
                 {
@@ -223,13 +223,13 @@
         [ActionName("RandomFlavor")]
         public dynamic RandomFlavor()
         {
-            return (from c in this.db.Cards
-                    where !string.IsNullOrEmpty(c.FlavorText)
+            return (from p in this.db.Printings
+                    where !string.IsNullOrEmpty(p.FlavorText)
                     orderby Guid.NewGuid()
                     select new
                     {
-                        name = c.Name,
-                        flavor = c.FlavorText
+                        name = p.Card.Name,
+                        flavor = p.FlavorText
                     }).FirstOrDefault();
         }
 

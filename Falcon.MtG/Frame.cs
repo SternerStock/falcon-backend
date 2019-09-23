@@ -15,11 +15,11 @@ namespace Falcon.MtG
 using System;
     using System.Collections.Generic;
     
-public partial class Rarity
+public partial class Frame
 {
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-    public Rarity()
+    public Frame()
     {
 
         this.Printings = new HashSet<Printing>();

@@ -7,7 +7,7 @@
 
     public static class Queries
     {
-        public static IQueryable<Card> LegalCards(this MTGDBContainer db, EdhFormat format = EdhFormat.Commander, bool cmdrsOnly = false)
+        public static IQueryable<Card> LegalCards(this MTGDBContainer db, Format format = Format.Commander, bool cmdrsOnly = false)
         {
             var legalities = db.Legalities.Where(l => l.Format == format.ToString());
             
@@ -24,33 +24,33 @@
 
             var cards = db.Cards.Where(c => c.Legalities.Intersect(legalities).Any());
 
-            if (format == EdhFormat.Pauper)
+            if (format == Format.Pauper)
             {
                 if (cmdrsOnly)
                 {
-                    cards = cards.Where(c => c.Rarities.Select(r => r.Name).Contains("Uncommon"));
+                    cards = cards.Where(c => c.Printings.Select(p => p.Rarity).Select(r => r.Name).Contains("Uncommon"));
                 }
                 else
                 {
-                    cards = cards.Where(c => c.Rarities.Select(r => r.Name).Contains("Common"));
+                    cards = cards.Where(c => c.Printings.Select(p => p.Rarity).Select(r => r.Name).Contains("Common"));
                 }
             }
 
             return cards;
         }
 
-        public static IQueryable<Card> GetCommanders(this MTGDBContainer db, EdhFormat format = EdhFormat.Commander)
+        public static IQueryable<Card> GetCommanders(this MTGDBContainer db, Format format = Format.Commander)
         {
             var cmdrTypes = new List<string>() { "Creature" };
 
-            if (format == EdhFormat.Brawl || format == EdhFormat.TinyLeaders)
+            if (format == Format.Brawl || format == Format.TinyLeaders)
             {
                 cmdrTypes.Add("Planeswalker");
             }
 
             var cards = db.LegalCards(format, true);
             
-            if (format == EdhFormat.Pauper)
+            if (format == Format.Pauper)
             {
                 cards = cards.Where(c => cmdrTypes.Any(s => c.Types.Select(t => t.Name).Contains(s)) || c.OracleText.Contains("can be your commander."));
             }
@@ -83,7 +83,7 @@
 
         public static IQueryable<Card> FilterBySets(this IQueryable<Card> cards, IEnumerable<string> setCodes)
         {
-            return cards.Where(c => c.Sets.Select(s => s.Code).Intersect(setCodes).Any());
+            return cards.Where(c => c.Printings.Select(p => p.Set).Select(s => s.Code).Intersect(setCodes).Any());
         }
 
         public static IQueryable<Card> FilterOutByOracleRegex(this IQueryable<Card> cards, string pattern)
@@ -112,7 +112,7 @@
             return cards.Where(c => !c.Types.Select(t => t.Name).Contains(typeName));
         }
 
-        public static List<Card> GetBasicLands(this MTGDBContainer db, int count, ICollection<Color> colors, EdhFormat format)
+        public static List<Card> GetBasicLands(this MTGDBContainer db, int count, ICollection<Color> colors, Format format)
         {
             Card plains = db.Cards.Where(c => c.Name == "Plains").First();
             Card island = db.Cards.Where(c => c.Name == "Island").First();
@@ -178,7 +178,7 @@
 
         public static IQueryable<Card> RestrictToRarity(this IQueryable<Card> cards, string rarity)
         {
-            return cards.Where(c => c.Rarities.Select(r => r.Name).Contains(rarity));
+            return cards.Where(c => c.Printings.Select(p => p.Rarity).Select(r => r.Name).Contains(rarity));
         }
 
         public static IQueryable<Card> RestrictToSupertype(this IQueryable<Card> cards, string typeName)

@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     internal class Program
     {
@@ -19,7 +20,7 @@
             AppDomain.CurrentDomain.SetData("DataDirectory", fullPath);
         }
 
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             bool force = false;
             string path = string.Empty;
@@ -43,14 +44,8 @@
                 InitDataDir();
                 var workingDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
 
-                var jsonSync = new JsonSynchronizer(workingDirectory);
-                var setsToUpdate = jsonSync.Sync(force);
-
-                Console.WriteLine("JSON download completed in " + timer.Elapsed);
-                timer.Restart();
-
-                var dbSync = new DBSynchronizer(workingDirectory);
-                dbSync.Sync(setsToUpdate);
+                var synchronizer = new DBSynchronizer(workingDirectory);
+                await synchronizer.Sync(force);
 
                 Console.WriteLine("Database sync completed in " + timer.Elapsed);
                 timer.Stop();

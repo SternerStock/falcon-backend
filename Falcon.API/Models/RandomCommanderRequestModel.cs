@@ -9,7 +9,7 @@
         public string[] Colors { get; set; }
 
         [JsonProperty("format")]
-        public EdhFormat Format { get; set; }
+        public Format Format { get; set; }
 
         [JsonProperty("matchAll")]
         public bool MatchAll { get; set; }

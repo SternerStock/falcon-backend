@@ -55,16 +55,16 @@
 
             switch (options.Format)
             {
-                case EdhFormat.Commander:
-                case EdhFormat.Pauper:
+                case Format.Commander:
+                case Format.Pauper:
                     this.ReqDeckSize = 100;
                     break;
 
-                case EdhFormat.Brawl:
+                case Format.Brawl:
                     this.ReqDeckSize = 60;
                     break;
 
-                case EdhFormat.TinyLeaders:
+                case Format.TinyLeaders:
                     this.ReqDeckSize = 50;
                     break;
             }

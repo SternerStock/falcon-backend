@@ -40,15 +40,35 @@ public partial class MTGDBContainer : DbContext
 
     public virtual DbSet<Subtype> Subtypes { get; set; }
 
-    public virtual DbSet<Type> Types { get; set; }
+    public virtual DbSet<CardType> CardTypes { get; set; }
 
     public virtual DbSet<Set> Sets { get; set; }
 
-    public virtual DbSet<Ability> Abilities { get; set; }
+    public virtual DbSet<Keyword> Keywords { get; set; }
+
+    public virtual DbSet<Legality> Legalities { get; set; }
+
+    public virtual DbSet<Printing> Printings { get; set; }
 
     public virtual DbSet<Rarity> Rarities { get; set; }
 
-    public virtual DbSet<Legality> Legalities { get; set; }
+    public virtual DbSet<ExceptionLog> ExceptionLogEntries { get; set; }
+
+    public virtual DbSet<Layout> Layouts { get; set; }
+
+    public virtual DbSet<Artist> Artists { get; set; }
+
+    public virtual DbSet<Watermark> Watermarks { get; set; }
+
+    public virtual DbSet<Frame> Frames { get; set; }
+
+    public virtual DbSet<Border> Borders { get; set; }
+
+    public virtual DbSet<SetType> SetTypes { get; set; }
+
+    public virtual DbSet<Pricing> Pricings { get; set; }
+
+    public virtual DbSet<Block> Blocks { get; set; }
 
 }
 

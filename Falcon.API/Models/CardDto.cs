@@ -1,54 +1,44 @@
 ﻿namespace Falcon.API.Models
 {
-    using System.Linq;
-    using System.Text.RegularExpressions;
     using Falcon.MtG;
-    using Newtonsoft.Json;
+    using System.Linq;
 
-    public class ResponseCard
+    public class CardDto
     {
-        public ResponseCard(Card c)
+        public CardDto(Card c)
         {
+            var lastPrinting = c.Printings.OrderByDescending(p => p.Set.Date).First();
+
             this.Id = c.ID;
-            this.MultiverseId = c.MultiverseId;
+            this.MultiverseId = lastPrinting.MultiverseId;
             this.Name = c.Name;
             this.ManaCost = c.ManaCost;
             this.TypeLine = c.TypeLine;
             this.OracleText = c.OracleText;
-            this.FlavorText = c.FlavorText;
+            this.FlavorText = lastPrinting.FlavorText;
             this.Power = c.Power;
             this.Toughness = c.Toughness;
             this.ColorIdentity = c.ColorIdentity.Select(ci => ci.Symbol).ToArray();
         }
 
-        [JsonProperty("colorIdentity")]
         public string[] ColorIdentity { get; set; }
 
-        [JsonProperty("flavorText")]
         public string FlavorText { get; set; }
 
-        [JsonProperty("id")]
         public int Id { get; set; }
 
-        [JsonProperty("manaCost")]
         public string ManaCost { get; set; }
 
-        [JsonProperty("multiverseId")]
         public int? MultiverseId { get; set; }
 
-        [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty("oracleText")]
         public string OracleText { get; set; }
 
-        [JsonProperty("power")]
-        public int? Power { get; set; }
+        public string Power { get; set; }
 
-        [JsonProperty("toughness")]
-        public int? Toughness { get; set; }
+        public string Toughness { get; set; }
 
-        [JsonProperty("typeLine")]
         public string TypeLine { get; set; }
     }
 }

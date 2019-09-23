@@ -1,15 +1,24 @@
 ﻿namespace Falcon.MtG
 {
-    using System.Collections.Generic;
+    using System.Data.Entity;
     using System.Linq;
-    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
 
-    public enum EdhFormat
+    public enum Format
     {
-        Commander = 0,
-        Brawl = 1,
-        TinyLeaders = 2,
-        Pauper = 3
+        Commander,
+        Brawl,
+        Duel,
+        Frontier,
+        Future,
+        Legacy,
+        Modern,
+        Pauper,
+        Penny,
+        Standard,
+        Vintage,
+        Oathbreaker,
+        TinyLeaders
     };
 
     public static class Utility
@@ -27,84 +36,97 @@
         /// <summary>
         /// Matches any colored mana symbol on a card, including mono, split, and phyrexian. Colors
         /// will be in $1 and $3 replacement groups. $1 may include a P or 2 in the case of phyrexian
-        /// mana or colorless split symbols.
+        /// mana or twobrid symbols.
         /// </summary>
         public const string ColoredManaSymbolRegex = @"\{([WUBRG2])([\/])?([WUBRGP])?\}";
 
-        /// <summary>
-        /// ///
-        /// </summary>
-        /// <param name="cardText"></param>
-        /// <returns></returns>
-        public static HashSet<string> GetColorIdentityFromText(string cardText)
+        private static async Task UpsertColor(MTGDBContainer db, string symbol, string name, string landName)
         {
-            var colors = new HashSet<string>();
-
-            if (!string.IsNullOrEmpty(cardText))
+            var existingColor = db.Colors.Local.Where(t => t.Symbol == symbol).SingleOrDefault();
+            if (existingColor == null)
             {
-                MatchCollection manaSymbols = Regex.Matches(cardText, ColoredManaSymbolRegex);
-                foreach (Match symbol in manaSymbols)
-                {
-                    if (symbol.Value.Contains("W"))
-                    {
-                        colors.Add("White");
-                    }
-
-                    if (symbol.Value.Contains("U"))
-                    {
-                        colors.Add("Blue");
-                    }
-
-                    if (symbol.Value.Contains("B"))
-                    {
-                        colors.Add("Black");
-                    }
-
-                    if (symbol.Value.Contains("R"))
-                    {
-                        colors.Add("Red");
-                    }
-
-                    if (symbol.Value.Contains("G"))
-                    {
-                        colors.Add("Green");
-                    }
-                }
+                existingColor = await db.Colors.Where(t => t.Symbol == symbol).SingleOrDefaultAsync();
             }
 
-            return colors;
+            if (existingColor == null)
+            {
+                existingColor = db.Colors.Add(new Color()
+                {
+                    Symbol = symbol
+                });
+            }
+
+            existingColor.Name = name;
+            existingColor.BasicLandName = landName;
         }
 
-        public static HashSet<string> GetColorIdentityFromTypes(IEnumerable<string> subtypes)
+        public static async Task SeedColorData(this MTGDBContainer db)
         {
-            var colors = new HashSet<string>();
+            await UpsertColor(db, "W", "White", "Plains");
+            await UpsertColor(db, "U", "Blue", "Island");
+            await UpsertColor(db, "B", "Black", "Swamp");
+            await UpsertColor(db, "R", "Red", "Mountain");
+            await UpsertColor(db, "G", "Green", "Forest");
+            await UpsertColor(db, "C", "Colorless", "Wastes");
+        }
 
-            if (subtypes.Contains("Plains"))
-            {
-                colors.Add("White");
-            }
+        public static async Task LoadLocalDB(this MTGDBContainer db)
+        {
+            await db.Subtypes
+                .Include(t => t.Types)
+                .LoadAsync();
 
-            if (subtypes.Contains("Island"))
-            {
-                colors.Add("Blue");
-            }
+            await db.Supertypes
+                .Include(t => t.Types)
+                .LoadAsync();
 
-            if (subtypes.Contains("Swamp"))
-            {
-                colors.Add("Black");
-            }
+            await db.CardTypes
+                .Include(t => t.Subtypes)
+                .Include(t => t.Supertypes)
+                .LoadAsync();
 
-            if (subtypes.Contains("Mountain"))
-            {
-                colors.Add("Red");
-            }
+            await db.Colors.LoadAsync();
+            await db.Keywords.LoadAsync();
+            await db.Layouts.LoadAsync();
+            await db.Legalities.LoadAsync();
 
-            if (subtypes.Contains("Forest"))
-            {
-                colors.Add("Green");
-            }
+            await db.Cards
+                .Include(c => c.Colors)
+                .Include(c => c.ColorIdentity)
+                .Include(c => c.Supertypes)
+                .Include(c => c.Types)
+                .Include(c => c.Subtypes)
+                .Include(c => c.Layout)
+                .Include(c => c.Legalities)
+                .Include(c => c.Keywords)
+                .Include(c => c.MainSide)
+                .LoadAsync();
 
-            return colors;
+            await db.Borders.LoadAsync();
+            await db.Artists.LoadAsync();
+            await db.Frames.LoadAsync();
+            await db.Pricings.LoadAsync();
+            await db.Rarities.LoadAsync();
+            await db.Watermarks.LoadAsync();
+
+            await db.Printings
+                .Include(p => p.Card)
+                .Include(p => p.Set)
+                .Include(p => p.Artist)
+                .Include(p => p.Watermark)
+                .Include(p => p.Frame)
+                .Include(p => p.Rarity)
+                .Include(p => p.Border)
+                .Include(p => p.Pricings)
+                .LoadAsync();
+
+            await db.Blocks.LoadAsync();
+            await db.SetTypes.LoadAsync();
+            await db.Sets
+                .Include(s => s.Block)
+                .Include(s => s.SetType)
+                .Include(s => s.Printings)
+                .LoadAsync();
         }
     }
 }

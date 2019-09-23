@@ -27,11 +27,8 @@ Mana Vault
 Metalworker
 Mind Twist
 Mishra's Workshop
-Mox Emerald
-Mox Jet
-Mox Pearl
-Mox Ruby
-Mox Sapphire
+Mox Emerald, Jet, Pearl, Ruby, and Sapphire
+Najeela, the Blade Blossom
 Necropotence
 Shahrazad
 Skullclamp

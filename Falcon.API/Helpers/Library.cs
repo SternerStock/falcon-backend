@@ -10,7 +10,7 @@
         private IQueryable<Card> legalCards;
         private IQueryable<Card> legalLands;
 
-        public Library(MTGDBContainer db, EdhFormat format)
+        public Library(MTGDBContainer db, Format format)
         {
             this.LegalCards = db.LegalCards(format).FilterOutType("Land");
             this.LegalLands = db.LegalCards(format).RestrictToType("Land").FilterOutSupertype("Basic");

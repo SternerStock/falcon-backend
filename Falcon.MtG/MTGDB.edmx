@@ -10,28 +10,29 @@
     <EntitySet Name="Colors" EntityType="Falcon.MtG.Store.Colors" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Supertypes" EntityType="Falcon.MtG.Store.Supertypes" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Subtypes" EntityType="Falcon.MtG.Store.Subtypes" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="Types" EntityType="Falcon.MtG.Store.Types" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardTypes" EntityType="Falcon.MtG.Store.CardTypes" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Sets" EntityType="Falcon.MtG.Store.Sets" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="Abilities" EntityType="Falcon.MtG.Store.Abilities" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="Rarities" EntityType="Falcon.MtG.Store.Rarities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Keywords" EntityType="Falcon.MtG.Store.Keywords" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="Legalities" EntityType="Falcon.MtG.Store.Legalities" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="CardSet" EntityType="Falcon.MtG.Store.CardSet" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Printings" EntityType="Falcon.MtG.Store.Printings" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Rarities" EntityType="Falcon.MtG.Store.Rarities" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="ExceptionLogEntries" EntityType="Falcon.MtG.Store.ExceptionLogEntries" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Layouts" EntityType="Falcon.MtG.Store.Layouts" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Artists" EntityType="Falcon.MtG.Store.Artists" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Watermarks" EntityType="Falcon.MtG.Store.Watermarks" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Frames" EntityType="Falcon.MtG.Store.Frames" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Borders" EntityType="Falcon.MtG.Store.Borders" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="SetTypes" EntityType="Falcon.MtG.Store.SetTypes" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Pricings" EntityType="Falcon.MtG.Store.Pricings" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Blocks" EntityType="Falcon.MtG.Store.Blocks" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardColor" EntityType="Falcon.MtG.Store.CardColor" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardColorIdentity" EntityType="Falcon.MtG.Store.CardColorIdentity" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardSupertype" EntityType="Falcon.MtG.Store.CardSupertype" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="CardType" EntityType="Falcon.MtG.Store.CardType" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardCardType" EntityType="Falcon.MtG.Store.CardCardType" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="CardSubtype" EntityType="Falcon.MtG.Store.CardSubtype" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="CardAbility" EntityType="Falcon.MtG.Store.CardAbility" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="CardRarity" EntityType="Falcon.MtG.Store.CardRarity" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="CardLegality" EntityType="Falcon.MtG.Store.CardLegality" store:Type="Tables" Schema="dbo" />
-    <AssociationSet Name="FK_CardSet_Card" Association="Falcon.MtG.Store.FK_CardSet_Card">
-      <End Role="Card" EntitySet="Cards" />
-      <End Role="CardSet" EntitySet="CardSet" />
-    </AssociationSet>
-    <AssociationSet Name="FK_CardSet_Set" Association="Falcon.MtG.Store.FK_CardSet_Set">
-      <End Role="Set" EntitySet="Sets" />
-      <End Role="CardSet" EntitySet="CardSet" />
-    </AssociationSet>
+    <EntitySet Name="TypeSubtype" EntityType="Falcon.MtG.Store.TypeSubtype" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="TypeSupertype" EntityType="Falcon.MtG.Store.TypeSupertype" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="CardKeyword" EntityType="Falcon.MtG.Store.CardKeyword" store:Type="Tables" Schema="dbo" />
     <AssociationSet Name="FK_CardColor_Card" Association="Falcon.MtG.Store.FK_CardColor_Card">
       <End Role="Card" EntitySet="Cards" />
       <End Role="CardColor" EntitySet="CardColor" />
@@ -56,13 +57,13 @@
       <End Role="Supertype" EntitySet="Supertypes" />
       <End Role="CardSupertype" EntitySet="CardSupertype" />
     </AssociationSet>
-    <AssociationSet Name="FK_CardType_Card" Association="Falcon.MtG.Store.FK_CardType_Card">
+    <AssociationSet Name="FK_CardCardType_Card" Association="Falcon.MtG.Store.FK_CardCardType_Card">
       <End Role="Card" EntitySet="Cards" />
-      <End Role="CardType" EntitySet="CardType" />
+      <End Role="CardCardType" EntitySet="CardCardType" />
     </AssociationSet>
-    <AssociationSet Name="FK_CardType_Type" Association="Falcon.MtG.Store.FK_CardType_Type">
-      <End Role="Type" EntitySet="Types" />
-      <End Role="CardType" EntitySet="CardType" />
+    <AssociationSet Name="FK_CardCardType_Type" Association="Falcon.MtG.Store.FK_CardCardType_Type">
+      <End Role="Type" EntitySet="CardTypes" />
+      <End Role="CardCardType" EntitySet="CardCardType" />
     </AssociationSet>
     <AssociationSet Name="FK_CardSubtype_Card" Association="Falcon.MtG.Store.FK_CardSubtype_Card">
       <End Role="Card" EntitySet="Cards" />
@@ -72,33 +73,81 @@
       <End Role="Subtype" EntitySet="Subtypes" />
       <End Role="CardSubtype" EntitySet="CardSubtype" />
     </AssociationSet>
-    <AssociationSet Name="FK_CardAbility_Card" Association="Falcon.MtG.Store.FK_CardAbility_Card">
+    <AssociationSet Name="FK_TypeSubtype_Type" Association="Falcon.MtG.Store.FK_TypeSubtype_Type">
+      <End Role="Type" EntitySet="CardTypes" />
+      <End Role="TypeSubtype" EntitySet="TypeSubtype" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TypeSubtype_Subtype" Association="Falcon.MtG.Store.FK_TypeSubtype_Subtype">
+      <End Role="Subtype" EntitySet="Subtypes" />
+      <End Role="TypeSubtype" EntitySet="TypeSubtype" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TypeSupertype_Type" Association="Falcon.MtG.Store.FK_TypeSupertype_Type">
+      <End Role="Type" EntitySet="CardTypes" />
+      <End Role="TypeSupertype" EntitySet="TypeSupertype" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TypeSupertype_Supertype" Association="Falcon.MtG.Store.FK_TypeSupertype_Supertype">
+      <End Role="Supertype" EntitySet="Supertypes" />
+      <End Role="TypeSupertype" EntitySet="TypeSupertype" />
+    </AssociationSet>
+    <AssociationSet Name="PrintingArtist" Association="Falcon.MtG.Store.PrintingArtist">
+      <End Role="Printing" EntitySet="Printings" />
+      <End Role="Artist" EntitySet="Artists" />
+    </AssociationSet>
+    <AssociationSet Name="PrintingWatermark" Association="Falcon.MtG.Store.PrintingWatermark">
+      <End Role="Printing" EntitySet="Printings" />
+      <End Role="Watermark" EntitySet="Watermarks" />
+    </AssociationSet>
+    <AssociationSet Name="PrintingFrame" Association="Falcon.MtG.Store.PrintingFrame">
+      <End Role="Printing" EntitySet="Printings" />
+      <End Role="Frame" EntitySet="Frames" />
+    </AssociationSet>
+    <AssociationSet Name="PrintingRarity" Association="Falcon.MtG.Store.PrintingRarity">
+      <End Role="Printing" EntitySet="Printings" />
+      <End Role="Rarity" EntitySet="Rarities" />
+    </AssociationSet>
+    <AssociationSet Name="PrintingBorder" Association="Falcon.MtG.Store.PrintingBorder">
+      <End Role="Printing" EntitySet="Printings" />
+      <End Role="Border" EntitySet="Borders" />
+    </AssociationSet>
+    <AssociationSet Name="PrintingSet" Association="Falcon.MtG.Store.PrintingSet">
+      <End Role="Printing" EntitySet="Printings" />
+      <End Role="Set" EntitySet="Sets" />
+    </AssociationSet>
+    <AssociationSet Name="CardPrinting" Association="Falcon.MtG.Store.CardPrinting">
       <End Role="Card" EntitySet="Cards" />
-      <End Role="CardAbility" EntitySet="CardAbility" />
+      <End Role="Printing" EntitySet="Printings" />
     </AssociationSet>
-    <AssociationSet Name="FK_CardAbility_Ability" Association="Falcon.MtG.Store.FK_CardAbility_Ability">
-      <End Role="Ability" EntitySet="Abilities" />
-      <End Role="CardAbility" EntitySet="CardAbility" />
+    <AssociationSet Name="FK_CardKeyword_Card" Association="Falcon.MtG.Store.FK_CardKeyword_Card">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="CardKeyword" EntitySet="CardKeyword" />
     </AssociationSet>
-    <AssociationSet Name="CardSides" Association="Falcon.MtG.Store.CardSides">
+    <AssociationSet Name="FK_CardKeyword_Keyword" Association="Falcon.MtG.Store.FK_CardKeyword_Keyword">
+      <End Role="Keyword" EntitySet="Keywords" />
+      <End Role="CardKeyword" EntitySet="CardKeyword" />
+    </AssociationSet>
+    <AssociationSet Name="CardLayout" Association="Falcon.MtG.Store.CardLayout">
+      <End Role="Card" EntitySet="Cards" />
+      <End Role="Layout" EntitySet="Layouts" />
+    </AssociationSet>
+    <AssociationSet Name="CardCard" Association="Falcon.MtG.Store.CardCard">
       <End Role="Card" EntitySet="Cards" />
       <End Role="Card1" EntitySet="Cards" />
     </AssociationSet>
-    <AssociationSet Name="FK_CardRarity_Card" Association="Falcon.MtG.Store.FK_CardRarity_Card">
+    <AssociationSet Name="SetSetType" Association="Falcon.MtG.Store.SetSetType">
+      <End Role="Set" EntitySet="Sets" />
+      <End Role="SetType" EntitySet="SetTypes" />
+    </AssociationSet>
+    <AssociationSet Name="PrintingPrice" Association="Falcon.MtG.Store.PrintingPrice">
+      <End Role="Printing" EntitySet="Printings" />
+      <End Role="Price" EntitySet="Pricings" />
+    </AssociationSet>
+    <AssociationSet Name="BlockSet" Association="Falcon.MtG.Store.BlockSet">
+      <End Role="Set" EntitySet="Sets" />
+      <End Role="Block" EntitySet="Blocks" />
+    </AssociationSet>
+    <AssociationSet Name="CardLegality" Association="Falcon.MtG.Store.CardLegality">
       <End Role="Card" EntitySet="Cards" />
-      <End Role="CardRarity" EntitySet="CardRarity" />
-    </AssociationSet>
-    <AssociationSet Name="FK_CardRarity_Rarity" Association="Falcon.MtG.Store.FK_CardRarity_Rarity">
-      <End Role="Rarity" EntitySet="Rarities" />
-      <End Role="CardRarity" EntitySet="CardRarity" />
-    </AssociationSet>
-    <AssociationSet Name="FK_CardLegality_Card" Association="Falcon.MtG.Store.FK_CardLegality_Card">
-      <End Role="Card" EntitySet="Cards" />
-      <End Role="CardLegality" EntitySet="CardLegality" />
-    </AssociationSet>
-    <AssociationSet Name="FK_CardLegality_Legality" Association="Falcon.MtG.Store.FK_CardLegality_Legality">
       <End Role="Legality" EntitySet="Legalities" />
-      <End Role="CardLegality" EntitySet="CardLegality" />
     </AssociationSet>
   </EntityContainer>
   <EntityType Name="Cards">
@@ -107,17 +156,17 @@
     </Key>
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="200" />
-    <Property Name="MultiverseId" Type="int" Nullable="true" />
     <Property Name="ManaCost" Type="nvarchar" Nullable="true" MaxLength="50" />
-    <Property Name="CMC" Type="int" Nullable="true" />
-    <Property Name="TypeLine" Type="nvarchar" Nullable="true" MaxLength="200" />
-    <Property Name="OracleText" Type="nvarchar(max)" Nullable="true" />
-    <Property Name="FlavorText" Type="nvarchar(max)" Nullable="true" />
-    <Property Name="Power" Type="int" Nullable="true" />
-    <Property Name="Toughness" Type="int" Nullable="true" />
-    <Property Name="LatestPrintDate" Type="datetime" Nullable="false" />
-    <Property Name="IsPrimarySide" Type="bit" Nullable="false" DefaultValue="true" />
-    <Property Name="OtherSide_ID" Type="int" Nullable="true" />
+    <Property Name="CMC" Type="float" Nullable="false" />
+    <Property Name="TypeLine" Type="nvarchar" Nullable="false" MaxLength="200" />
+    <Property Name="OracleText" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Power" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Toughness" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Loyalty" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="LayoutID" Type="int" Nullable="false" />
+    <Property Name="MainSideID" Type="int" Nullable="true" />
+    <Property Name="Side" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="EDHRECRank" Type="int" Nullable="true" />
   </EntityType>
   <EntityType Name="Colors">
     <Key>
@@ -126,6 +175,7 @@
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Symbol" Type="nvarchar" Nullable="false" MaxLength="1" />
     <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="BasicLandName" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="Supertypes">
     <Key>
@@ -141,7 +191,7 @@
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="50" />
   </EntityType>
-  <EntityType Name="Types">
+  <EntityType Name="CardTypes">
     <Key>
       <PropertyRef Name="ID" />
     </Key>
@@ -154,26 +204,19 @@
     </Key>
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Code" Type="nvarchar" Nullable="false" MaxLength="20" />
+    <Property Name="KeyruneCode" Type="nvarchar(max)" Nullable="false" />
     <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="200" />
     <Property Name="Date" Type="datetime" Nullable="false" />
-    <Property Name="Block" Type="nvarchar" Nullable="true" MaxLength="200" />
-    <Property Name="Type" Type="nvarchar(max)" Nullable="false" />
-    <Property Name="Border" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="SetTypeID" Type="int" Nullable="true" />
+    <Property Name="BlockID" Type="int" Nullable="true" />
   </EntityType>
-  <EntityType Name="Abilities">
+  <EntityType Name="Keywords">
     <Key>
       <PropertyRef Name="ID" />
     </Key>
     <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
     <Property Name="Name" Type="nvarchar" Nullable="false" MaxLength="200" />
     <Property Name="Type" Type="nvarchar" Nullable="false" MaxLength="200" />
-  </EntityType>
-  <EntityType Name="Rarities">
-    <Key>
-      <PropertyRef Name="Id" />
-    </Key>
-    <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="Legalities">
     <Key>
@@ -183,14 +226,99 @@
     <Property Name="Format" Type="nvarchar(max)" Nullable="false" />
     <Property Name="LegalAsCommander" Type="bit" Nullable="false" />
     <Property Name="Legal" Type="bit" Nullable="false" />
+    <Property Name="CardID" Type="int" Nullable="false" />
   </EntityType>
-  <EntityType Name="CardSet">
+  <EntityType Name="Printings">
     <Key>
-      <PropertyRef Name="CardSet_Set_ID" />
-      <PropertyRef Name="Sets_ID" />
+      <PropertyRef Name="ID" />
     </Key>
-    <Property Name="CardSet_Set_ID" Type="int" Nullable="false" />
-    <Property Name="Sets_ID" Type="int" Nullable="false" />
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="MultiverseId" Type="int" Nullable="false" />
+    <Property Name="FlavorText" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="CollectorNumber" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Side" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="ArtistID" Type="int" Nullable="true" />
+    <Property Name="WatermarkID" Type="int" Nullable="true" />
+    <Property Name="FrameID" Type="int" Nullable="false" />
+    <Property Name="RarityID" Type="int" Nullable="false" />
+    <Property Name="BorderID" Type="int" Nullable="false" />
+    <Property Name="SetID" Type="int" Nullable="false" />
+    <Property Name="CardID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Rarities">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="ExceptionLogEntries">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="RequestJson" Type="nvarchar(max)" Nullable="false" />
+    <Property Name="Outcome" Type="nvarchar" Nullable="false" MaxLength="200" />
+    <Property Name="Exception" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Layouts">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Artists">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Watermarks">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Frames">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Borders">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="SetTypes">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Pricings">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="PrintingID" Type="int" Nullable="false" />
+    <Property Name="Date" Type="datetime" Nullable="false" />
+    <Property Name="Price" Type="float" Nullable="false" />
+    <Property Name="Foil" Type="bit" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Blocks">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
   </EntityType>
   <EntityType Name="CardColor">
     <Key>
@@ -210,53 +338,149 @@
   </EntityType>
   <EntityType Name="CardSupertype">
     <Key>
-      <PropertyRef Name="CardSupertype_Supertype_ID" />
+      <PropertyRef Name="Cards_ID" />
       <PropertyRef Name="Supertypes_ID" />
     </Key>
-    <Property Name="CardSupertype_Supertype_ID" Type="int" Nullable="false" />
+    <Property Name="Cards_ID" Type="int" Nullable="false" />
     <Property Name="Supertypes_ID" Type="int" Nullable="false" />
   </EntityType>
-  <EntityType Name="CardType">
+  <EntityType Name="CardCardType">
     <Key>
-      <PropertyRef Name="CardType_Type_ID" />
+      <PropertyRef Name="Cards_ID" />
       <PropertyRef Name="Types_ID" />
     </Key>
-    <Property Name="CardType_Type_ID" Type="int" Nullable="false" />
+    <Property Name="Cards_ID" Type="int" Nullable="false" />
     <Property Name="Types_ID" Type="int" Nullable="false" />
   </EntityType>
   <EntityType Name="CardSubtype">
     <Key>
-      <PropertyRef Name="CardSubtype_Subtype_ID" />
+      <PropertyRef Name="Cards_ID" />
       <PropertyRef Name="Subtypes_ID" />
     </Key>
-    <Property Name="CardSubtype_Subtype_ID" Type="int" Nullable="false" />
+    <Property Name="Cards_ID" Type="int" Nullable="false" />
     <Property Name="Subtypes_ID" Type="int" Nullable="false" />
   </EntityType>
-  <EntityType Name="CardAbility">
+  <EntityType Name="TypeSubtype">
     <Key>
-      <PropertyRef Name="CardAbility_Ability_ID" />
-      <PropertyRef Name="Abilities_ID" />
+      <PropertyRef Name="Types_ID" />
+      <PropertyRef Name="Subtypes_ID" />
     </Key>
-    <Property Name="CardAbility_Ability_ID" Type="int" Nullable="false" />
-    <Property Name="Abilities_ID" Type="int" Nullable="false" />
+    <Property Name="Types_ID" Type="int" Nullable="false" />
+    <Property Name="Subtypes_ID" Type="int" Nullable="false" />
   </EntityType>
-  <EntityType Name="CardRarity">
+  <EntityType Name="TypeSupertype">
     <Key>
-      <PropertyRef Name="CardRarity_Rarity_ID" />
-      <PropertyRef Name="Rarities_Id" />
+      <PropertyRef Name="Types_ID" />
+      <PropertyRef Name="Supertypes_ID" />
     </Key>
-    <Property Name="CardRarity_Rarity_ID" Type="int" Nullable="false" />
-    <Property Name="Rarities_Id" Type="int" Nullable="false" />
+    <Property Name="Types_ID" Type="int" Nullable="false" />
+    <Property Name="Supertypes_ID" Type="int" Nullable="false" />
   </EntityType>
-  <EntityType Name="CardLegality">
+  <EntityType Name="CardKeyword">
     <Key>
-      <PropertyRef Name="CardLegality_Legality_ID" />
-      <PropertyRef Name="Legalities_ID" />
+      <PropertyRef Name="Cards_ID" />
+      <PropertyRef Name="Keywords_ID" />
     </Key>
-    <Property Name="CardLegality_Legality_ID" Type="int" Nullable="false" />
-    <Property Name="Legalities_ID" Type="int" Nullable="false" />
+    <Property Name="Cards_ID" Type="int" Nullable="false" />
+    <Property Name="Keywords_ID" Type="int" Nullable="false" />
   </EntityType>
-  <Association Name="CardSides">
+  <Association Name="PrintingArtist">
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="*" />
+    <End Role="Artist" Type="Falcon.MtG.Store.Artists" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Artist">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Printing">
+        <PropertyRef Name="ArtistID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PrintingWatermark">
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="*" />
+    <End Role="Watermark" Type="Falcon.MtG.Store.Watermarks" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Watermark">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Printing">
+        <PropertyRef Name="WatermarkID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PrintingFrame">
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="*" />
+    <End Role="Frame" Type="Falcon.MtG.Store.Frames" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Frame">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Printing">
+        <PropertyRef Name="FrameID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PrintingRarity">
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="*" />
+    <End Role="Rarity" Type="Falcon.MtG.Store.Rarities" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Rarity">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Printing">
+        <PropertyRef Name="RarityID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PrintingBorder">
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="*" />
+    <End Role="Border" Type="Falcon.MtG.Store.Borders" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Border">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Printing">
+        <PropertyRef Name="BorderID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PrintingSet">
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="*" />
+    <End Role="Set" Type="Falcon.MtG.Store.Sets" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Set">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Printing">
+        <PropertyRef Name="SetID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CardPrinting">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Card">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Printing">
+        <PropertyRef Name="CardID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CardLayout">
+    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="*" />
+    <End Role="Layout" Type="Falcon.MtG.Store.Layouts" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Layout">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Card">
+        <PropertyRef Name="LayoutID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CardCard">
     <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="0..1" />
     <End Role="Card1" Type="Falcon.MtG.Store.Cards" Multiplicity="*" />
     <ReferentialConstraint>
@@ -264,31 +488,57 @@
         <PropertyRef Name="ID" />
       </Principal>
       <Dependent Role="Card1">
-        <PropertyRef Name="OtherSide_ID" />
+        <PropertyRef Name="MainSideID" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="FK_CardSet_Card">
+  <Association Name="SetSetType">
+    <End Role="Set" Type="Falcon.MtG.Store.Sets" Multiplicity="*" />
+    <End Role="SetType" Type="Falcon.MtG.Store.SetTypes" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="SetType">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Set">
+        <PropertyRef Name="SetTypeID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="PrintingPrice">
+    <End Role="Printing" Type="Falcon.MtG.Store.Printings" Multiplicity="1">
+      <OnDelete Action="Cascade" />
+    </End>
+    <End Role="Price" Type="Falcon.MtG.Store.Pricings" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Printing">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Price">
+        <PropertyRef Name="PrintingID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="BlockSet">
+    <End Role="Set" Type="Falcon.MtG.Store.Sets" Multiplicity="*" />
+    <End Role="Block" Type="Falcon.MtG.Store.Blocks" Multiplicity="0..1" />
+    <ReferentialConstraint>
+      <Principal Role="Block">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Set">
+        <PropertyRef Name="BlockID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="CardLegality">
     <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
-    <End Role="CardSet" Type="Falcon.MtG.Store.CardSet" Multiplicity="*" />
+    <End Role="Legality" Type="Falcon.MtG.Store.Legalities" Multiplicity="*" />
     <ReferentialConstraint>
       <Principal Role="Card">
         <PropertyRef Name="ID" />
       </Principal>
-      <Dependent Role="CardSet">
-        <PropertyRef Name="CardSet_Set_ID" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK_CardSet_Set">
-    <End Role="CardSet" Type="Falcon.MtG.Store.CardSet" Multiplicity="*" />
-    <End Role="Set" Type="Falcon.MtG.Store.Sets" Multiplicity="1" />
-    <ReferentialConstraint>
-      <Principal Role="Set">
-        <PropertyRef Name="ID" />
-      </Principal>
-      <Dependent Role="CardSet">
-        <PropertyRef Name="Sets_ID" />
+      <Dependent Role="Legality">
+        <PropertyRef Name="CardID" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -348,7 +598,7 @@
         <PropertyRef Name="ID" />
       </Principal>
       <Dependent Role="CardSupertype">
-        <PropertyRef Name="CardSupertype_Supertype_ID" />
+        <PropertyRef Name="Cards_ID" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -364,26 +614,26 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="FK_CardType_Card">
+  <Association Name="FK_CardCardType_Card">
     <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
-    <End Role="CardType" Type="Falcon.MtG.Store.CardType" Multiplicity="*" />
+    <End Role="CardCardType" Type="Falcon.MtG.Store.CardCardType" Multiplicity="*" />
     <ReferentialConstraint>
       <Principal Role="Card">
         <PropertyRef Name="ID" />
       </Principal>
-      <Dependent Role="CardType">
-        <PropertyRef Name="CardType_Type_ID" />
+      <Dependent Role="CardCardType">
+        <PropertyRef Name="Cards_ID" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="FK_CardType_Type">
-    <End Role="CardType" Type="Falcon.MtG.Store.CardType" Multiplicity="*" />
-    <End Role="Type" Type="Falcon.MtG.Store.Types" Multiplicity="1" />
+  <Association Name="FK_CardCardType_Type">
+    <End Role="CardCardType" Type="Falcon.MtG.Store.CardCardType" Multiplicity="*" />
+    <End Role="Type" Type="Falcon.MtG.Store.CardTypes" Multiplicity="1" />
     <ReferentialConstraint>
       <Principal Role="Type">
         <PropertyRef Name="ID" />
       </Principal>
-      <Dependent Role="CardType">
+      <Dependent Role="CardCardType">
         <PropertyRef Name="Types_ID" />
       </Dependent>
     </ReferentialConstraint>
@@ -396,7 +646,7 @@
         <PropertyRef Name="ID" />
       </Principal>
       <Dependent Role="CardSubtype">
-        <PropertyRef Name="CardSubtype_Subtype_ID" />
+        <PropertyRef Name="Cards_ID" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -412,75 +662,75 @@
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="FK_CardAbility_Card">
+  <Association Name="FK_TypeSubtype_Type">
+    <End Role="Type" Type="Falcon.MtG.Store.CardTypes" Multiplicity="1" />
+    <End Role="TypeSubtype" Type="Falcon.MtG.Store.TypeSubtype" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Type">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="TypeSubtype">
+        <PropertyRef Name="Types_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TypeSubtype_Subtype">
+    <End Role="TypeSubtype" Type="Falcon.MtG.Store.TypeSubtype" Multiplicity="*" />
+    <End Role="Subtype" Type="Falcon.MtG.Store.Subtypes" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Subtype">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="TypeSubtype">
+        <PropertyRef Name="Subtypes_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TypeSupertype_Type">
+    <End Role="Type" Type="Falcon.MtG.Store.CardTypes" Multiplicity="1" />
+    <End Role="TypeSupertype" Type="Falcon.MtG.Store.TypeSupertype" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Type">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="TypeSupertype">
+        <PropertyRef Name="Types_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TypeSupertype_Supertype">
+    <End Role="TypeSupertype" Type="Falcon.MtG.Store.TypeSupertype" Multiplicity="*" />
+    <End Role="Supertype" Type="Falcon.MtG.Store.Supertypes" Multiplicity="1" />
+    <ReferentialConstraint>
+      <Principal Role="Supertype">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="TypeSupertype">
+        <PropertyRef Name="Supertypes_ID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_CardKeyword_Card">
     <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
-    <End Role="CardAbility" Type="Falcon.MtG.Store.CardAbility" Multiplicity="*" />
+    <End Role="CardKeyword" Type="Falcon.MtG.Store.CardKeyword" Multiplicity="*" />
     <ReferentialConstraint>
       <Principal Role="Card">
         <PropertyRef Name="ID" />
       </Principal>
-      <Dependent Role="CardAbility">
-        <PropertyRef Name="CardAbility_Ability_ID" />
+      <Dependent Role="CardKeyword">
+        <PropertyRef Name="Cards_ID" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
-  <Association Name="FK_CardAbility_Ability">
-    <End Role="CardAbility" Type="Falcon.MtG.Store.CardAbility" Multiplicity="*" />
-    <End Role="Ability" Type="Falcon.MtG.Store.Abilities" Multiplicity="1" />
+  <Association Name="FK_CardKeyword_Keyword">
+    <End Role="CardKeyword" Type="Falcon.MtG.Store.CardKeyword" Multiplicity="*" />
+    <End Role="Keyword" Type="Falcon.MtG.Store.Keywords" Multiplicity="1" />
     <ReferentialConstraint>
-      <Principal Role="Ability">
+      <Principal Role="Keyword">
         <PropertyRef Name="ID" />
       </Principal>
-      <Dependent Role="CardAbility">
-        <PropertyRef Name="Abilities_ID" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK_CardRarity_Card">
-    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
-    <End Role="CardRarity" Type="Falcon.MtG.Store.CardRarity" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Card">
-        <PropertyRef Name="ID" />
-      </Principal>
-      <Dependent Role="CardRarity">
-        <PropertyRef Name="CardRarity_Rarity_ID" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK_CardRarity_Rarity">
-    <End Role="CardRarity" Type="Falcon.MtG.Store.CardRarity" Multiplicity="*" />
-    <End Role="Rarity" Type="Falcon.MtG.Store.Rarities" Multiplicity="1" />
-    <ReferentialConstraint>
-      <Principal Role="Rarity">
-        <PropertyRef Name="Id" />
-      </Principal>
-      <Dependent Role="CardRarity">
-        <PropertyRef Name="Rarities_Id" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK_CardLegality_Card">
-    <End Role="Card" Type="Falcon.MtG.Store.Cards" Multiplicity="1" />
-    <End Role="CardLegality" Type="Falcon.MtG.Store.CardLegality" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Card">
-        <PropertyRef Name="ID" />
-      </Principal>
-      <Dependent Role="CardLegality">
-        <PropertyRef Name="CardLegality_Legality_ID" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK_CardLegality_Legality">
-    <End Role="CardLegality" Type="Falcon.MtG.Store.CardLegality" Multiplicity="*" />
-    <End Role="Legality" Type="Falcon.MtG.Store.Legalities" Multiplicity="1" />
-    <ReferentialConstraint>
-      <Principal Role="Legality">
-        <PropertyRef Name="ID" />
-      </Principal>
-      <Dependent Role="CardLegality">
-        <PropertyRef Name="Legalities_ID" />
+      <Dependent Role="CardKeyword">
+        <PropertyRef Name="Keywords_ID" />
       </Dependent>
     </ReferentialConstraint>
   </Association>
@@ -493,13 +743,9 @@
           <EntitySet Name="Colors" EntityType="Falcon.MtG.Color" />
           <EntitySet Name="Supertypes" EntityType="Falcon.MtG.Supertype" />
           <EntitySet Name="Subtypes" EntityType="Falcon.MtG.Subtype" />
-          <EntitySet Name="Types" EntityType="Falcon.MtG.Type" />
+          <EntitySet Name="CardTypes" EntityType="Falcon.MtG.CardType" />
           <EntitySet Name="Sets" EntityType="Falcon.MtG.Set" />
-          <EntitySet Name="Abilities" EntityType="Falcon.MtG.Ability" />
-          <AssociationSet Name="CardSet" Association="Falcon.MtG.CardSet">
-            <End Role="Card" EntitySet="Cards" />
-            <End Role="Set" EntitySet="Sets" />
-          </AssociationSet>
+          <EntitySet Name="Keywords" EntityType="Falcon.MtG.Keyword" />
           <AssociationSet Name="CardColor" Association="Falcon.MtG.CardColor">
             <End Role="Card" EntitySet="Cards" />
             <End Role="Color" EntitySet="Colors" />
@@ -512,28 +758,86 @@
             <End Role="Card" EntitySet="Cards" />
             <End Role="Supertype" EntitySet="Supertypes" />
           </AssociationSet>
-          <AssociationSet Name="CardType" Association="Falcon.MtG.CardType">
+          <AssociationSet Name="CardCardType" Association="Falcon.MtG.CardCardType">
             <End Role="Card" EntitySet="Cards" />
-            <End Role="Type" EntitySet="Types" />
+            <End Role="Type" EntitySet="CardTypes" />
           </AssociationSet>
           <AssociationSet Name="CardSubtype" Association="Falcon.MtG.CardSubtype">
             <End Role="Card" EntitySet="Cards" />
             <End Role="Subtype" EntitySet="Subtypes" />
           </AssociationSet>
-          <AssociationSet Name="CardAbility" Association="Falcon.MtG.CardAbility">
-            <End Role="Card" EntitySet="Cards" />
-            <End Role="Ability" EntitySet="Abilities" />
+          <EntitySet Name="Legalities" EntityType="Falcon.MtG.Legality" />
+          <EntitySet Name="Printings" EntityType="Falcon.MtG.Printing" />
+          <AssociationSet Name="TypeSubtype" Association="Falcon.MtG.TypeSubtype">
+            <End Role="Type" EntitySet="CardTypes" />
+            <End Role="Subtype" EntitySet="Subtypes" />
           </AssociationSet>
-          <AssociationSet Name="CardSides" Association="Falcon.MtG.CardSides">
+          <AssociationSet Name="TypeSupertype" Association="Falcon.MtG.TypeSupertype">
+            <End Role="Type" EntitySet="CardTypes" />
+            <End Role="Supertype" EntitySet="Supertypes" />
+          </AssociationSet>
+          <EntitySet Name="Rarities" EntityType="Falcon.MtG.Rarity" />
+          <EntitySet Name="ExceptionLogEntries" EntityType="Falcon.MtG.ExceptionLog" />
+          <EntitySet Name="Layouts" EntityType="Falcon.MtG.Layout" />
+          <EntitySet Name="Artists" EntityType="Falcon.MtG.Artist" />
+          <EntitySet Name="Watermarks" EntityType="Falcon.MtG.Watermark" />
+          <EntitySet Name="Frames" EntityType="Falcon.MtG.Frame" />
+          <AssociationSet Name="PrintingArtist" Association="Falcon.MtG.PrintingArtist">
+            <End Role="Printing" EntitySet="Printings" />
+            <End Role="Artist" EntitySet="Artists" />
+          </AssociationSet>
+          <AssociationSet Name="PrintingWatermark" Association="Falcon.MtG.PrintingWatermark">
+            <End Role="Printing" EntitySet="Printings" />
+            <End Role="Watermark" EntitySet="Watermarks" />
+          </AssociationSet>
+          <AssociationSet Name="PrintingFrame" Association="Falcon.MtG.PrintingFrame">
+            <End Role="Printing" EntitySet="Printings" />
+            <End Role="Frame" EntitySet="Frames" />
+          </AssociationSet>
+          <AssociationSet Name="PrintingRarity" Association="Falcon.MtG.PrintingRarity">
+            <End Role="Printing" EntitySet="Printings" />
+            <End Role="Rarity" EntitySet="Rarities" />
+          </AssociationSet>
+          <EntitySet Name="Borders" EntityType="Falcon.MtG.Border" />
+          <AssociationSet Name="PrintingBorder" Association="Falcon.MtG.PrintingBorder">
+            <End Role="Printing" EntitySet="Printings" />
+            <End Role="Border" EntitySet="Borders" />
+          </AssociationSet>
+          <AssociationSet Name="PrintingSet" Association="Falcon.MtG.PrintingSet">
+            <End Role="Printing" EntitySet="Printings" />
+            <End Role="Set" EntitySet="Sets" />
+          </AssociationSet>
+          <AssociationSet Name="CardPrinting" Association="Falcon.MtG.CardPrinting">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Printing" EntitySet="Printings" />
+          </AssociationSet>
+          <AssociationSet Name="CardKeyword" Association="Falcon.MtG.CardKeyword">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Keyword" EntitySet="Keywords" />
+          </AssociationSet>
+          <AssociationSet Name="CardLayout" Association="Falcon.MtG.CardLayout">
+            <End Role="Card" EntitySet="Cards" />
+            <End Role="Layout" EntitySet="Layouts" />
+          </AssociationSet>
+          <AssociationSet Name="CardCard" Association="Falcon.MtG.CardCard">
             <End Role="Card" EntitySet="Cards" />
             <End Role="Card1" EntitySet="Cards" />
           </AssociationSet>
-          <EntitySet Name="Rarities" EntityType="Falcon.MtG.Rarity" />
-          <AssociationSet Name="CardRarity" Association="Falcon.MtG.CardRarity">
-            <End Role="Card" EntitySet="Cards" />
-            <End Role="Rarity" EntitySet="Rarities" />
+          <EntitySet Name="SetTypes" EntityType="Falcon.MtG.SetType" />
+          <AssociationSet Name="SetSetType" Association="Falcon.MtG.SetSetType">
+            <End Role="Set" EntitySet="Sets" />
+            <End Role="SetType" EntitySet="SetTypes" />
           </AssociationSet>
-          <EntitySet Name="Legalities" EntityType="Falcon.MtG.Legality" />
+          <EntitySet Name="Pricings" EntityType="Falcon.MtG.Pricing" />
+          <AssociationSet Name="PrintingPrice" Association="Falcon.MtG.PrintingPrice">
+            <End Role="Printing" EntitySet="Printings" />
+            <End Role="Price" EntitySet="Pricings" />
+          </AssociationSet>
+          <EntitySet Name="Blocks" EntityType="Falcon.MtG.Block" />
+          <AssociationSet Name="BlockSet" Association="Falcon.MtG.BlockSet">
+            <End Role="Set" EntitySet="Sets" />
+            <End Role="Block" EntitySet="Blocks" />
+          </AssociationSet>
           <AssociationSet Name="CardLegality" Association="Falcon.MtG.CardLegality">
             <End Role="Card" EntitySet="Cards" />
             <End Role="Legality" EntitySet="Legalities" />
@@ -545,25 +849,27 @@
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" MaxLength="200" Unicode="true" FixedLength="false" xmlns="http://schemas.microsoft.com/ado/2009/11/edm" />
-          <Property Name="MultiverseId" Type="Int32" Nullable="true" />
           <Property Name="ManaCost" Type="String" Nullable="true" MaxLength="50" Unicode="true" FixedLength="false" />
-          <Property Name="CMC" Type="Int32" Nullable="true" />
-          <Property Name="TypeLine" Type="String" Nullable="true" MaxLength="200" Unicode="true" FixedLength="false" />
-          <Property Name="OracleText" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
-          <Property Name="FlavorText" Type="String" Nullable="true" MaxLength="Max" Unicode="true" FixedLength="false" />
-          <Property Name="Power" Type="Int32" Nullable="true" />
-          <Property Name="Toughness" Type="Int32" Nullable="true" />
-          <Property Name="LatestPrintDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="Sets" Relationship="Falcon.MtG.CardSet" FromRole="Card" ToRole="Set" />
+          <Property Name="CMC" Type="Double" Nullable="false" />
+          <Property Name="TypeLine" Type="String" Nullable="false" MaxLength="200" Unicode="true" FixedLength="false" />
+          <Property Name="OracleText" Type="String" Nullable="false" MaxLength="Max" Unicode="true" FixedLength="false" />
+          <Property Name="Power" Type="String" Nullable="true" />
+          <Property Name="Toughness" Type="String" Nullable="true" />
           <NavigationProperty Name="Colors" Relationship="Falcon.MtG.CardColor" FromRole="Card" ToRole="Color" />
           <NavigationProperty Name="ColorIdentity" Relationship="Falcon.MtG.CardColorIdentity" FromRole="Card" ToRole="Color" />
           <NavigationProperty Name="Supertypes" Relationship="Falcon.MtG.CardSupertype" FromRole="Card" ToRole="Supertype" />
-          <NavigationProperty Name="Types" Relationship="Falcon.MtG.CardType" FromRole="Card" ToRole="Type" />
+          <NavigationProperty Name="Types" Relationship="Falcon.MtG.CardCardType" FromRole="Card" ToRole="Type" />
           <NavigationProperty Name="Subtypes" Relationship="Falcon.MtG.CardSubtype" FromRole="Card" ToRole="Subtype" />
-          <NavigationProperty Name="Abilities" Relationship="Falcon.MtG.CardAbility" FromRole="Card" ToRole="Ability" />
-          <NavigationProperty Name="OtherSide" Relationship="Falcon.MtG.CardSides" FromRole="Card1" ToRole="Card" />
-          <Property Name="IsPrimarySide" Type="Boolean" Nullable="false" DefaultValue="true" />
-          <NavigationProperty Name="Rarities" Relationship="Falcon.MtG.CardRarity" FromRole="Card" ToRole="Rarity" />
+          <Property Name="Loyalty" Type="String" Nullable="true" />
+          <NavigationProperty Name="Printings" Relationship="Falcon.MtG.CardPrinting" FromRole="Card" ToRole="Printing" />
+          <NavigationProperty Name="Keywords" Relationship="Falcon.MtG.CardKeyword" FromRole="Card" ToRole="Keyword" />
+          <NavigationProperty Name="Layout" Relationship="Falcon.MtG.CardLayout" FromRole="Card" ToRole="Layout" />
+          <Property Name="LayoutID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OtherSides" Relationship="Falcon.MtG.CardCard" FromRole="Card" ToRole="Card1" />
+          <NavigationProperty Name="MainSide" Relationship="Falcon.MtG.CardCard" FromRole="Card1" ToRole="Card" />
+          <Property Name="MainSideID" Type="Int32" Nullable="true" />
+          <Property Name="Side" Type="String" Nullable="true" />
+          <Property Name="EDHRECRank" Type="Int32" Nullable="true" />
           <NavigationProperty Name="Legalities" Relationship="Falcon.MtG.CardLegality" FromRole="Card" ToRole="Legality" />
         </EntityType>
         <EntityType Name="Color">
@@ -573,6 +879,7 @@
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Symbol" Type="String" Nullable="false" MaxLength="1" Unicode="true" FixedLength="false" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <Property Name="BasicLandName" Type="String" Nullable="false" />
         </EntityType>
         <EntityType Name="Supertype">
           <Key>
@@ -580,6 +887,8 @@
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <NavigationProperty Name="Cards" Relationship="Falcon.MtG.CardSupertype" FromRole="Supertype" ToRole="Card" />
+          <NavigationProperty Name="Types" Relationship="Falcon.MtG.TypeSupertype" FromRole="Supertype" ToRole="Type" />
         </EntityType>
         <EntityType Name="Subtype">
           <Key>
@@ -587,13 +896,18 @@
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <NavigationProperty Name="Cards" Relationship="Falcon.MtG.CardSubtype" FromRole="Subtype" ToRole="Card" />
+          <NavigationProperty Name="Types" Relationship="Falcon.MtG.TypeSubtype" FromRole="Subtype" ToRole="Type" />
         </EntityType>
-        <EntityType Name="Type">
+        <EntityType Name="CardType">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+          <NavigationProperty Name="Cards" Relationship="Falcon.MtG.CardCardType" FromRole="Type" ToRole="Card" />
+          <NavigationProperty Name="Subtypes" Relationship="Falcon.MtG.TypeSubtype" FromRole="Type" ToRole="Subtype" />
+          <NavigationProperty Name="Supertypes" Relationship="Falcon.MtG.TypeSupertype" FromRole="Type" ToRole="Supertype" />
         </EntityType>
         <EntityType Name="Set">
           <Key>
@@ -601,62 +915,45 @@
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Code" Type="String" Nullable="false" annotation:StoreGeneratedPattern="None" MaxLength="20" Unicode="true" FixedLength="false" />
+          <Property Name="KeyruneCode" Type="String" Nullable="false" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="200" Unicode="true" FixedLength="false" />
           <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="Block" Type="String" Nullable="true" MaxLength="200" Unicode="true" FixedLength="false" />
-          <Property Name="Type" Type="String" Nullable="false" />
-          <Property Name="Border" Type="String" Nullable="false" />
+          <NavigationProperty Name="Printings" Relationship="Falcon.MtG.PrintingSet" FromRole="Set" ToRole="Printing" />
+          <NavigationProperty Name="SetType" Relationship="Falcon.MtG.SetSetType" FromRole="Set" ToRole="SetType" />
+          <Property Name="SetTypeID" Type="Int32" Nullable="true" />
+          <NavigationProperty Name="Block" Relationship="Falcon.MtG.BlockSet" FromRole="Set" ToRole="Block" />
+          <Property Name="BlockID" Type="Int32" Nullable="true" />
         </EntityType>
-        <EntityType Name="Ability">
+        <EntityType Name="Keyword">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Name" Type="String" Nullable="false" MaxLength="200" Unicode="true" FixedLength="false" />
           <Property Name="Type" Type="String" Nullable="false" MaxLength="200" Unicode="true" FixedLength="false" />
+          <NavigationProperty Name="Cards" Relationship="Falcon.MtG.CardKeyword" FromRole="Keyword" ToRole="Card" />
         </EntityType>
-        <Association Name="CardSet">
-          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
-          <End Type="Falcon.MtG.Set" Role="Set" Multiplicity="*" />
-        </Association>
         <Association Name="CardColor">
-          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" >
+          </End>
           <End Type="Falcon.MtG.Color" Role="Color" Multiplicity="*" />
         </Association>
         <Association Name="CardColorIdentity">
-          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" >
+          </End>
           <End Type="Falcon.MtG.Color" Role="Color" Multiplicity="*" />
         </Association>
         <Association Name="CardSupertype">
           <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
           <End Type="Falcon.MtG.Supertype" Role="Supertype" Multiplicity="*" />
         </Association>
-        <Association Name="CardType">
+        <Association Name="CardCardType">
           <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
-          <End Type="Falcon.MtG.Type" Role="Type" Multiplicity="*" />
+          <End Type="Falcon.MtG.CardType" Role="Type" Multiplicity="*" />
         </Association>
         <Association Name="CardSubtype">
           <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
           <End Type="Falcon.MtG.Subtype" Role="Subtype" Multiplicity="*" />
-        </Association>
-        <Association Name="CardAbility">
-          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
-          <End Type="Falcon.MtG.Ability" Role="Ability" Multiplicity="*" />
-        </Association>
-        <Association Name="CardSides">
-          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="0..1" />
-          <End Type="Falcon.MtG.Card" Role="Card1" Multiplicity="0..1" />
-        </Association>
-        <EntityType Name="Rarity">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
-        </EntityType>
-        <Association Name="CardRarity">
-          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
-          <End Type="Falcon.MtG.Rarity" Role="Rarity" Multiplicity="*" />
         </Association>
         <EntityType Name="Legality">
           <Key>
@@ -666,10 +963,289 @@
           <Property Name="Format" Type="String" Nullable="false" />
           <Property Name="LegalAsCommander" Type="Boolean" Nullable="false" />
           <Property Name="Legal" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Card" Relationship="Falcon.MtG.CardLegality" FromRole="Legality" ToRole="Card" />
+          <Property Name="CardID" Type="Int32" Nullable="false" />
         </EntityType>
-        <Association Name="CardLegality">
+        <EntityType Name="Printing">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MultiverseId" Type="Int32" Nullable="false" />
+          <Property Name="FlavorText" Type="String" Nullable="true" />
+          <Property Name="CollectorNumber" Type="String" Nullable="true" />
+          <NavigationProperty Name="Artist" Relationship="Falcon.MtG.PrintingArtist" FromRole="Printing" ToRole="Artist" />
+          <Property Name="Side" Type="String" Nullable="true" />
+          <Property Name="ArtistID" Type="Int32" Nullable="true" />
+          <NavigationProperty Name="Watermark" Relationship="Falcon.MtG.PrintingWatermark" FromRole="Printing" ToRole="Watermark" />
+          <Property Name="WatermarkID" Type="Int32" Nullable="true" />
+          <NavigationProperty Name="Frame" Relationship="Falcon.MtG.PrintingFrame" FromRole="Printing" ToRole="Frame" />
+          <Property Name="FrameID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Rarity" Relationship="Falcon.MtG.PrintingRarity" FromRole="Printing" ToRole="Rarity" />
+          <Property Name="RarityID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Border" Relationship="Falcon.MtG.PrintingBorder" FromRole="Printing" ToRole="Border" />
+          <Property Name="BorderID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Set" Relationship="Falcon.MtG.PrintingSet" FromRole="Printing" ToRole="Set" />
+          <Property Name="SetID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Card" Relationship="Falcon.MtG.CardPrinting" FromRole="Printing" ToRole="Card" />
+          <Property Name="CardID" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Pricings" Relationship="Falcon.MtG.PrintingPrice" FromRole="Printing" ToRole="Price" />
+        </EntityType>
+        <Association Name="TypeSubtype">
+          <End Type="Falcon.MtG.CardType" Role="Type" Multiplicity="*" />
+          <End Type="Falcon.MtG.Subtype" Role="Subtype" Multiplicity="*" />
+        </Association>
+        <Association Name="TypeSupertype">
+          <End Type="Falcon.MtG.CardType" Role="Type" Multiplicity="*" />
+          <End Type="Falcon.MtG.Supertype" Role="Supertype" Multiplicity="*" />
+        </Association>
+        <EntityType Name="Rarity">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="Printings" Relationship="Falcon.MtG.PrintingRarity" FromRole="Rarity" ToRole="Printing" />
+        </EntityType>
+        <EntityType Name="ExceptionLog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RequestJson" Type="String" Nullable="false" />
+          <Property Name="Outcome" Type="String" Nullable="false" MaxLength="200" />
+          <Property Name="Exception" Type="String" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Layout">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="Cards" Relationship="Falcon.MtG.CardLayout" FromRole="Layout" ToRole="Card" />
+        </EntityType>
+        <EntityType Name="Artist">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="Printings" Relationship="Falcon.MtG.PrintingArtist" FromRole="Artist" ToRole="Printing" />
+        </EntityType>
+        <EntityType Name="Watermark">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="Printings" Relationship="Falcon.MtG.PrintingWatermark" FromRole="Watermark" ToRole="Printing" />
+        </EntityType>
+        <EntityType Name="Frame">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="Printings" Relationship="Falcon.MtG.PrintingFrame" FromRole="Frame" ToRole="Printing" />
+        </EntityType>
+        <Association Name="PrintingArtist">
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="*" />
+          <End Type="Falcon.MtG.Artist" Role="Artist" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Artist">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Printing">
+              <PropertyRef Name="ArtistID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="PrintingWatermark">
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="*" />
+          <End Type="Falcon.MtG.Watermark" Role="Watermark" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Watermark">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Printing">
+              <PropertyRef Name="WatermarkID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="PrintingFrame">
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="*" />
+          <End Type="Falcon.MtG.Frame" Role="Frame" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Frame">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Printing">
+              <PropertyRef Name="FrameID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="PrintingRarity">
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="*" />
+          <End Type="Falcon.MtG.Rarity" Role="Rarity" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Rarity">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Printing">
+              <PropertyRef Name="RarityID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Border">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="Printings" Relationship="Falcon.MtG.PrintingBorder" FromRole="Border" ToRole="Printing" />
+        </EntityType>
+        <Association Name="PrintingBorder">
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="*" />
+          <End Type="Falcon.MtG.Border" Role="Border" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Border">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Printing">
+              <PropertyRef Name="BorderID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="PrintingSet">
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="*" />
+          <End Type="Falcon.MtG.Set" Role="Set" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Set">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Printing">
+              <PropertyRef Name="SetID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="CardPrinting">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="1" />
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="*" >
+          </End>
+          <ReferentialConstraint>
+            <Principal Role="Card">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Printing">
+              <PropertyRef Name="CardID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="CardKeyword">
           <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Keyword" Role="Keyword" Multiplicity="*" />
+        </Association>
+        <Association Name="CardLayout">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="*" />
+          <End Type="Falcon.MtG.Layout" Role="Layout" Multiplicity="1" />
+          <ReferentialConstraint>
+            <Principal Role="Layout">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Card">
+              <PropertyRef Name="LayoutID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="CardCard">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="0..1" />
+          <End Type="Falcon.MtG.Card" Role="Card1" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Card">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Card1">
+              <PropertyRef Name="MainSideID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="SetType">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Nullable="false" annotation:StoreGeneratedPattern="Identity" Type="Int32" />
+          <Property Name="Name" Nullable="false" Type="String" />
+          <NavigationProperty Name="Sets" Relationship="Falcon.MtG.SetSetType" FromRole="SetType" ToRole="Set" />
+        </EntityType>
+        <Association Name="SetSetType">
+          <End Type="Falcon.MtG.Set" Role="Set" Multiplicity="*" />
+          <End Type="Falcon.MtG.SetType" Role="SetType" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="SetType">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Set">
+              <PropertyRef Name="SetTypeID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Pricing">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns="http://schemas.microsoft.com/ado/2009/11/edm" />
+          <Property Name="PrintingID" Type="Int32" Nullable="false" />
+          <Property Name="Date" Type="DateTime" Nullable="false" />
+          <NavigationProperty Name="Printing" Relationship="Falcon.MtG.PrintingPrice" FromRole="Price" ToRole="Printing" />
+          <Property Name="Price" Type="Double" Nullable="false" />
+          <Property Name="Foil" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <Association Name="PrintingPrice">
+          <End Type="Falcon.MtG.Printing" Role="Printing" Multiplicity="1" >
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Falcon.MtG.Pricing" Role="Price" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Printing">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Price">
+              <PropertyRef Name="PrintingID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Block">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" />
+          <NavigationProperty Name="Sets" Relationship="Falcon.MtG.BlockSet" FromRole="Block" ToRole="Set" />
+        </EntityType>
+        <Association Name="BlockSet">
+          <End Type="Falcon.MtG.Set" Role="Set" Multiplicity="*" />
+          <End Type="Falcon.MtG.Block" Role="Block" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Block">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Set">
+              <PropertyRef Name="BlockID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="CardLegality">
+          <End Type="Falcon.MtG.Card" Role="Card" Multiplicity="1" >
+          </End>
           <End Type="Falcon.MtG.Legality" Role="Legality" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Card">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="Legality">
+              <PropertyRef Name="CardID" />
+            </Dependent>
+          </ReferentialConstraint>
         </Association>
       </Schema>
     </edmx:ConceptualModels>
@@ -682,16 +1258,17 @@
         <MappingFragment StoreEntitySet="Cards">
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="Name" ColumnName="Name" />
-          <ScalarProperty Name="MultiverseId" ColumnName="MultiverseId" />
           <ScalarProperty Name="ManaCost" ColumnName="ManaCost" />
           <ScalarProperty Name="CMC" ColumnName="CMC" />
           <ScalarProperty Name="TypeLine" ColumnName="TypeLine" />
           <ScalarProperty Name="OracleText" ColumnName="OracleText" />
-          <ScalarProperty Name="FlavorText" ColumnName="FlavorText" />
           <ScalarProperty Name="Power" ColumnName="Power" />
           <ScalarProperty Name="Toughness" ColumnName="Toughness" />
-          <ScalarProperty Name="LatestPrintDate" ColumnName="LatestPrintDate" />
-          <ScalarProperty Name="IsPrimarySide" ColumnName="IsPrimarySide" />
+          <ScalarProperty Name="Loyalty" ColumnName="Loyalty" />
+          <ScalarProperty Name="LayoutID" ColumnName="LayoutID" />
+          <ScalarProperty Name="MainSideID" ColumnName="MainSideID" />
+          <ScalarProperty Name="Side" ColumnName="Side" />
+          <ScalarProperty Name="EDHRECRank" ColumnName="EDHRECRank" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -701,6 +1278,7 @@
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="Symbol" ColumnName="Symbol" />
           <ScalarProperty Name="Name" ColumnName="Name" />
+          <ScalarProperty Name="BasicLandName" ColumnName="BasicLandName" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -720,9 +1298,9 @@
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="Types">
-      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Type)">
-        <MappingFragment StoreEntitySet="Types">
+    <EntitySetMapping Name="CardTypes">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.CardType)">
+        <MappingFragment StoreEntitySet="CardTypes">
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="Name" ColumnName="Name" />
         </MappingFragment>
@@ -733,28 +1311,20 @@
         <MappingFragment StoreEntitySet="Sets">
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="Code" ColumnName="Code" />
+          <ScalarProperty Name="KeyruneCode" ColumnName="KeyruneCode" />
           <ScalarProperty Name="Name" ColumnName="Name" />
           <ScalarProperty Name="Date" ColumnName="Date" />
-          <ScalarProperty Name="Block" ColumnName="Block" />
-          <ScalarProperty Name="Type" ColumnName="Type" />
-          <ScalarProperty Name="Border" ColumnName="Border" />
+          <ScalarProperty Name="SetTypeID" ColumnName="SetTypeID" />
+          <ScalarProperty Name="BlockID" ColumnName="BlockID" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="Abilities">
-      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Ability)">
-        <MappingFragment StoreEntitySet="Abilities">
+    <EntitySetMapping Name="Keywords">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Keyword)">
+        <MappingFragment StoreEntitySet="Keywords">
           <ScalarProperty Name="ID" ColumnName="ID" />
           <ScalarProperty Name="Name" ColumnName="Name" />
           <ScalarProperty Name="Type" ColumnName="Type" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
-    <EntitySetMapping Name="Rarities">
-      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Rarity)">
-        <MappingFragment StoreEntitySet="Rarities">
-          <ScalarProperty Name="Id" ColumnName="Id" />
-          <ScalarProperty Name="Name" ColumnName="Name" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -765,17 +1335,113 @@
           <ScalarProperty Name="Format" ColumnName="Format" />
           <ScalarProperty Name="LegalAsCommander" ColumnName="LegalAsCommander" />
           <ScalarProperty Name="Legal" ColumnName="Legal" />
+          <ScalarProperty Name="CardID" ColumnName="CardID" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <AssociationSetMapping Name="CardSet" TypeName="Falcon.MtG.CardSet" StoreEntitySet="CardSet">
-      <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="CardSet_Set_ID" />
-      </EndProperty>
-      <EndProperty Name="Set">
-        <ScalarProperty Name="ID" ColumnName="Sets_ID" />
-      </EndProperty>
-    </AssociationSetMapping>
+    <EntitySetMapping Name="Printings">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Printing)">
+        <MappingFragment StoreEntitySet="Printings">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="MultiverseId" ColumnName="MultiverseId" />
+          <ScalarProperty Name="FlavorText" ColumnName="FlavorText" />
+          <ScalarProperty Name="CollectorNumber" ColumnName="CollectorNumber" />
+          <ScalarProperty Name="Side" ColumnName="Side" />
+          <ScalarProperty Name="ArtistID" ColumnName="ArtistID" />
+          <ScalarProperty Name="WatermarkID" ColumnName="WatermarkID" />
+          <ScalarProperty Name="FrameID" ColumnName="FrameID" />
+          <ScalarProperty Name="RarityID" ColumnName="RarityID" />
+          <ScalarProperty Name="BorderID" ColumnName="BorderID" />
+          <ScalarProperty Name="SetID" ColumnName="SetID" />
+          <ScalarProperty Name="CardID" ColumnName="CardID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Rarities">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Rarity)">
+        <MappingFragment StoreEntitySet="Rarities">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="ExceptionLogEntries">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.ExceptionLog)">
+        <MappingFragment StoreEntitySet="ExceptionLogEntries">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="RequestJson" ColumnName="RequestJson" />
+          <ScalarProperty Name="Outcome" ColumnName="Outcome" />
+          <ScalarProperty Name="Exception" ColumnName="Exception" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Layouts">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Layout)">
+        <MappingFragment StoreEntitySet="Layouts">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Artists">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Artist)">
+        <MappingFragment StoreEntitySet="Artists">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Watermarks">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Watermark)">
+        <MappingFragment StoreEntitySet="Watermarks">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Frames">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Frame)">
+        <MappingFragment StoreEntitySet="Frames">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Borders">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Border)">
+        <MappingFragment StoreEntitySet="Borders">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="SetTypes">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.SetType)">
+        <MappingFragment StoreEntitySet="SetTypes">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Pricings">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Pricing)">
+        <MappingFragment StoreEntitySet="Pricings">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="PrintingID" ColumnName="PrintingID" />
+          <ScalarProperty Name="Date" ColumnName="Date" />
+          <ScalarProperty Name="Price" ColumnName="Price" />
+          <ScalarProperty Name="Foil" ColumnName="Foil" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Blocks">
+      <EntityTypeMapping TypeName="IsTypeOf(Falcon.MtG.Block)">
+        <MappingFragment StoreEntitySet="Blocks">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Name" ColumnName="Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <AssociationSetMapping Name="CardColor" TypeName="Falcon.MtG.CardColor" StoreEntitySet="CardColor">
       <EndProperty Name="Card">
         <ScalarProperty Name="ID" ColumnName="CardColor_Color_ID" />
@@ -794,15 +1460,15 @@
     </AssociationSetMapping>
     <AssociationSetMapping Name="CardSupertype" TypeName="Falcon.MtG.CardSupertype" StoreEntitySet="CardSupertype">
       <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="CardSupertype_Supertype_ID" />
+        <ScalarProperty Name="ID" ColumnName="Cards_ID" />
       </EndProperty>
       <EndProperty Name="Supertype">
         <ScalarProperty Name="ID" ColumnName="Supertypes_ID" />
       </EndProperty>
     </AssociationSetMapping>
-    <AssociationSetMapping Name="CardType" TypeName="Falcon.MtG.CardType" StoreEntitySet="CardType">
+    <AssociationSetMapping Name="CardCardType" TypeName="Falcon.MtG.CardCardType" StoreEntitySet="CardCardType">
       <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="CardType_Type_ID" />
+        <ScalarProperty Name="ID" ColumnName="Cards_ID" />
       </EndProperty>
       <EndProperty Name="Type">
         <ScalarProperty Name="ID" ColumnName="Types_ID" />
@@ -810,43 +1476,34 @@
     </AssociationSetMapping>
     <AssociationSetMapping Name="CardSubtype" TypeName="Falcon.MtG.CardSubtype" StoreEntitySet="CardSubtype">
       <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="CardSubtype_Subtype_ID" />
+        <ScalarProperty Name="ID" ColumnName="Cards_ID" />
       </EndProperty>
       <EndProperty Name="Subtype">
         <ScalarProperty Name="ID" ColumnName="Subtypes_ID" />
       </EndProperty>
     </AssociationSetMapping>
-    <AssociationSetMapping Name="CardAbility" TypeName="Falcon.MtG.CardAbility" StoreEntitySet="CardAbility">
-      <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="CardAbility_Ability_ID" />
+    <AssociationSetMapping Name="TypeSubtype" TypeName="Falcon.MtG.TypeSubtype" StoreEntitySet="TypeSubtype">
+      <EndProperty Name="Type">
+        <ScalarProperty Name="ID" ColumnName="Types_ID" />
       </EndProperty>
-      <EndProperty Name="Ability">
-        <ScalarProperty Name="ID" ColumnName="Abilities_ID" />
-      </EndProperty>
-    </AssociationSetMapping>
-    <AssociationSetMapping Name="CardSides" TypeName="Falcon.MtG.CardSides" StoreEntitySet="Cards">
-      <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="OtherSide_ID" />
-      </EndProperty>
-      <EndProperty Name="Card1">
-        <ScalarProperty Name="ID" ColumnName="ID" />
-      </EndProperty>
-      <Condition ColumnName="OtherSide_ID" IsNull="false" />
-    </AssociationSetMapping>
-    <AssociationSetMapping Name="CardRarity" TypeName="Falcon.MtG.CardRarity" StoreEntitySet="CardRarity">
-      <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="CardRarity_Rarity_ID" />
-      </EndProperty>
-      <EndProperty Name="Rarity">
-        <ScalarProperty Name="Id" ColumnName="Rarities_Id" />
+      <EndProperty Name="Subtype">
+        <ScalarProperty Name="ID" ColumnName="Subtypes_ID" />
       </EndProperty>
     </AssociationSetMapping>
-    <AssociationSetMapping Name="CardLegality" TypeName="Falcon.MtG.CardLegality" StoreEntitySet="CardLegality">
-      <EndProperty Name="Card">
-        <ScalarProperty Name="ID" ColumnName="CardLegality_Legality_ID" />
+    <AssociationSetMapping Name="TypeSupertype" TypeName="Falcon.MtG.TypeSupertype" StoreEntitySet="TypeSupertype">
+      <EndProperty Name="Type">
+        <ScalarProperty Name="ID" ColumnName="Types_ID" />
       </EndProperty>
-      <EndProperty Name="Legality">
-        <ScalarProperty Name="ID" ColumnName="Legalities_ID" />
+      <EndProperty Name="Supertype">
+        <ScalarProperty Name="ID" ColumnName="Supertypes_ID" />
+      </EndProperty>
+    </AssociationSetMapping>
+    <AssociationSetMapping Name="CardKeyword" TypeName="Falcon.MtG.CardKeyword" StoreEntitySet="CardKeyword">
+      <EndProperty Name="Card">
+        <ScalarProperty Name="ID" ColumnName="Cards_ID" />
+      </EndProperty>
+      <EndProperty Name="Keyword">
+        <ScalarProperty Name="ID" ColumnName="Keywords_ID" />
       </EndProperty>
     </AssociationSetMapping>
   </EntityContainerMapping>
