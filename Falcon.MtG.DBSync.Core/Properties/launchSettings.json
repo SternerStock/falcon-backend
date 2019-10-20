@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Falcon.MtG.DBSync.Core": {
+      "commandName": "Project",
+      "commandLineArgs": "/force"
+    }
+  }
+}
