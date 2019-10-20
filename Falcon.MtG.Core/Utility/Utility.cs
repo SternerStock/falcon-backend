@@ -72,8 +72,6 @@
             await db.CardTypes.LoadAsync();
             await db.Subtypes.LoadAsync();
             await db.Supertypes.LoadAsync();
-            await db.CardTypeSubtypes.LoadAsync();
-            await db.CardTypeSupertypes.LoadAsync();
 
             await db.Colors.LoadAsync();
             await db.Keywords.LoadAsync();

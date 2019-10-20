@@ -31,17 +31,18 @@
         {
             var path = HostingEnvironment.MapPath("~/App_Data/skaorkid.csv");
             var reader = new StreamReader(path);
-            var csv = new CsvReader(reader);
-
-            var records = csv.GetRecords<SkaAnswer>().ToList();
-
-            var policy = new CacheItemPolicy
+            using (var csv = new CsvReader(reader))
             {
-                AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(CacheTimeoutMinutes)
-            };
+                var records = csv.GetRecords<SkaAnswer>().ToList();
 
-            var cache = MemoryCache.Default;
-            cache.Set(MemCacheKey, records, policy);
+                var policy = new CacheItemPolicy
+                {
+                    AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(CacheTimeoutMinutes)
+                };
+
+                var cache = MemoryCache.Default;
+                cache.Set(MemCacheKey, records, policy);
+            }
         }
     }
 }

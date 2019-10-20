@@ -21,8 +21,8 @@
 
         private readonly MTGDBContainer db;
         private bool disposedValue = false;
-        private LegalityHelper legalityHelper;
-        private string workingDirectory;
+        private readonly LegalityHelper legalityHelper;
+        private readonly string workingDirectory;
 
         public DBSynchronizer(string workingDir)
         {

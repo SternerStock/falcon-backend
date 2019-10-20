@@ -19,54 +19,54 @@
                 .Build();
         }
 
-        public UpsertResult<List<Legality>> UpsertLegalities(MtGDBContext db, Card card, JsonLegality legality, JsonLeadership leadership)
+        public UpsertResult<List<Legality>> UpsertLegalities(Card card, JsonLegality legality, JsonLeadership leadership)
         {
             var result = new UpsertResult<List<Legality>>()
             {
                 MainObject = new List<Legality>()
             };
 
-            var brawl = this.UpsertLegality(db, card, "Brawl", IsLegal(legality.Brawl), false);
+            var brawl = this.UpsertLegality(card, "Brawl", IsLegal(legality.Brawl), false);
             result.MainObject.Add(brawl.MainObject);
             result.Merge(brawl);
 
-            var commander = this.UpsertLegality(db, card, "Commander", IsLegal(legality.Commander), leadership.Commander);
+            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), leadership.Commander);
             result.MainObject.Add(commander.MainObject);
             result.Merge(commander);
 
-            var duel = this.UpsertLegality(db, card, "Duel", IsLegal(legality.Duel), false);
+            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), false);
             result.MainObject.Add(duel.MainObject);
             result.Merge(duel);
 
-            var frontier = this.UpsertLegality(db, card, "Frontier", IsLegal(legality.Frontier), false);
+            var frontier = this.UpsertLegality(card, "Frontier", IsLegal(legality.Frontier), false);
             result.MainObject.Add(frontier.MainObject);
             result.Merge(frontier);
 
-            var future = this.UpsertLegality(db, card, "Future", IsLegal(legality.Future), false);
+            var future = this.UpsertLegality(card, "Future", IsLegal(legality.Future), false);
             result.MainObject.Add(future.MainObject);
             result.Merge(future);
 
-            var legacy = this.UpsertLegality(db, card, "Legacy", IsLegal(legality.Legacy), false);
+            var legacy = this.UpsertLegality(card, "Legacy", IsLegal(legality.Legacy), false);
             result.MainObject.Add(legacy.MainObject);
             result.Merge(legacy);
 
-            var modern = this.UpsertLegality(db, card, "Modern", IsLegal(legality.Modern), false);
+            var modern = this.UpsertLegality(card, "Modern", IsLegal(legality.Modern), false);
             result.MainObject.Add(modern.MainObject);
             result.Merge(modern);
 
-            var pauper = this.UpsertLegality(db, card, "Pauper", IsLegal(legality.Pauper), leadership.Commander);
+            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), leadership.Commander);
             result.MainObject.Add(pauper.MainObject);
             result.Merge(pauper);
 
-            var penny = this.UpsertLegality(db, card, "Penny", IsLegal(legality.Penny), leadership.Commander);
+            var penny = this.UpsertLegality(card, "Penny", IsLegal(legality.Penny), leadership.Commander);
             result.MainObject.Add(penny.MainObject);
             result.Merge(penny);
 
-            var standard = this.UpsertLegality(db, card, "Standard", IsLegal(legality.Standard), false);
+            var standard = this.UpsertLegality(card, "Standard", IsLegal(legality.Standard), false);
             result.MainObject.Add(standard.MainObject);
             result.Merge(standard);
 
-            var vintage = this.UpsertLegality(db, card, "Vintage", IsLegal(legality.Vintage), false);
+            var vintage = this.UpsertLegality(card, "Vintage", IsLegal(legality.Vintage), false);
             result.MainObject.Add(vintage.MainObject);
             result.Merge(vintage);
 
@@ -77,7 +77,7 @@
                 obLegality = "Banned";
             }
 
-            var oathbreaker = this.UpsertLegality(db, card, "Oathbreaker", IsLegal(obLegality), leadership.Oathbreaker);
+            var oathbreaker = this.UpsertLegality(card, "Oathbreaker", IsLegal(obLegality), leadership.Oathbreaker);
             result.MainObject.Add(oathbreaker.MainObject);
             result.Merge(oathbreaker);
 
@@ -95,7 +95,7 @@
                 tlCmdrLegality = "Banned";
             }
 
-            var tinyLeaders = this.UpsertLegality(db, card, "TinyLeaders", IsLegal(tlLegality), IsLegal(tlCmdrLegality));
+            var tinyLeaders = this.UpsertLegality(card, "TinyLeaders", IsLegal(tlLegality), IsLegal(tlCmdrLegality));
             result.MainObject.Add(tinyLeaders.MainObject);
             result.Merge(tinyLeaders);
 
@@ -107,7 +107,7 @@
             return text == "Legal" || text == "Restricted";
         }
 
-        private UpsertResult<Legality> UpsertLegality(MtGDBContext db, Card card, string format, bool legal, bool leader)
+        private UpsertResult<Legality> UpsertLegality(Card card, string format, bool legal, bool leader)
         {
             var result = new UpsertResult<Legality>();
 

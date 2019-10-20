@@ -4,6 +4,8 @@
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using SharpCompress.Common;
+    using SharpCompress.Readers;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -13,7 +15,9 @@
 
     public class DBSynchronizer : IDisposable
     {
-        private const string AllSetsFileName = "AllSets.json";
+        private const string AllSetsArchiveFileName = "AllSetFiles.tar.bz2";
+        private const string SetsFolderName = "Sets";
+        private const string SetListFileName = "SetList.json";
         private const string CardTypesFileName = "CardTypes.json";
         private const string KeywordsFileName = "Keywords.json";
         private const string MtgJsonUrl = "https://mtgjson.com/json/";
@@ -21,8 +25,8 @@
 
         private MtGDBContext db;
         private bool disposedValue = false;
-        private LegalityHelper legalityHelper;
-        private string workingDirectory;
+        private readonly LegalityHelper legalityHelper;
+        private readonly string workingDirectory;
 
         public DBSynchronizer(string workingDir)
         {
@@ -55,12 +59,12 @@
                 await this.SaveChanges();
 
                 var setList = await this.LoadSetList();
-                foreach (var set in setList)
+                foreach (var setCode in setList)
                 {
                     await this.RefreshContext();
-                    await this.LoadSet(set);
-                    await db.LoadLookups();
-                    await this.SyncSet(set);
+                    var loadedSet = await this.LoadSet(setCode);
+                    //await db.LoadLookups();
+                    await this.SyncSet(loadedSet);
                 }
 
                 await this.SaveChanges();
@@ -86,17 +90,27 @@
 
         protected async Task RefreshContext()
         {
-            await this.db.DisposeAsync();
+            if (this.db != null)
+            {
+                await this.db.DisposeAsync();
+            }
+
             this.db = new MtGDBContext();
             this.db.ChangeTracker.AutoDetectChangesEnabled = false;
         }
 
-        private async Task LoadSet(JsonSet set)
+        private async Task<JsonSet> LoadSet(string setCode)
         {
+            // Conflux's file name has to be CON_ to avoid OS issues.
+            var jsonFileName = setCode + (setCode == "CON" ? "_" : string.Empty) + ".json";
+            var setDataPath = Path.Combine(this.workingDirectory, SetsFolderName, jsonFileName);
+            var setData = await File.ReadAllTextAsync(setDataPath);
+            var set = JsonConvert.DeserializeObject<JsonSet>(setData);
+
             await db.Sets
                 .Include(s => s.Block)
                 .Include(s => s.SetType)
-                .Where(s => s.Name == set.Name).LoadAsync();
+                .Where(s => s.Code == setCode).LoadAsync();
 
             await db.Printings
                 //.Include(p => p.Card)
@@ -127,23 +141,44 @@
                 .Include(c => c.MainSide)
                 .Where(c => set.Cards.Select(sc => sc.Name).Contains(c.Name))
                 .LoadAsync();
+
+            return set;
         }
 
-        private async Task<List<JsonSet>> LoadSetList()
+        private async Task<IEnumerable<string>> LoadSetList()
         {
-            var setsFilePath = Path.Combine(this.workingDirectory, AllSetsFileName);
-            string setsText = await FileUtility.ReadAllTextAsync(setsFilePath);
-            JObject parsedSetData = JsonConvert.DeserializeObject<JObject>(setsText);
+            var setsArchiveFilePath = Path.Combine(this.workingDirectory, AllSetsArchiveFileName);
+            var setsSubfolderPath = Path.Combine(this.workingDirectory, SetsFolderName);
+            var extractionOptions = new ExtractionOptions()
+            {
+                ExtractFullPath = true,
+                Overwrite = true
+            };
+
+            using (var stream = File.OpenRead(setsArchiveFilePath))
+            {
+                using var reader = ReaderFactory.Open(stream);
+                while (reader.MoveToNextEntry())
+                {
+                    if (!reader.Entry.IsDirectory)
+                    {
+                        reader.WriteEntryToDirectory(setsSubfolderPath, extractionOptions);
+                    }
+                }
+            }
+
+            string setsText = await FileUtility.ReadAllTextAsync(SetListFileName);
+            JArray parsedSetData = JsonConvert.DeserializeObject<JArray>(setsText);
 
             var setList = new List<JsonSet>();
             foreach (var set in parsedSetData)
             {
-                setList.Add(set.Value.ToObject<JsonSet>());
+                setList.Add(set.ToObject<JsonSet>());
             }
 
             setList.Sort(new JsonSetComparer());
 
-            return setList;
+            return setList.Select(s => s.Code);
         }
 
         /// <summary>
@@ -153,7 +188,8 @@
         private async Task<bool> DownloadJson(bool force)
         {
             var versionFilePath = Path.Combine(this.workingDirectory, VersionFileName);
-            var setsFilePath = Path.Combine(this.workingDirectory, AllSetsFileName);
+            var setsFilePath = Path.Combine(this.workingDirectory, AllSetsArchiveFileName);
+            var setListFilePath = Path.Combine(this.workingDirectory, SetListFileName);
             var keywordsFilePath = Path.Combine(this.workingDirectory, KeywordsFileName);
             var typesFilePath = Path.Combine(this.workingDirectory, CardTypesFileName);
 
@@ -178,7 +214,8 @@
 
                     await client.DownloadFileTaskAsync(MtgJsonUrl + KeywordsFileName, keywordsFilePath);
                     await client.DownloadFileTaskAsync(MtgJsonUrl + CardTypesFileName, typesFilePath);
-                    await client.DownloadFileTaskAsync(MtgJsonUrl + AllSetsFileName, setsFilePath);
+                    await client.DownloadFileTaskAsync(MtgJsonUrl + AllSetsArchiveFileName, setsFilePath);
+                    await client.DownloadFileTaskAsync(MtgJsonUrl + SetListFileName, setListFilePath);
 
                     return true;
                 }
@@ -232,7 +269,7 @@
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                this.RefreshContext();
+                await this.RefreshContext();
             }
         }
 
@@ -292,7 +329,7 @@
             await this.SaveChanges();
         }
 
-        private UpsertResult<Card> UpsertCard(JsonCard printing)
+        private async Task<UpsertResult<Card>> UpsertCard(JsonCard printing)
         {
             var result = new UpsertResult<Card>();
 
@@ -327,7 +364,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Colors);
 
-                var colors = db.Colors.Local.Where(c => printing.Colors.Contains(c.Name));
+                var colors = db.Colors.Where(c => printing.Colors.Contains(c.Name));
                 var cardColors = new List<CardColor>();
                 foreach(var color in colors)
                 {
@@ -346,7 +383,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.ColorIdentity);
 
-                var colors = db.Colors.Local.Where(c => printing.ColorIdentity.Contains(c.Name));
+                var colors = db.Colors.Where(c => printing.ColorIdentity.Contains(c.Name));
                 var cardColorIdentity = new List<CardColorIdentity>();
                 foreach (var color in colors)
                 {
@@ -365,7 +402,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Supertypes);
 
-                var supertypes = db.Supertypes.Local.Where(t => printing.Supertypes.Contains(t.Name));
+                var supertypes = db.Supertypes.Where(t => printing.Supertypes.Contains(t.Name));
                 var cardSupertypes = new List<CardSupertype>();
                 foreach (var supertype in supertypes)
                 {
@@ -384,7 +421,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Types);
 
-                var cardTypes = db.CardTypes.Local.Where(t => printing.Types.Contains(t.Name));
+                var cardTypes = db.CardTypes.Where(t => printing.Types.Contains(t.Name));
                 var cardCardTypes = new List<CardCardType>();
                 foreach (var cardType in cardTypes)
                 {
@@ -403,7 +440,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Subtypes);
 
-                var subtypes = db.Subtypes.Local.Where(t => printing.Subtypes.Contains(t.Name));
+                var subtypes = db.Subtypes.Where(t => printing.Subtypes.Contains(t.Name));
                 var cardSubtypes = new List<CardSubtype>();
                 foreach (var subtype in subtypes)
                 {
@@ -417,9 +454,9 @@
                 result.ObjectsToAdd.AddRange(cardSubtypes);
             }
 
-            dbCard.Layout = UpsertSimpleLookup(db.Layouts, printing.Layout);
+            dbCard.Layout = await UpsertSimpleLookup(db.Layouts, printing.Layout);
 
-            var legalityUpsert = legalityHelper.UpsertLegalities(db, dbCard, printing.Legalities, printing.LeadershipSkills);
+            var legalityUpsert = legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
             dbCard.Legalities = legalityUpsert.MainObject;
             result.Merge(legalityUpsert);
 
@@ -481,7 +518,7 @@
             var subtypes = new List<Subtype>();
             foreach (var subtype in cardTypeTypes.SubTypes)
             {
-                var type = UpsertSimpleLookup(db.Subtypes, subtype);
+                var type = await UpsertSimpleLookup(db.Subtypes, subtype);
                 if (type != null)
                 {
                     subtypes.Add(type);
@@ -509,7 +546,7 @@
             var supertypes = new List<Supertype>();
             foreach (var supertype in cardTypeTypes.SuperTypes)
             {
-                var type = UpsertSimpleLookup(db.Supertypes, supertype);
+                var type = await UpsertSimpleLookup(db.Supertypes, supertype);
                 if (type != null)
                 {
                     supertypes.Add(type);
@@ -544,7 +581,7 @@
                 return null;
             }
 
-            var existingKeyword = db.Keywords.Local.Where(k => k.Name == keyword).FirstOrDefault();
+            var existingKeyword = await db.Keywords.Where(k => k.Name == keyword).FirstOrDefaultAsync();
             if (existingKeyword == null)
             {
                 existingKeyword = new Keyword()
@@ -592,18 +629,16 @@
 
         private async Task<UpsertResult<Printing>> UpsertPrinting(JsonCard printing)
         {
-            var card = this.UpsertCard(printing);
+            var card = await this.UpsertCard(printing);
 
             if (card.ObjectsToRemove.Count > 0)
             {
                 db.RemoveRange(card.ObjectsToRemove);
-                //await this.SaveChanges();
             }
 
             if (card.ObjectsToAdd.Count > 0)
             {
                 db.AddRange(card.ObjectsToAdd);
-                //await this.SaveChanges();
             }
 
             var result = new UpsertResult<Printing>();
@@ -631,11 +666,11 @@
             dbPrinting.FlavorText = printing.FlavorText;
             dbPrinting.CollectorNumber = printing.Number;
 
-            dbPrinting.Artist = UpsertSimpleLookup(db.Artists, printing.Artist);
-            dbPrinting.Watermark = UpsertSimpleLookup(db.Watermarks, printing.Watermark);
-            dbPrinting.Frame = UpsertSimpleLookup(db.Frames, printing.FrameVersion);
-            dbPrinting.Rarity = UpsertSimpleLookup(db.Rarities, printing.Rarity);
-            dbPrinting.Border = UpsertSimpleLookup(db.Borders, printing.BorderColor);
+            dbPrinting.Artist = await UpsertSimpleLookup(db.Artists, printing.Artist);
+            dbPrinting.Watermark = await UpsertSimpleLookup(db.Watermarks, printing.Watermark);
+            dbPrinting.Frame = await UpsertSimpleLookup(db.Frames, printing.FrameVersion);
+            dbPrinting.Rarity = await UpsertSimpleLookup(db.Rarities, printing.Rarity);
+            dbPrinting.Border = await UpsertSimpleLookup(db.Borders, printing.BorderColor);
 
             if (printing.Prices?.Paper != null)
             {
@@ -678,8 +713,8 @@
             dbSet.KeyruneCode = set.KeyruneCode;
             dbSet.Date = set.ReleaseDate;
 
-            dbSet.SetType = UpsertSimpleLookup(db.SetTypes, set.Type);
-            dbSet.Block = UpsertSimpleLookup(db.Blocks, set.Block);
+            dbSet.SetType = await UpsertSimpleLookup(db.SetTypes, set.Type);
+            dbSet.Block = await UpsertSimpleLookup(db.Blocks, set.Block);
 
             foreach (var card in set.Cards)
             {
@@ -719,14 +754,14 @@
             return result;
         }
 
-        private T UpsertSimpleLookup<T>(DbSet<T> lookups, string name) where T : class, ISimpleLookup, new()
+        private async Task<T> UpsertSimpleLookup<T>(DbSet<T> lookups, string name) where T : class, ISimpleLookup, new()
         {
             if (string.IsNullOrEmpty(name))
             {
                 return null;
             }
 
-            var existingLookup = lookups.Local.Where(t => t.Name == name).FirstOrDefault();
+            var existingLookup = await lookups.Where(t => t.Name == name).FirstOrDefaultAsync();
 
             if (existingLookup == null)
             {
@@ -735,7 +770,7 @@
                     Name = name
                 };
 
-                lookups.Local.Add(existingLookup);
+                lookups.Add(existingLookup);
             }
 
             return existingLookup;
