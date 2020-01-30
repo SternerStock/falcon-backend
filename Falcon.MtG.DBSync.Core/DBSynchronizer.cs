@@ -620,7 +620,7 @@
                         result.ObjectsToAdd.Add(dbPricing);
                     }
 
-                    dbPricing.Price = (double)property.Value;
+                    dbPricing.Price = property.Value.HasValues ? (double)property.Value : 0;
                 }
             }
 

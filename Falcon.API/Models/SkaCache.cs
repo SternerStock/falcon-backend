@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Runtime.Caching;
@@ -31,7 +32,7 @@
         {
             var path = HostingEnvironment.MapPath("~/App_Data/skaorkid.csv");
             var reader = new StreamReader(path);
-            using (var csv = new CsvReader(reader))
+            using (var csv = new CsvReader(reader, CultureInfo.CurrentCulture))
             {
                 var records = csv.GetRecords<SkaAnswer>().ToList();
 
