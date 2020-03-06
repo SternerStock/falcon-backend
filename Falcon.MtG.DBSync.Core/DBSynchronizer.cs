@@ -1,17 +1,19 @@
 ﻿namespace Falcon.MtG.DBSync
 {
-    using Falcon.MtG.MtgJsonModels;
-    using Microsoft.EntityFrameworkCore;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using SharpCompress.Common;
-    using SharpCompress.Readers;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
+    using Falcon.MtG.Models.Json;
+    using Falcon.MtG.Models.Sql;
+    using Falcon.MtG.Utility;
+    using Microsoft.EntityFrameworkCore;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+    using SharpCompress.Common;
+    using SharpCompress.Readers;
 
     public class DBSynchronizer : IDisposable
     {
@@ -366,12 +368,12 @@
 
                 var colors = db.Colors.Where(c => printing.Colors.Contains(c.Name));
                 var cardColors = new List<CardColor>();
-                foreach(var color in colors)
+                foreach (var color in colors)
                 {
                     cardColors.Add(new CardColor()
                     {
-                         Card = dbCard,
-                         Color = color
+                        Card = dbCard,
+                        Color = color
                     });
                 }
 
@@ -470,16 +472,10 @@
             //        db.CardKeywords.RemoveRange(dbCard.Keywords);
             //    }
 
-            //    var dbKeywords = await db.Keywords.Where(k => keywords.Contains(k.Name)).ToListAsync();
-            //    var cardKeywords = new List<CardKeyword>();
-            //    foreach (var keyword in dbKeywords)
-            //    {
-            //        cardKeywords.Add(new CardKeyword()
-            //        {
-            //            Card = dbCard,
-            //            Keyword = keyword
-            //        });
-            //    }
+            // var dbKeywords = await db.Keywords.Where(k =>
+            // keywords.Contains(k.Name)).ToListAsync(); var cardKeywords = new List<CardKeyword>();
+            // foreach (var keyword in dbKeywords) { cardKeywords.Add(new CardKeyword() { Card =
+            // dbCard, Keyword = keyword }); }
 
             //    db.CardKeywords.AddRange(cardKeywords);
             //}
@@ -511,7 +507,7 @@
                 {
                     Name = cardType
                 };
-                
+
                 db.CardTypes.Add(dbCardType);
             }
 
@@ -588,7 +584,7 @@
                 {
                     Name = keyword
                 };
-                
+
                 db.Keywords.Add(existingKeyword);
             }
 

@@ -1,4 +1,4 @@
-﻿namespace Falcon.MtG
+﻿namespace Falcon.MtG.Models.Sql
 {
     public class CardColor
     {

@@ -1,8 +1,9 @@
-﻿namespace Falcon.MtG
+﻿namespace Falcon.MtG.Utility
 {
-    using Microsoft.EntityFrameworkCore;
     using System.Linq;
     using System.Threading.Tasks;
+    using Falcon.MtG.Models.Sql;
+    using Microsoft.EntityFrameworkCore;
 
     public enum Format
     {
@@ -35,8 +36,8 @@
 
         /// <summary>
         /// Matches any colored mana symbol on a card, including mono, split, and phyrexian. Colors
-        /// will be in $1 and $3 replacement groups. $1 may include a P or 2 in the case of phyrexian
-        /// mana or twobrid symbols.
+        /// will be in $1 and $3 replacement groups. $1 may include a P or 2 in the case of
+        /// phyrexian mana or twobrid symbols.
         /// </summary>
         public const string ColoredManaSymbolRegex = @"\{([WUBRG2])([\/])?([WUBRGP])?\}";
 

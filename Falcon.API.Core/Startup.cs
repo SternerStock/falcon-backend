@@ -1,5 +1,6 @@
 namespace Falcon.API
 {
+    using System;
     using Falcon.MtG;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -7,6 +8,7 @@ namespace Falcon.API
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.OpenApi.Models;
 
     public class Startup
     {
@@ -24,7 +26,17 @@ namespace Falcon.API
 
             services.AddDbContext<MtGDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MtGDBContext")));
 
-            //services.AddSwaggerGen();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("Falcon", new OpenApiInfo
+                {
+                    Version = "3.0.0",
+                    Title = "Falcon",
+                    Description = "Falcon Syndicate Site API",
+                    TermsOfService = null,
+                    Contact = new OpenApiContact() { Name = "Corey Laird", Email = "captain@falconsyndicate.net", Url = new Uri("https://www.falconsyndicate.net/") }
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,6 +56,12 @@ namespace Falcon.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/Falcon/swagger.json", "Falcon Syndicate Site API");
             });
         }
     }

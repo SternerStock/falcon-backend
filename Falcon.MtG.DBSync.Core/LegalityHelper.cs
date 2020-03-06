@@ -1,11 +1,12 @@
 ﻿namespace Falcon.MtG.DBSync
 {
-    using Falcon.MtG.MtgJsonModels;
-    using Microsoft.Extensions.Configuration;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using Falcon.MtG.Models.Json;
+    using Falcon.MtG.Models.Sql;
+    using Microsoft.Extensions.Configuration;
 
     public class LegalityHelper
     {
@@ -26,7 +27,7 @@
                 MainObject = new List<Legality>()
             };
 
-            var brawl = this.UpsertLegality(card, "Brawl", IsLegal(legality.Brawl), false);
+            var brawl = this.UpsertLegality(card, "Brawl", IsLegal(legality.Brawl), leadership.Brawl);
             result.MainObject.Add(brawl.MainObject);
             result.Merge(brawl);
 
@@ -34,7 +35,7 @@
             result.MainObject.Add(commander.MainObject);
             result.Merge(commander);
 
-            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), false);
+            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), leadership.Commander);
             result.MainObject.Add(duel.MainObject);
             result.Merge(duel);
 
@@ -54,7 +55,7 @@
             result.MainObject.Add(modern.MainObject);
             result.Merge(modern);
 
-            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), leadership.Commander);
+            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), card.Types.Where(c => c.CardType.Name == "creature").Any() && card.Printings.Where(p => p.Rarity.Name == "uncommon").Any());
             result.MainObject.Add(pauper.MainObject);
             result.Merge(pauper);
 

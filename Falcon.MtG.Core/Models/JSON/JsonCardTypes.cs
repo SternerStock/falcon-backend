@@ -1,4 +1,4 @@
-﻿namespace Falcon.MtG.MtgJsonModels
+﻿namespace Falcon.MtG.Models.Json
 {
     using System.Collections.Generic;
 

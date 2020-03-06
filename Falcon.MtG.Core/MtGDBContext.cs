@@ -1,10 +1,10 @@
 ﻿namespace Falcon.MtG
 {
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Configuration;
     using System;
     using System.IO;
-    using System.Reflection;
+    using Falcon.MtG.Models.Sql;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
 
     public class MtGDBContext : DbContext
     {

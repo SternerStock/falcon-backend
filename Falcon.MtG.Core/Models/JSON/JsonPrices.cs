@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace Falcon.MtG.MtgJsonModels
+﻿namespace Falcon.MtG.Models.Json
 {
+    using Newtonsoft.Json.Linq;
+
     public class JsonPrices
     {
         public JObject Paper { get; set; }

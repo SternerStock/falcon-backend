@@ -1,8 +1,8 @@
-﻿namespace Falcon.MtG.MtgJsonModels
+﻿namespace Falcon.MtG.Models.Json
 {
-    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
+    using Newtonsoft.Json;
 
     public class JsonSet
     {

@@ -1,26 +1,15 @@
 ﻿namespace Falcon.MtG.DBSync
 {
-    using Microsoft.Extensions.Configuration;
     using System;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Configuration;
 
     internal class Program
     {
         public static IConfigurationRoot configuration;
-
-        //private static void InitDataDir()
-        //{
-        //    var appSetting = configuration..AppSettings["dataDir"];
-        //    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        //    var path = Path.Combine(baseDir, appSetting);
-        //    var fullPath = Path.GetFullPath(path);
-
-        //    Directory.CreateDirectory(fullPath);
-        //    AppDomain.CurrentDomain.SetData("DataDirectory", fullPath);
-        //}
 
         private static async Task Main(string[] args)
         {
@@ -41,9 +30,6 @@
 
                 var timer = new Stopwatch();
                 timer.Start();
-
-                //InitDataDir();
-                //var workingDirectory = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
 
                 var synchronizer = new DBSynchronizer();
                 await synchronizer.Sync(force);
