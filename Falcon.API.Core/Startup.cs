@@ -26,6 +26,7 @@ namespace Falcon.API
 
             services.AddDbContext<MtGDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MtGDBContext")));
 
+            services.AddCors();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("Falcon", new OpenApiInfo
@@ -45,6 +46,10 @@ namespace Falcon.API
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
+                app.UseCors(
+                    options => options.WithOrigins("http://localhost:8000").AllowAnyMethod()
+                );
             }
 
             app.UseHttpsRedirection();

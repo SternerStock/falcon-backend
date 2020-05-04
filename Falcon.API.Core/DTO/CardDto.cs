@@ -31,6 +31,7 @@
                 printing = sqlCard.Printings.First();
             }
 
+            MultiverseId = printing.MultiverseId;
             FlavorText = printing.FlavorText;
             Artist = printing.Artist.Name;
             Watermark = printing.Watermark?.Name;
@@ -38,6 +39,8 @@
         }
 
         public int ID { get; set; }
+
+        public int MultiverseId { get; set; }
 
         public string Name { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿namespace Falcon.API.Core.Controllers
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -75,5 +76,16 @@
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
             .ToListAsync();
+
+        [HttpGet("RandomFlavor")]
+        public async Task<dynamic> GetRandomFlavorText() => await this.context.Printings
+            .Where(p => !string.IsNullOrEmpty(p.FlavorText))
+            .OrderBy(p => Guid.NewGuid())
+            .Select(p => new
+            {
+                p.FlavorText,
+                p.Card.Name
+            })
+            .FirstAsync();
     }
 }
