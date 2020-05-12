@@ -70,18 +70,18 @@
 
         public static async Task LoadLookups(this MtGDBContext db)
         {
-            await db.CardTypes.LoadAsync();
-            await db.Subtypes.LoadAsync();
-            await db.Supertypes.LoadAsync();
+            //await db.CardTypes.LoadAsync();
+            //await db.Subtypes.LoadAsync();
+            //await db.Supertypes.LoadAsync();
 
-            await db.Colors.LoadAsync();
-            await db.Keywords.LoadAsync();
+            //await db.Colors.LoadAsync();
+            //await db.Keywords.LoadAsync();
             await db.Layouts.LoadAsync();
 
             await db.Borders.LoadAsync();
             await db.Artists.LoadAsync();
             await db.Frames.LoadAsync();
-            await db.Pricings.LoadAsync();
+            //await db.Pricings.LoadAsync();
             await db.Rarities.LoadAsync();
             await db.Watermarks.LoadAsync();
 

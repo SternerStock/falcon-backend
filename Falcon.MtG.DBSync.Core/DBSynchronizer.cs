@@ -65,7 +65,7 @@
                 {
                     await this.RefreshContext();
                     var loadedSet = await this.LoadSet(setCode);
-                    //await db.LoadLookups();
+                    await db.LoadLookups();
                     await this.SyncSet(loadedSet);
                 }
 
@@ -317,7 +317,46 @@
         {
             Console.WriteLine("Syncing set {0} - {1}", set.Code, set.Name);
 
-            var setUpsert = await this.UpsertSet(set);
+            var artists = set.Cards.Select(c => c.Artist).Distinct();
+            var watermarks = set.Cards.Select(c => c.Watermark).Distinct();
+            var frames = set.Cards.Select(c => c.FrameVersion).Distinct();
+            var rarities = set.Cards.Select(c => c.Rarity).Distinct();
+            var borders = set.Cards.Select(c => c.BorderColor).Distinct();
+            var layouts = set.Cards.Select(c => c.Layout).Distinct();
+
+            foreach (var artist in artists)
+            {
+                UpsertSimpleLookup(db.Artists, artist);
+            }
+
+            foreach (var watermark in watermarks)
+            {
+                UpsertSimpleLookup(db.Watermarks, watermark);
+            }
+
+            foreach (var frame in frames)
+            {
+                UpsertSimpleLookup(db.Frames, frame);
+            }
+
+            foreach (var rarity in rarities)
+            {
+                UpsertSimpleLookup(db.Rarities, rarity);
+            }
+
+            foreach (var border in borders)
+            {
+                UpsertSimpleLookup(db.Borders, border);
+            }
+
+            foreach (var layout in layouts)
+            {
+                UpsertSimpleLookup(db.Layouts, layout);
+            }
+
+            await this.SaveChanges();
+
+            var setUpsert = this.UpsertSet(set);
 
             db.RemoveRange(setUpsert.ObjectsToRemove);
             db.AddRange(setUpsert.ObjectsToAdd);
@@ -331,7 +370,7 @@
             await this.SaveChanges();
         }
 
-        private async Task<UpsertResult<Card>> UpsertCard(JsonCard printing)
+        private UpsertResult<Card> UpsertCard(JsonCard printing)
         {
             var result = new UpsertResult<Card>();
 
@@ -456,7 +495,7 @@
                 result.ObjectsToAdd.AddRange(cardSubtypes);
             }
 
-            dbCard.Layout = await UpsertSimpleLookup(db.Layouts, printing.Layout);
+            dbCard.Layout = UpsertSimpleLookup(db.Layouts, printing.Layout);
 
             var legalityUpsert = legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
             dbCard.Legalities = legalityUpsert.MainObject;
@@ -514,7 +553,7 @@
             var subtypes = new List<Subtype>();
             foreach (var subtype in cardTypeTypes.SubTypes)
             {
-                var type = await UpsertSimpleLookup(db.Subtypes, subtype);
+                var type = UpsertSimpleLookup(db.Subtypes, subtype);
                 if (type != null)
                 {
                     subtypes.Add(type);
@@ -542,7 +581,7 @@
             var supertypes = new List<Supertype>();
             foreach (var supertype in cardTypeTypes.SuperTypes)
             {
-                var type = await UpsertSimpleLookup(db.Supertypes, supertype);
+                var type = UpsertSimpleLookup(db.Supertypes, supertype);
                 if (type != null)
                 {
                     supertypes.Add(type);
@@ -623,9 +662,9 @@
             return result;
         }
 
-        private async Task<UpsertResult<Printing>> UpsertPrinting(JsonCard printing)
+        private UpsertResult<Printing> UpsertPrinting(JsonCard printing)
         {
-            var card = await this.UpsertCard(printing);
+            var card = this.UpsertCard(printing);
 
             if (card.ObjectsToRemove.Count > 0)
             {
@@ -662,11 +701,11 @@
             dbPrinting.FlavorText = printing.FlavorText;
             dbPrinting.CollectorNumber = printing.Number;
 
-            dbPrinting.Artist = await UpsertSimpleLookup(db.Artists, printing.Artist);
-            dbPrinting.Watermark = await UpsertSimpleLookup(db.Watermarks, printing.Watermark);
-            dbPrinting.Frame = await UpsertSimpleLookup(db.Frames, printing.FrameVersion);
-            dbPrinting.Rarity = await UpsertSimpleLookup(db.Rarities, printing.Rarity);
-            dbPrinting.Border = await UpsertSimpleLookup(db.Borders, printing.BorderColor);
+            dbPrinting.Artist = UpsertSimpleLookup(db.Artists, printing.Artist);
+            dbPrinting.Watermark = UpsertSimpleLookup(db.Watermarks, printing.Watermark);
+            dbPrinting.Frame = UpsertSimpleLookup(db.Frames, printing.FrameVersion);
+            dbPrinting.Rarity = UpsertSimpleLookup(db.Rarities, printing.Rarity);
+            dbPrinting.Border = UpsertSimpleLookup(db.Borders, printing.BorderColor);
 
             if (printing.Prices?.Paper != null)
             {
@@ -687,7 +726,7 @@
             return result;
         }
 
-        private async Task<UpsertResult<Set>> UpsertSet(JsonSet set)
+        private UpsertResult<Set> UpsertSet(JsonSet set)
         {
             var result = new UpsertResult<Set>();
 
@@ -709,8 +748,8 @@
             dbSet.KeyruneCode = set.KeyruneCode;
             dbSet.Date = set.ReleaseDate;
 
-            dbSet.SetType = await UpsertSimpleLookup(db.SetTypes, set.Type);
-            dbSet.Block = await UpsertSimpleLookup(db.Blocks, set.Block);
+            dbSet.SetType = UpsertSimpleLookup(db.SetTypes, set.Type);
+            dbSet.Block = UpsertSimpleLookup(db.Blocks, set.Block);
 
             foreach (var card in set.Cards)
             {
@@ -737,7 +776,7 @@
                     }
                 }
 
-                var printingUpsert = await this.UpsertPrinting(card);
+                var printingUpsert = this.UpsertPrinting(card);
                 result.Merge(printingUpsert);
                 if (printingUpsert.MainObject != null)
                 {
@@ -750,14 +789,14 @@
             return result;
         }
 
-        private async Task<T> UpsertSimpleLookup<T>(DbSet<T> lookups, string name) where T : class, ISimpleLookup, new()
+        private T UpsertSimpleLookup<T>(DbSet<T> lookups, string name) where T : class, ISimpleLookup, new()
         {
             if (string.IsNullOrEmpty(name))
             {
                 return null;
             }
 
-            var existingLookup = await lookups.Where(t => t.Name == name).FirstOrDefaultAsync();
+            var existingLookup = lookups.Local.FirstOrDefault(t => t.Name == name);
 
             if (existingLookup == null)
             {
