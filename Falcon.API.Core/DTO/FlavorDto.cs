@@ -1,8 +1,8 @@
 ﻿namespace Falcon.API.DTO
 {
-    public class KeyValueDto
+    public class FlavorDto
     {
-        public int ID { get; set; }
+        public string FlavorText { get; set; }
         public string Name { get; set; }
     }
 }
