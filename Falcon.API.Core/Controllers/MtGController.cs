@@ -38,7 +38,7 @@
 
         [HttpGet("Commanders")]
         public async Task<List<CardDto>> GetCommanders(string variant = "Commander") => await this.context.Legalities
-            .Where(l => l.Format == variant && l.LegalAsCommander)
+            .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander)
             .Include(c => c.Card)
                 .ThenInclude(c => c.Colors)
             .Include(c => c.Card)
@@ -71,9 +71,9 @@
             if (cmdr.OracleText.Contains("Partner with"))
             {
                 var match = Regex.Match(cmdr.OracleText, @"Partner with ([\w, ]*)( \(|$)");
-                if (match.Success)
+                if (match.Success && match.Groups.Count > 1)
                 {
-                    string partnerName = match.Captures.FirstOrDefault()?.Value;
+                    string partnerName = match.Groups[1].Value;
                     if (!string.IsNullOrEmpty(partnerName))
                     {
                         cards = cards.Where(c => c.Card.Name == partnerName);
@@ -105,9 +105,14 @@
             .ToListAsync();
         }
 
-        [HttpPost("SignatureSpells")]
-        public async Task<List<CardDto>> GetSignatureSpells(string[] ColorIdentity) => await this.context.Legalities
-            .Where(l => l.Format == "Oathbreaker" && l.Legal && !ColorIdentity.Except(l.Card.ColorIdentity.Select(ci => ci.Color.Name)).Any())
+        [HttpGet("SignatureSpells")]
+        public async Task<List<CardDto>> GetSignatureSpells(int obId)
+        {
+            var colorIdentity = this.context.CardColorIdentities.Where(c => c.CardID == obId)
+                .Include(c => c.Color).Select(c => c.Color.Symbol);
+
+            return await this.context.Legalities
+            .Where(l => l.Format == "Oathbreaker" && l.Legal && l.Card.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery") && l.Card.ColorIdentity.Select(ci => ci.Color.Symbol).Intersect(colorIdentity).Any())
             .Include(c => c.Card)
                 .ThenInclude(c => c.Colors)
             .Include(c => c.Card)
@@ -125,6 +130,7 @@
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
             .ToListAsync();
+        }
 
         [HttpGet("RandomFlavor")]
         public async Task<FlavorDto> GetRandomFlavorText() => await this.context.Printings
