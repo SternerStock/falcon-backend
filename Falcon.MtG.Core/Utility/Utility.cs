@@ -43,8 +43,8 @@
 
         private static void UpsertColor(MtGDBContext db, string symbol, string name, string landName)
         {
-            var existingColor = db.Colors.Local.Where(t => t.Symbol == symbol).SingleOrDefault();
-            if (existingColor == null)
+            var existingColor = db.Colors.Where(t => t.Symbol == symbol).SingleOrDefault();
+            if (existingColor == default)
             {
                 existingColor = new Color()
                 {

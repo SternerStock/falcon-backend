@@ -55,7 +55,7 @@
             {
                 await this.RefreshContext();
 
-                //await this.SyncKeywords();
+                await this.SyncKeywords();
                 await this.SyncCardTypes();
                 this.db.SeedColorData();
                 await this.SaveChanges();
@@ -405,7 +405,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Colors);
 
-                var colors = db.Colors.Where(c => printing.Colors.Contains(c.Name));
+                var colors = db.Colors.Where(c => printing.Colors.Contains(c.Symbol));
                 var cardColors = new List<CardColor>();
                 foreach (var color in colors)
                 {
@@ -419,12 +419,12 @@
                 result.ObjectsToAdd.AddRange(cardColors);
             }
 
-            if (dbCard.ColorIdentity.Select(t => t.Color.Symbol).Except(printing.Colors).Any() ||
-                printing.Colors.Except(dbCard.ColorIdentity.Select(t => t.Color.Symbol)).Any())
+            if (dbCard.ColorIdentity.Select(t => t.Color.Symbol).Except(printing.ColorIdentity).Any() ||
+                printing.ColorIdentity.Except(dbCard.ColorIdentity.Select(t => t.Color.Symbol)).Any())
             {
                 result.ObjectsToRemove.AddRange(dbCard.ColorIdentity);
 
-                var colors = db.Colors.Where(c => printing.ColorIdentity.Contains(c.Name));
+                var colors = db.Colors.Where(c => printing.ColorIdentity.Contains(c.Symbol));
                 var cardColorIdentity = new List<CardColorIdentity>();
                 foreach (var color in colors)
                 {
