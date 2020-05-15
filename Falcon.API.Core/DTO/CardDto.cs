@@ -16,8 +16,8 @@
             Power = sqlCard.Power;
             Toughness = sqlCard.Toughness;
             Loyalty = sqlCard.Loyalty;
-            Color = sqlCard.Colors.Select(c => c.Color.Name).ToArray();
-            ColorIdentity = sqlCard.ColorIdentity.Select(c => c.Color.Name).ToArray();
+            Color = sqlCard.Colors.Select(c => c.Color.Symbol).ToArray();
+            ColorIdentity = sqlCard.ColorIdentity.Select(c => c.Color.Symbol).ToArray();
 
             Printing printing;
             int printings = sqlCard.Printings.Count;

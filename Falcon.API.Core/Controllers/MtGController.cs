@@ -112,7 +112,7 @@
                 .Include(c => c.Color).Select(c => c.Color.Symbol);
 
             return await this.context.Legalities
-            .Where(l => l.Format == "Oathbreaker" && l.Legal && l.Card.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery") && l.Card.ColorIdentity.Select(ci => ci.Color.Symbol).Intersect(colorIdentity).Any())
+            .Where(l => l.Format == "Oathbreaker" && l.Legal && l.Card.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery") && !l.Card.ColorIdentity.Select(ci => ci.Color.Symbol).Except(colorIdentity).Any())
             .Include(c => c.Card)
                 .ThenInclude(c => c.Colors)
             .Include(c => c.Card)
