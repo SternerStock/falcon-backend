@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using Falcon.MtG.Models.Sql;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Query;
 
     public enum Format
     {
@@ -87,6 +88,39 @@
 
             await db.Blocks.LoadAsync();
             await db.SetTypes.LoadAsync();
+        }
+
+        public static IQueryable<Legality> IncludeCardProperties(this IQueryable<Legality> legality)
+        {
+            return legality
+            .Include(c => c.Card)
+                .ThenInclude(c => c.Colors)
+            .Include(c => c.Card)
+                .ThenInclude(c => c.ColorIdentity)
+                    .ThenInclude(c => c.Color)
+            .Include(c => c.Card)
+                .ThenInclude(c => c.Printings)
+                    .ThenInclude(p => p.Artist)
+            .Include(c => c.Card)
+                .ThenInclude(c => c.Printings)
+                    .ThenInclude(p => p.Watermark)
+            .Include(c => c.Card)
+                .ThenInclude(c => c.Printings)
+                    .ThenInclude(p => p.Set);
+        }
+
+        public static IQueryable<Card> IncludeCardProperties(this IQueryable<Card> card)
+        {
+            return card
+            .Include(c => c.Colors)
+            .Include(c => c.ColorIdentity)
+                .ThenInclude(c => c.Color)
+            .Include(c => c.Printings)
+                .ThenInclude(p => p.Artist)
+            .Include(c => c.Printings)
+                .ThenInclude(p => p.Watermark)
+            .Include(c => c.Printings)
+                .ThenInclude(p => p.Set);
         }
     }
 }

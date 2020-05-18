@@ -28,14 +28,17 @@
             }
             else
             {
-                printing = sqlCard.Printings.First();
+                printing = sqlCard.Printings.FirstOrDefault();
             }
 
-            MultiverseId = printing.MultiverseId;
-            FlavorText = printing.FlavorText;
-            Artist = printing.Artist.Name;
-            Watermark = printing.Watermark?.Name;
-            Set = printing.Set.Name;
+            if (printing != default)
+            {
+                MultiverseId = printing.MultiverseId;
+                FlavorText = printing.FlavorText;
+                Artist = printing.Artist.Name;
+                Watermark = printing.Watermark?.Name;
+                Set = printing.Set.Name;
+            }
         }
 
         public int ID { get; set; }

@@ -31,11 +31,11 @@
             result.MainObject.Add(brawl.MainObject);
             result.Merge(brawl);
 
-            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), IsLegal(legality.Commander) && leadership.Commander);
+            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), leadership.Commander);
             result.MainObject.Add(commander.MainObject);
             result.Merge(commander);
 
-            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), IsLegal(legality.Commander) && leadership.Commander);
+            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), leadership.Commander);
             result.MainObject.Add(duel.MainObject);
             result.Merge(duel);
 
@@ -55,11 +55,11 @@
             result.MainObject.Add(modern.MainObject);
             result.Merge(modern);
 
-            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), IsLegal(legality.Commander) && card.Types.Any(c => c.CardType.Name == "creature") && card.Printings.Any(p => p.Rarity.Name == "uncommon"));
+            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), card.Types.Any(c => c.CardType.Name == "creature") && card.Printings.Any(p => p.Rarity.Name == "uncommon"));
             result.MainObject.Add(pauper.MainObject);
             result.Merge(pauper);
 
-            var penny = this.UpsertLegality(card, "Penny", IsLegal(legality.Penny), IsLegal(legality.Commander) && leadership.Commander);
+            var penny = this.UpsertLegality(card, "Penny", IsLegal(legality.Penny), false);
             result.MainObject.Add(penny.MainObject);
             result.Merge(penny);
 
@@ -78,7 +78,7 @@
                 obLegality = "Banned";
             }
 
-            var oathbreaker = this.UpsertLegality(card, "Oathbreaker", IsLegal(obLegality), IsLegal(obLegality) && leadership.Oathbreaker);
+            var oathbreaker = this.UpsertLegality(card, "Oathbreaker", IsLegal(obLegality), leadership.Oathbreaker);
             result.MainObject.Add(oathbreaker.MainObject);
             result.Merge(oathbreaker);
 
@@ -89,7 +89,7 @@
                 tlLegality = "Banned";
             }
 
-            bool tlCmdrLegality = IsLegal(legality.Commander) && leadership.Commander;
+            bool tlCmdrLegality = leadership.Commander;
             var TinyLeadersCmdrBans = configuration.GetSection("BanLists:TinyLeadersCmdr").Get<List<string>>();
             if (card.CMC > 3 || TinyLeadersCmdrBans.Contains(card.Name))
             {

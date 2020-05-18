@@ -7,6 +7,8 @@
     using System.Threading.Tasks;
     using Falcon.API.DTO;
     using Falcon.MtG;
+    using Falcon.MtG.Models.Sql;
+    using Falcon.MtG.Utility;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
 
@@ -14,51 +16,32 @@
     [ApiController]
     public class MtGController : ControllerBase
     {
+        private readonly string[] SetTypes;
         private readonly MtGDBContext context;
 
         public MtGController(MtGDBContext context)
         {
             this.context = context;
+            this.SetTypes = new string[] { "core", "expansion", "masters", "planechase", "archenemy", "commander" };
         }
 
         [HttpGet("Card/{id}")]
         public async Task<CardDto> GetCard(int id) => await this.context.Cards
             .Where(c => c.ID == id)
-            .Include(c => c.Colors)
-            .Include(c => c.ColorIdentity)
-                .ThenInclude(c => c.Color)
-            .Include(c => c.Printings)
-                .ThenInclude(p => p.Artist)
-            .Include(c => c.Printings)
-                .ThenInclude(p => p.Watermark)
-            .Include(c => c.Printings)
-                .ThenInclude(p => p.Set)
+            .IncludeCardProperties()
             .Select(c => new CardDto(c))
             .SingleOrDefaultAsync();
 
         [HttpGet("Commanders")]
-        public async Task<List<CardDto>> GetCommanders(string variant = "Commander") => await this.context.Legalities
-            .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Colors)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.ColorIdentity)
-                    .ThenInclude(c => c.Color)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Artist)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Watermark)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Set)
+        public async Task<IEnumerable<CardDto>> GetCommanders(string variant = "Commander", bool allowSilver = false) => await this.context.Legalities
+            .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))))
+            .IncludeCardProperties()
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
             .ToListAsync();
 
         [HttpGet("Partners")]
-        public async Task<List<CardDto>> GetPartners(int cmdrId, string variant = "Commander")
+        public async Task<IEnumerable<CardDto>> GetPartners(int cmdrId, string variant = "Commander", bool allowSilver = false)
         {
             var cmdr = await this.context.Cards.SingleAsync(c => c.ID == cmdrId);
             if (!cmdr.OracleText.Contains("Partner"))
@@ -66,7 +49,8 @@
                 return new List<CardDto>();
             }
 
-            var cards = this.context.Legalities.Where(l => l.Format == variant && l.LegalAsCommander);
+            var legalities = this.context.Legalities
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))) && l.CardID != cmdrId);
 
             if (cmdr.OracleText.Contains("Partner with"))
             {
@@ -76,57 +60,34 @@
                     string partnerName = match.Groups[1].Value;
                     if (!string.IsNullOrEmpty(partnerName))
                     {
-                        cards = cards.Where(c => c.Card.Name == partnerName);
+                        legalities = legalities.Where(l => l.Card.Name == partnerName);
                     }
                 }
             }
             else
             {
-                cards = cards.Where(c => c.Card.OracleText.Contains("Partner") && !c.Card.OracleText.Contains("Partner with"));
+                legalities = legalities.Where(l => l.Card.OracleText.Contains("Partner") && !l.Card.OracleText.Contains("Partner with"));
             }
 
-            return await cards
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Colors)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.ColorIdentity)
-                    .ThenInclude(c => c.Color)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Artist)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Watermark)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Set)
+            return await legalities
+            .IncludeCardProperties()
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
             .ToListAsync();
         }
 
         [HttpGet("SignatureSpells")]
-        public async Task<List<CardDto>> GetSignatureSpells(int obId)
+        public async Task<IEnumerable<CardDto>> GetSignatureSpells(int obId, bool allowSilver = false)
         {
             var colorIdentity = this.context.CardColorIdentities.Where(c => c.CardID == obId)
                 .Include(c => c.Color).Select(c => c.Color.Symbol);
 
             return await this.context.Legalities
-            .Where(l => l.Format == "Oathbreaker" && l.Legal && l.Card.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery") && !l.Card.ColorIdentity.Select(ci => ci.Color.Symbol).Except(colorIdentity).Any())
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Colors)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.ColorIdentity)
-                    .ThenInclude(c => c.Color)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Artist)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Watermark)
-            .Include(c => c.Card)
-                .ThenInclude(c => c.Printings)
-                    .ThenInclude(p => p.Set)
+            .Where(l =>
+                l.Format == "Oathbreaker" && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver")))
+                && l.Card.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery")
+                && !l.Card.ColorIdentity.Select(ci => ci.Color.Symbol).Except(colorIdentity).Any())
+            .IncludeCardProperties()
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
             .ToListAsync();
@@ -144,13 +105,39 @@
             .FirstAsync();
 
         [HttpGet("Sets")]
-        public async Task<List<SetDto>> GetSets() => await this.context.Sets
-            .OrderByDescending(s => s.Date)
-            .Select(s => new SetDto(s))
+        public async Task<IEnumerable<SetDto>> GetSets(string variant = "Commander", bool allowSilver = false)
+        {
+            if (variant == "Penny Dreadful")
+            {
+                variant = "Penny";
+            }
+
+            var listOfSets = await this.context.Legalities
+            .Where(l => l.Format == variant.Replace(" ", string.Empty) && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))) && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic"))
+            .Where(l => l.Card.Printings.Any(p => this.SetTypes.Contains(p.Set.Name) || (allowSilver && p.Set.SetType.Name == "funny")))
+            .Select(l => l.Card.Printings.Select(p => p.Set))
             .ToListAsync();
 
+            List<Set> sets = new List<Set>();
+            foreach (var list in listOfSets)
+            {
+                foreach(var set in list)
+                {
+                    if (!sets.Any(s => s.ID == set.ID))
+                    {
+                        sets.Add(set);
+                    }
+                }
+            }
+
+            return sets
+            .OrderByDescending(s => s.Date)
+            .Select(s => new SetDto(s));
+        }
+
         [HttpGet("Watermarks")]
-        public async Task<List<KeyValueDto>> GetWatermarks() => await this.context.Watermarks
+        public async Task<IEnumerable<KeyValueDto>> GetWatermarks() => await this.context.Watermarks
+            .OrderBy(w => w.Name)
             .Select(w => new KeyValueDto
             {
                 ID = w.ID,
@@ -159,7 +146,8 @@
             .ToListAsync();
 
         [HttpGet("Rarities")]
-        public async Task<List<KeyValueDto>> GetRarities() => await this.context.Rarities
+        public async Task<IEnumerable<KeyValueDto>> GetRarities() => await this.context.Rarities
+            .OrderBy(r => r.Name == "common" ? 1 : r.Name == "uncommon" ? 2 : r.Name == "rare" ? 3 : r.Name == "mythic" ? 4 : 5)
             .Select(r => new KeyValueDto
             {
                 ID = r.ID,
@@ -168,20 +156,32 @@
             .ToListAsync();
 
         [HttpGet("Frames")]
-        public async Task<List<KeyValueDto>> GetFrames() => await this.context.Frames
-            .Select(r => new KeyValueDto
+        public async Task<IEnumerable<KeyValueDto>> GetFrames() => await this.context.Frames
+            .OrderBy(f => f.Name)
+            .Select(f => new KeyValueDto
             {
-                ID = r.ID,
-                Name = r.Name
+                ID = f.ID,
+                Name = f.Name
             })
             .ToListAsync();
 
         [HttpGet("Layouts")]
-        public async Task<List<KeyValueDto>> GetLayouts() => await this.context.Layouts
-            .Select(r => new KeyValueDto
+        public async Task<IEnumerable<KeyValueDto>> GetLayouts() => await this.context.Layouts
+            .OrderBy(l => l.Name)
+            .Select(l => new KeyValueDto
             {
-                ID = r.ID,
-                Name = r.Name
+                ID = l.ID,
+                Name = l.Name
+            })
+            .ToListAsync();
+
+        [HttpGet("Artists")]
+        public async Task<IEnumerable<KeyValueDto>> GetArtists() => await this.context.Artists
+            .OrderBy(a => a.Name)
+            .Select(a => new KeyValueDto
+            {
+                ID = a.ID,
+                Name = a.Name
             })
             .ToListAsync();
     }
