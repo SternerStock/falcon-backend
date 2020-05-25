@@ -11,6 +11,7 @@
     using Falcon.MtG.Utility;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Internal;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -54,7 +55,7 @@
 
             if (cmdr.OracleText.Contains("Partner with"))
             {
-                var match = Regex.Match(cmdr.OracleText, @"Partner with ([\w, ]*)( \(|$)");
+                var match = Regex.Match(cmdr.OracleText, @"Partner with ([\w, ]*)( \(|$)", RegexOptions.Multiline);
                 if (match.Success && match.Groups.Count > 1)
                 {
                     string partnerName = match.Groups[1].Value;
@@ -112,27 +113,15 @@
                 variant = "Penny";
             }
 
-            var listOfSets = await this.context.Legalities
+            return await this.context.Legalities
             .Where(l => l.Format == variant.Replace(" ", string.Empty) && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))) && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic"))
-            .Where(l => l.Card.Printings.Any(p => this.SetTypes.Contains(p.Set.Name) || (allowSilver && p.Set.SetType.Name == "funny")))
-            .Select(l => l.Card.Printings.Select(p => p.Set))
-            .ToListAsync();
-
-            List<Set> sets = new List<Set>();
-            foreach (var list in listOfSets)
-            {
-                foreach(var set in list)
-                {
-                    if (!sets.Any(s => s.ID == set.ID))
-                    {
-                        sets.Add(set);
-                    }
-                }
-            }
-
-            return sets
+            .SelectMany(l => l.Card.Printings)
+            .Select(p => p.Set)
+            .Where(s => this.SetTypes.Contains(s.SetType.Name) || (allowSilver && s.SetType.Name == "funny"))
+            .Distinct()
             .OrderByDescending(s => s.Date)
-            .Select(s => new SetDto(s));
+            .Select(s => new SetDto(s))
+            .ToListAsync();
         }
 
         [HttpGet("Watermarks")]
