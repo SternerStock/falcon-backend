@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using Falcon.API.DTO;
     using Falcon.MtG;
-    using Falcon.MtG.Models.Sql;
     using Falcon.MtG.Utility;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
@@ -32,6 +31,12 @@
             .IncludeCardProperties()
             .Select(c => new CardDto(c))
             .SingleOrDefaultAsync();
+
+        [HttpGet("RandomAppName")]
+        public async Task<string> GetAppName() => await this.context.AlsoKnownAs
+            .OrderBy(a => Guid.NewGuid())
+            .Select(a => a.Name)
+            .FirstOrDefaultAsync();
 
         [HttpGet("Commanders")]
         public async Task<IEnumerable<CardDto>> GetCommanders(string variant = "Commander", bool allowSilver = false) => await this.context.Legalities
@@ -106,15 +111,8 @@
             .FirstAsync();
 
         [HttpGet("Sets")]
-        public async Task<IEnumerable<SetDto>> GetSets(string variant = "Commander", bool allowSilver = false)
-        {
-            if (variant == "Penny Dreadful")
-            {
-                variant = "Penny";
-            }
-
-            return await this.context.Legalities
-            .Where(l => l.Format == variant.Replace(" ", string.Empty) && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))) && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic"))
+        public async Task<IEnumerable<SetDto>> GetSets(string variant = "Commander", bool allowSilver = false) => await this.context.Legalities
+            .Where(l => l.Format == variant.Replace(" ", string.Empty).Replace("Penny Dreadful", "Penny") && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))) && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic"))
             .SelectMany(l => l.Card.Printings)
             .Select(p => p.Set)
             .Where(s => this.SetTypes.Contains(s.SetType.Name) || (allowSilver && s.SetType.Name == "funny"))
@@ -122,7 +120,6 @@
             .OrderByDescending(s => s.Date)
             .Select(s => new SetDto(s))
             .ToListAsync();
-        }
 
         [HttpGet("Watermarks")]
         public async Task<IEnumerable<KeyValueDto>> GetWatermarks() => await this.context.Watermarks

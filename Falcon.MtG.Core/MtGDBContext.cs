@@ -17,6 +17,8 @@
         {
         }
 
+        public DbSet<AlsoKnownAs> AlsoKnownAs { get; set; }
+
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Block> Blocks { get; set; }
         public DbSet<Border> Borders { get; set; }
