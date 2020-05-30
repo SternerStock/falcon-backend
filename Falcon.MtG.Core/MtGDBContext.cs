@@ -117,7 +117,7 @@
                 .HasForeignKey(ck => ck.CardID);
             modelBuilder.Entity<CardSubtype>()
                 .HasOne(ct => ct.Subtype)
-                .WithMany()
+                .WithMany(c => c.Cards)
                 .HasForeignKey(ct => ct.SubtypeID);
 
             modelBuilder.Entity<CardSupertype>()
@@ -128,7 +128,7 @@
                 .HasForeignKey(ck => ck.CardID);
             modelBuilder.Entity<CardSupertype>()
                 .HasOne(ct => ct.Supertype)
-                .WithMany()
+                .WithMany(st => st.Cards)
                 .HasForeignKey(ct => ct.SupertypeID);
 
             modelBuilder.Entity<CardTypeSubtype>()

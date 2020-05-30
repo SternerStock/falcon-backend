@@ -6,7 +6,7 @@ namespace Falcon.MtG.Models.Sql
     {
         public Subtype()
         {
-            this.Cards = new HashSet<CardSupertype>();
+            this.Cards = new HashSet<CardSubtype>();
             this.Types = new HashSet<CardTypeSubtype>();
         }
 
@@ -14,7 +14,7 @@ namespace Falcon.MtG.Models.Sql
 
         public string Name { get; set; }
 
-        public ICollection<CardSupertype> Cards { get; set; }
+        public ICollection<CardSubtype> Cards { get; set; }
 
         public ICollection<CardTypeSubtype> Types { get; set; }
     }

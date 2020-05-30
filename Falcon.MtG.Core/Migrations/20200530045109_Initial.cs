@@ -8,6 +8,19 @@ namespace Falcon.MtG.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "AlsoKnownAs",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AlsoKnownAs", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Artists",
                 columns: table => new
                 {
@@ -433,9 +446,7 @@ namespace Falcon.MtG.Migrations
                 columns: table => new
                 {
                     CardID = table.Column<int>(nullable: false),
-                    SupertypeID = table.Column<int>(nullable: false),
-                    SubtypeID = table.Column<int>(nullable: true),
-                    SupertypeID1 = table.Column<int>(nullable: true)
+                    SupertypeID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -447,23 +458,11 @@ namespace Falcon.MtG.Migrations
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CardSupertypes_Subtypes_SubtypeID",
-                        column: x => x.SubtypeID,
-                        principalTable: "Subtypes",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_CardSupertypes_Supertypes_SupertypeID",
                         column: x => x.SupertypeID,
                         principalTable: "Supertypes",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CardSupertypes_Supertypes_SupertypeID1",
-                        column: x => x.SupertypeID1,
-                        principalTable: "Supertypes",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -611,19 +610,9 @@ namespace Falcon.MtG.Migrations
                 column: "SubtypeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CardSupertypes_SubtypeID",
-                table: "CardSupertypes",
-                column: "SubtypeID");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CardSupertypes_SupertypeID",
                 table: "CardSupertypes",
                 column: "SupertypeID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CardSupertypes_SupertypeID1",
-                table: "CardSupertypes",
-                column: "SupertypeID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CardTypeSubtypes_SubtypeID",
@@ -693,6 +682,9 @@ namespace Falcon.MtG.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "AlsoKnownAs");
+
             migrationBuilder.DropTable(
                 name: "CardCardTypes");
 

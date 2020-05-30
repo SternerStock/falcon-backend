@@ -214,19 +214,9 @@ namespace Falcon.MtG.Migrations
                     b.Property<int>("SupertypeID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SubtypeID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SupertypeID1")
-                        .HasColumnType("int");
-
                     b.HasKey("CardID", "SupertypeID");
 
-                    b.HasIndex("SubtypeID");
-
                     b.HasIndex("SupertypeID");
-
-                    b.HasIndex("SupertypeID1");
 
                     b.ToTable("CardSupertypes");
                 });
@@ -668,7 +658,7 @@ namespace Falcon.MtG.Migrations
                         .IsRequired();
 
                     b.HasOne("Falcon.MtG.Models.Sql.Subtype", "Subtype")
-                        .WithMany()
+                        .WithMany("Cards")
                         .HasForeignKey("SubtypeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -682,19 +672,11 @@ namespace Falcon.MtG.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Falcon.MtG.Models.Sql.Subtype", null)
-                        .WithMany("Cards")
-                        .HasForeignKey("SubtypeID");
-
                     b.HasOne("Falcon.MtG.Models.Sql.Supertype", "Supertype")
-                        .WithMany()
+                        .WithMany("Cards")
                         .HasForeignKey("SupertypeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Falcon.MtG.Models.Sql.Supertype", null)
-                        .WithMany("Cards")
-                        .HasForeignKey("SupertypeID1");
                 });
 
             modelBuilder.Entity("Falcon.MtG.Models.Sql.CardTypeSubtype", b =>
