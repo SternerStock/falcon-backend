@@ -31,7 +31,7 @@
             result.MainObject.Add(brawl.MainObject);
             result.Merge(brawl);
 
-            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), leadership.Commander);
+            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), leadership.Commander || card.Name == "Gisela, the Broken Blade");
             result.MainObject.Add(commander.MainObject);
             result.Merge(commander);
 
