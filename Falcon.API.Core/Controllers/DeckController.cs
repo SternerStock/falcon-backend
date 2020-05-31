@@ -14,7 +14,7 @@
     {
         [HttpPost]
         [ActionName("Generate")]
-        public async Task<DeckDto> Generate([FromBody]GenerateDeckDto deckSettings)
+        public async Task<DeckResponseDto> Generate([FromBody]GenerateDeckDto deckSettings)
         {
             throw new NotImplementedException();
         }

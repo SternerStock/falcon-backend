@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Falcon.API.DTO;
     using Falcon.MtG;
+    using Falcon.MtG.Models;
     using Falcon.MtG.Utility;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
@@ -88,14 +89,14 @@
             var colorIdentity = this.context.CardColorIdentities.Where(c => c.CardID == obId)
                 .Include(c => c.Color).Select(c => c.Color.Symbol);
 
-            return await this.context.Legalities
-            .Where(l =>
-                l.Format == "Oathbreaker" && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver")))
-                && l.Card.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery")
-                && !l.Card.ColorIdentity.Select(ci => ci.Color.Symbol).Except(colorIdentity).Any())
-            .IncludeCardProperties()
-            .OrderBy(l => l.Card.Name)
-            .Select(l => new CardDto(l.Card))
+            return await this.context
+            .GetLegalCards("Oathbreaker", allowSilver)
+            .Where(c =>
+                c.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery")
+                && (string.IsNullOrEmpty(c.Side) || c.Side == "a")
+                && !c.ColorIdentity.Select(ci => ci.Color.Symbol).Except(colorIdentity).Any())
+            .OrderBy(c => c.Name)
+            .Select(c => new CardDto(c))
             .ToListAsync();
         }
 
@@ -111,9 +112,9 @@
             .FirstAsync();
 
         [HttpGet("Sets")]
-        public async Task<IEnumerable<SetDto>> GetSets(string variant = "Commander", bool allowSilver = false) => await this.context.Legalities
-            .Where(l => l.Format == variant.Replace(" ", string.Empty).Replace("Penny Dreadful", "Penny") && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))) && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic"))
-            .SelectMany(l => l.Card.Printings)
+        public async Task<IEnumerable<SetDto>> GetSets(string variant = "Commander", bool allowSilver = false) => await this.context
+            .GetLegalCards(variant, allowSilver)
+            .SelectMany(c => c.Printings)
             .Select(p => p.Set)
             .Where(s => this.SetTypes.Contains(s.SetType.Name) || (allowSilver && s.SetType.Name == "funny"))
             .Distinct()
@@ -170,5 +171,14 @@
                 Name = a.Name
             })
             .ToListAsync();
+
+        [HttpPost("GenerateDeck")]
+        public DeckResponseDto GenerateDeck([FromBody]GenerateDeckDto dto)
+        {
+            DeckGenerator generator = new DeckGenerator(this.context, dto);
+            Deck deck = generator.GenerateDeckAsync();
+
+            return new DeckResponseDto(deck);
+        }
     }
 }
