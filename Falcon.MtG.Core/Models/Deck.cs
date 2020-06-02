@@ -11,11 +11,12 @@
         public int Seed { get; set; }
         public bool Singleton { get; set; }
         public List<Card> Cards { get; set; }
-        public string Issues { get; set; }
+        public StringBuilder Issues { get; set; }
 
         public Deck()
         {
             Cards = new List<Card>();
+            Issues = new StringBuilder();
         }
 
         public int BasicLands

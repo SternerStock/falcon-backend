@@ -35,7 +35,7 @@ namespace Falcon.API.DTO
             Spells = deck.Spells;
             ManaProducing = deck.ManaProducing;
             Legendary = deck.Legendary;
-            Issues = deck.Issues;
+            Issues = deck.Issues.ToString();
             Cards = deck.ToString();
         }
     }

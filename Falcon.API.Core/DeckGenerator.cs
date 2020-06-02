@@ -389,9 +389,19 @@
             int cardsAdded = 0;
             foreach (var card in cardsToAdd)
             {
-                int copies = this.deck.Singleton
-                    ? 1
-                    : this.RNG.Next(1, Math.Min(5, numberToPick - cardsAdded + 1));
+                int copies;
+                if (card.OracleText.Contains("a deck can have any number"))
+                {
+                    copies = this.RNG.Next(1, numberToPick - cardsAdded + 1);
+                }
+                else if (this.deck.Singleton)
+                {
+                    copies = 1;
+                }
+                else
+                {
+                    copies = this.RNG.Next(1, Math.Min(5, numberToPick - cardsAdded + 1));
+                }
 
                 for (int i = 0; i < copies; i++)
                 {
@@ -479,6 +489,7 @@
             if (this.deck.Cards.Count < this.settings.DeckSize)
             {
                 this.PickFiller(this.settings.DeckSize - this.deck.Cards.Count, false);
+                this.deck.Issues.AppendLine("Unable to find enough cards matching restrictions. Alternate format-legal filler has been added.");
             }
 
             return this.deck;
