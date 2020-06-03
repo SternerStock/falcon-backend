@@ -8,6 +8,7 @@
     using Falcon.MtG.Models;
     using Falcon.MtG.Models.Sql;
     using Falcon.MtG.Utility;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.EntityFrameworkCore;
 
     public class DeckGenerator
@@ -368,6 +369,13 @@
             if (strict)
             {
                 cardPool = this.ApplyRestrictions(cardPool);
+            }
+            else
+            {
+                foreach (int disabledColorIdentityId in this.disabledColorIdentityIds)
+                {
+                    cardPool = cardPool.Where(c => !c.ColorIdentity.Select(c => c.ColorID).Contains(disabledColorIdentityId));
+                }
             }
 
             this.AddCards(cardPool, numberToPick);
