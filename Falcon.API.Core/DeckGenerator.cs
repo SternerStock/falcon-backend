@@ -170,11 +170,6 @@
 
         private IQueryable<Card> ApplyRestrictions(IQueryable<Card> cards)
         {
-            foreach (int disabledColorIdentityId in this.disabledColorIdentityIds)
-            {
-                cards = cards.Where(c => !c.ColorIdentity.Select(c => c.ColorID).Contains(disabledColorIdentityId));
-            }
-
             foreach (int disabledCardTypeId in this.disabledCardTypeIds)
             {
                 cards = cards.Where(c => !c.Types.Select(c => c.CardTypeID).Contains(disabledCardTypeId));
@@ -364,6 +359,11 @@
         private void PickFiller(int numberToPick, bool strict = true)
         {
             var cardPool = this.context.GetLegalCards(this.format, this.settings.SilverBorder);
+
+            foreach (int disabledColorIdentityId in this.disabledColorIdentityIds)
+            {
+                cardPool = cardPool.Where(c => !c.ColorIdentity.Select(c => c.ColorID).Contains(disabledColorIdentityId));
+            }
 
             if (strict)
             {
