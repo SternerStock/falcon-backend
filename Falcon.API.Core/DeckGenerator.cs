@@ -382,6 +382,9 @@
             }
 
             var cardsToAdd = cardPool
+                .Where(c => (this.settings.CommanderId == null || c.ID != this.settings.CommanderId)
+                         && (this.settings.PartnerId == null || c.ID != this.settings.PartnerId)
+                         && (this.settings.SignatureSpellId == null || c.ID != this.settings.SignatureSpellId))
                 .Where(c => !this.deck.Cards.Select(dc => (string.IsNullOrEmpty(dc.Side) || dc.Side == "a" || (dc.Layout.Name == "meld" && dc.Side == "b")) ? dc.ID : dc.MainSideID).Contains(c.ID))
                 .OrderBy(c => Guid.NewGuid())
                 .Take(numberToPick);
