@@ -4,6 +4,7 @@ namespace Falcon.API
     using Falcon.MtG;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.HttpOverrides;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +36,7 @@ namespace Falcon.API
                     Title = "Falcon",
                     Description = "Falcon Syndicate Site API",
                     TermsOfService = null,
-                    Contact = new OpenApiContact() { Name = "Corey Laird", Email = "captain@falconsyndicate.net", Url = new Uri("https://www.falconsyndicate.net/") }
+                    Contact = new OpenApiContact() { Name = "Corey Laird", Email = "me@coreylaird.com", Url = new Uri("https://www.falconsyndicate.net/") }
                 });
             });
         }
@@ -43,6 +44,11 @@ namespace Falcon.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -50,13 +56,18 @@ namespace Falcon.API
                 app.UseCors(
                     options => options.WithOrigins("http://localhost:8000").AllowAnyMethod().AllowAnyHeader()
                 );
+            } else
+            {
+                app.UseCors(
+                    options => options.WithOrigins("http://www.falconsyndicate.net").AllowAnyMethod().AllowAnyHeader()
+                );
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
