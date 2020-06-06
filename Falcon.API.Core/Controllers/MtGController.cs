@@ -41,7 +41,9 @@
 
         [HttpGet("Commanders")]
         public async Task<IEnumerable<CardDto>> GetCommanders(string variant = "Commander", bool allowSilver = false) => await this.context.Legalities
-            .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))))
+            .Where(l => l.Format == variant.Replace(" ", string.Empty)
+                     && ((l.LegalAsCommander && !l.Card.Printings.All(p => p.Border.Name == "silver"))
+                      || (l.LegalAsCommander && allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))))
             .IncludeCardProperties()
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
@@ -57,7 +59,9 @@
             }
 
             var legalities = this.context.Legalities
-                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))) && l.CardID != cmdrId);
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId
+                         && ((l.LegalAsCommander && !l.Card.Printings.All(p => p.Border.Name == "silver"))
+                          || (l.LegalAsCommander && allowSilver && l.Card.Printings.All(p => p.Border.Name == "silver"))));
 
             if (cmdr.OracleText.Contains("Partner with"))
             {
