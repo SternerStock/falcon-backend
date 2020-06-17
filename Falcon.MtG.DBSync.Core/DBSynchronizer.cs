@@ -419,6 +419,34 @@
                 result.ObjectsToAdd.AddRange(cardColors);
             }
 
+            if (printing.Types.Contains("land") && !printing.Supertypes.Contains("Basic"))
+            {
+                if (printing.Text.Contains("plains", StringComparison.CurrentCultureIgnoreCase) && !printing.ColorIdentity.Contains("W"))
+                {
+                    printing.ColorIdentity.Add("W");
+                }
+
+                if (printing.Text.Contains("island", StringComparison.CurrentCultureIgnoreCase) && !printing.ColorIdentity.Contains("U"))
+                {
+                    printing.ColorIdentity.Add("U");
+                }
+
+                if (printing.Text.Contains("swamp", StringComparison.CurrentCultureIgnoreCase) && !printing.ColorIdentity.Contains("B"))
+                {
+                    printing.ColorIdentity.Add("B");
+                }
+
+                if (printing.Text.Contains("mountain", StringComparison.CurrentCultureIgnoreCase) && !printing.ColorIdentity.Contains("R"))
+                {
+                    printing.ColorIdentity.Add("R");
+                }
+
+                if (printing.Text.Contains("forest", StringComparison.CurrentCultureIgnoreCase) && !printing.ColorIdentity.Contains("G"))
+                {
+                    printing.ColorIdentity.Add("G");
+                }
+            }
+
             if (dbCard.ColorIdentity.Select(t => t.Color.Symbol).Except(printing.ColorIdentity).Any() ||
                 printing.ColorIdentity.Except(dbCard.ColorIdentity.Select(t => t.Color.Symbol)).Any())
             {

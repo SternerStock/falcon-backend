@@ -31,11 +31,11 @@
             result.MainObject.Add(brawl.MainObject);
             result.Merge(brawl);
 
-            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), leadership.Commander || card.Name == "Gisela, the Broken Blade");
+            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), legality.Commander != "Banned" && leadership.Commander || card.Name == "Gisela, the Broken Blade");
             result.MainObject.Add(commander.MainObject);
             result.Merge(commander);
 
-            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), leadership.Commander);
+            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), legality.Duel != "Banned" && leadership.Commander || card.Name == "Gisela, the Broken Blade");
             result.MainObject.Add(duel.MainObject);
             result.Merge(duel);
 
@@ -55,7 +55,7 @@
             result.MainObject.Add(modern.MainObject);
             result.Merge(modern);
 
-            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), card.Types.Any(c => c.CardType.Name == "creature") && card.Printings.Any(p => p.Rarity.Name == "uncommon"));
+            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), legality.Commander != "Banned" && card.Types.Any(c => c.CardType.Name == "creature") && card.Printings.Any(p => p.Rarity.Name == "uncommon"));
             result.MainObject.Add(pauper.MainObject);
             result.Merge(pauper);
 
