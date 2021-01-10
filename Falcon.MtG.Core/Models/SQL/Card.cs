@@ -1,5 +1,6 @@
 namespace Falcon.MtG.Models.Sql
 {
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
@@ -27,26 +28,6 @@ namespace Falcon.MtG.Models.Sql
             this.Legalities = new HashSet<Legality>();
         }
 
-        [NotMapped]
-        public string CockatriceName
-        {
-            get
-            {
-                if (this.Layout.Name == "split" || this.Layout.Name == "aftermath")
-                {
-                    List<string> names = new List<string>
-                    {
-                        this.Name
-                    };
-                    names.AddRange(this.OtherSides.OrderBy(c => c.Side).Select(s => s.Name));
-
-                    return string.Join(" // ", names);
-                }
-
-                return this.Name;
-            }
-        }
-
         public override string ToString()
         {
             return this.CockatriceName;
@@ -54,7 +35,11 @@ namespace Falcon.MtG.Models.Sql
 
         public int ID { get; set; }
 
+        public Guid UUID { get; set; }
+
         public string Name { get; set; }
+
+        public string CockatriceName { get; set; }
 
         public string ManaCost { get; set; }
 

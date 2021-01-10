@@ -1,16 +1,18 @@
 ﻿namespace Falcon.MtG.Models.Json
 {
+    using System;
     using System.Collections.Generic;
 
     public class JsonCard
     {
         public JsonCard()
         {
-            this.Names = new List<string>();
+            this.OtherFaceIds = new List<Guid>();
             this.Colors = new List<string>();
             this.Supertypes = new List<string>();
             this.Types = new List<string>();
             this.Subtypes = new List<string>();
+            this.Keywords = new List<string>();
             this.ConvertedManaCost = 0;
             this.LeadershipSkills = new JsonLeadership()
             {
@@ -19,6 +21,8 @@
                 Oathbreaker = false
             };
         }
+
+        public Guid UUID { get; set; }
 
         public string Artist { get; set; }
 
@@ -50,7 +54,9 @@
 
         public string Name { get; set; }
 
-        public List<string> Names { get; set; }
+        public string FaceName { get; set; }
+
+        public List<Guid> OtherFaceIds { get; set; }
 
         public string Number { get; set; }
 
@@ -65,6 +71,8 @@
         public List<string> Subtypes { get; set; }
 
         public List<string> Supertypes { get; set; }
+
+        public List<string> Keywords { get; set; }
 
         public string Text { get; set; }
 

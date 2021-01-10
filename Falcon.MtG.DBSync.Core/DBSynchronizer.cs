@@ -226,11 +226,11 @@
 
         private void LinkSides(JsonCard jsonCard)
         {
-            var sideAName = jsonCard.Names?.FirstOrDefault();
-            if (sideAName != null && jsonCard.Side != null && jsonCard.Side != "a")
+            var sideAUuid = jsonCard.OtherFaceIds?.FirstOrDefault();
+            if (sideAUuid != null && jsonCard.Side != null && jsonCard.Side != "a")
             {
                 var mainSide = db.Cards.Local
-                    .Where(c => c.Name == sideAName)
+                    .Where(c => c.UUID == sideAUuid)
                     .FirstOrDefault();
 
                 var altCard = db.Cards.Local
@@ -242,17 +242,6 @@
                     altCard.MainSide = mainSide;
                 }
             }
-        }
-
-        private async Task<List<Keyword>> ParseKeywords(string OracleText)
-        {
-            // TODO: Figure out better parsing instead of just contains the name or phrase
-            if (string.IsNullOrWhiteSpace(OracleText))
-            {
-                return new List<Keyword>();
-            }
-
-            return await db.Keywords.Where(k => OracleText.ToLower().Contains(k.Name.ToLower())).ToListAsync();
         }
 
         private async Task SaveChanges()
@@ -371,20 +360,22 @@
             var result = new UpsertResult<Card>();
 
             var dbCard = db.Cards.Local
-            .Where(c => c.Name == printing.Name)
+            .Where(c => c.Name == printing.FaceName)
             .FirstOrDefault();
 
             if (dbCard == null)
             {
                 dbCard = new Card()
                 {
-                    Name = printing.Name
+                    Name = printing.FaceName
                 };
 
                 result.ObjectsToAdd.Add(dbCard);
                 //db.Cards.Local.Add(dbCard);
             }
 
+            dbCard.UUID = printing.UUID;
+            dbCard.CockatriceName = printing.Name;
             dbCard.ManaCost = printing.ManaCost;
             dbCard.CMC = printing.ConvertedManaCost;
             dbCard.TypeLine = printing.Type;
@@ -525,23 +516,24 @@
             dbCard.Legalities = legalityUpsert.MainObject;
             result.Merge(legalityUpsert);
 
-            //var keywords = (await ParseKeywords(printing.Text)).Select(k => k.Name);
-            //if (dbCard.Keywords.Select(t => t.Keyword.Name).Except(keywords).Any() ||
-            //    keywords.Except(dbCard.Keywords.Select(t => t.Keyword.Name)).Any())
-            //{
-            //    if (dbCard.Keywords.Count > 0)
-            //    {
-            //        await this.SaveChanges();
-            //        db.CardKeywords.RemoveRange(dbCard.Keywords);
-            //    }
+            if (dbCard.Keywords.Select(t => t.Keyword.Name).Except(printing.Keywords).Any() ||
+                printing.Keywords.Except(dbCard.Keywords.Select(t => t.Keyword.Name)).Any())
+            {
+                result.ObjectsToRemove.AddRange(dbCard.Keywords);
 
-            // var dbKeywords = await db.Keywords.Where(k =>
-            // keywords.Contains(k.Name)).ToListAsync(); var cardKeywords = new List<CardKeyword>();
-            // foreach (var keyword in dbKeywords) { cardKeywords.Add(new CardKeyword() { Card =
-            // dbCard, Keyword = keyword }); }
+                var dbKeywords = db.Keywords.Where(k => printing.Keywords.Contains(k.Name));
+                var cardKeywords = new List<CardKeyword>();
+                foreach (var keyword in dbKeywords)
+                {
+                    cardKeywords.Add(new CardKeyword()
+                    {
+                        Card = dbCard,
+                        Keyword = keyword
+                    });
+                }
 
-            //    db.CardKeywords.AddRange(cardKeywords);
-            //}
+                db.CardKeywords.AddRange(cardKeywords);
+            }
 
             dbCard.Side = printing.Side;
             if (printing.Side == null || printing.Side == "a")
@@ -777,29 +769,6 @@
 
             foreach (var card in set.Cards)
             {
-                // Add missing sides property to Who/What/Where/When/Why because that card is the worst
-                if (string.IsNullOrEmpty(card.Side))
-                {
-                    switch (card.Name)
-                    {
-                        case "What":
-                            card.Side = "b";
-                            break;
-
-                        case "When":
-                            card.Side = "c";
-                            break;
-
-                        case "Where":
-                            card.Side = "d";
-                            break;
-
-                        case "Why":
-                            card.Side = "e";
-                            break;
-                    }
-                }
-
                 var printingUpsert = this.UpsertPrinting(card);
                 result.Merge(printingUpsert);
                 if (printingUpsert.MainObject != null)
