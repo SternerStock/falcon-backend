@@ -18,9 +18,6 @@
         public DateTime ReleaseDate { get; set; }
 
         public string Type { get; set; }
-
-        [JsonProperty("meta")]
-        public JsonVersion Version { get; set; }
     }
 
     public class JsonSetComparer : IComparer<JsonSet>

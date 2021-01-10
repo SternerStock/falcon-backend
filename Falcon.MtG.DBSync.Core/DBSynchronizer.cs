@@ -18,7 +18,7 @@
     public class DBSynchronizer : IDisposable
     {
         private const string AllSetsArchiveFileName = "AllSetFiles.tar.bz2";
-        private const string SetsFolderName = "Sets";
+        private const string SetsFolderName = "AllSetFiles";
         private const string SetListFileName = "SetList.json";
         private const string CardTypesFileName = "CardTypes.json";
         private const string KeywordsFileName = "Keywords.json";
@@ -32,7 +32,7 @@
 
         public DBSynchronizer(string workingDir)
         {
-            this.CurrentMtgJsonVersion = new JsonMeta();
+            this.CurrentMtgJsonVersion = new JsonVersion();
             this.workingDirectory = workingDir;
             this.legalityHelper = new LegalityHelper();
         }
@@ -41,7 +41,7 @@
         {
         }
 
-        public JsonMeta CurrentMtgJsonVersion { get; set; }
+        public JsonVersion CurrentMtgJsonVersion { get; set; }
 
         public void Dispose()
         {
@@ -107,7 +107,7 @@
             var jsonFileName = setCode + (setCode == "CON" ? "_" : string.Empty) + ".json";
             var setDataPath = Path.Combine(this.workingDirectory, SetsFolderName, jsonFileName);
             var setData = await File.ReadAllTextAsync(setDataPath);
-            var set = JsonConvert.DeserializeObject<JsonSet>(setData);
+            var set = Utility.ParseMtGJson<JsonSet>(setData);
 
             await db.Sets
                 .Include(s => s.Block)
@@ -150,7 +150,7 @@
         private async Task<IEnumerable<string>> LoadSetList()
         {
             var setsArchiveFilePath = Path.Combine(this.workingDirectory, AllSetsArchiveFileName);
-            var setsSubfolderPath = Path.Combine(this.workingDirectory, SetsFolderName);
+            //var setsSubfolderPath = Path.Combine(this.workingDirectory, SetsFolderName);
             var extractionOptions = new ExtractionOptions()
             {
                 ExtractFullPath = true,
@@ -162,15 +162,12 @@
                 using var reader = ReaderFactory.Open(stream);
                 while (reader.MoveToNextEntry())
                 {
-                    if (!reader.Entry.IsDirectory)
-                    {
-                        reader.WriteEntryToDirectory(setsSubfolderPath, extractionOptions);
-                    }
+                    reader.WriteEntryToDirectory(this.workingDirectory, extractionOptions);
                 }
             }
 
             string setsText = await FileUtility.ReadAllTextAsync(SetListFileName);
-            JArray parsedSetData = JsonConvert.DeserializeObject<JArray>(setsText);
+            JArray parsedSetData = Utility.ParseMtGJson<JArray>(setsText);
 
             var setList = new List<JsonSet>();
             foreach (var set in parsedSetData)
@@ -201,15 +198,15 @@
 
                 if (File.Exists(versionFilePath))
                 {
-                    this.CurrentMtgJsonVersion = JsonConvert.DeserializeObject<JsonMeta>(File.ReadAllText(versionFilePath));
+                    this.CurrentMtgJsonVersion = Utility.ParseMtGJson<JsonVersion>(File.ReadAllText(versionFilePath));
                 }
 
-                Console.WriteLine("Current Version: " + this.CurrentMtgJsonVersion.Data.Version);
+                Console.WriteLine("Current Version: " + this.CurrentMtgJsonVersion.Version);
 
-                var newVersion = JsonConvert.DeserializeObject<JsonMeta>(client.DownloadString(MtgJsonUrl + VersionFileName));
-                Console.WriteLine("Server Version:  " + newVersion.Data.Version);
+                var newVersion = Utility.ParseMtGJson<JsonVersion>(client.DownloadString(MtgJsonUrl + VersionFileName));
+                Console.WriteLine("Server Version:  " + newVersion.Version);
 
-                if (force || this.CurrentMtgJsonVersion?.Data?.Version != newVersion?.Data?.Version)
+                if (force || this.CurrentMtgJsonVersion.Version != newVersion.Version)
                 {
                     this.CurrentMtgJsonVersion = newVersion;
                     Console.WriteLine("Database will be updated.");
@@ -280,10 +277,9 @@
             Console.WriteLine("Syncing card types...");
             var typesFilePath = Path.Combine(this.workingDirectory, CardTypesFileName);
             string cardTypesText = await FileUtility.ReadAllTextAsync(typesFilePath);
-            dynamic parsedCardTypes = JsonConvert.DeserializeObject(cardTypesText);
+            JObject parsedCardTypes = Utility.ParseMtGJson<JObject>(cardTypesText);
 
-            JObject types = parsedCardTypes.types;
-            foreach (var cardType in types)
+            foreach (var cardType in parsedCardTypes)
             {
                 await this.UpsertCardType(cardType.Key, cardType.Value.ToObject<JsonCardTypes>());
             }
@@ -295,7 +291,7 @@
 
             var keywordsFilePath = Path.Combine(this.workingDirectory, KeywordsFileName);
             string keywordsText = await FileUtility.ReadAllTextAsync(keywordsFilePath);
-            var keywords = JsonConvert.DeserializeObject<JsonKeywords>(keywordsText);
+            var keywords = Utility.ParseMtGJson<JsonKeywords>(keywordsText);
 
             foreach (var keyword in keywords.AbilityWords)
             {

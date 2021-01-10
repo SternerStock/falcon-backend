@@ -1,14 +1,14 @@
 ﻿namespace Falcon.MtG.Models.Json
 {
-    public class JsonMeta
+    public class JsonMeta<T> where T : new()
     {
         public JsonMeta ()
         {
-            this.Data = new JsonVersion();
+            this.Data = new T();
             this.Meta = new JsonVersion();
         }
 
-        public JsonVersion Data { get; set; }
+        public T Data { get; set; }
 
         public JsonVersion Meta { get; set; }
     }
