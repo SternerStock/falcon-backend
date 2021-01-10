@@ -22,8 +22,8 @@
         private const string SetListFileName = "SetList.json";
         private const string CardTypesFileName = "CardTypes.json";
         private const string KeywordsFileName = "Keywords.json";
-        private const string MtgJsonUrl = "https://mtgjson.com/json/";
-        private const string VersionFileName = "version.json";
+        private const string MtgJsonUrl = "https://mtgjson.com/api/v5/";
+        private const string VersionFileName = "Meta.json";
 
         private MtGDBContext db;
         private bool disposedValue = false;
@@ -32,7 +32,7 @@
 
         public DBSynchronizer(string workingDir)
         {
-            this.CurrentMtgJsonVersion = new JsonVersion();
+            this.CurrentMtgJsonVersion = new JsonMeta();
             this.workingDirectory = workingDir;
             this.legalityHelper = new LegalityHelper();
         }
@@ -41,7 +41,7 @@
         {
         }
 
-        public JsonVersion CurrentMtgJsonVersion { get; set; }
+        public JsonMeta CurrentMtgJsonVersion { get; set; }
 
         public void Dispose()
         {
@@ -201,15 +201,15 @@
 
                 if (File.Exists(versionFilePath))
                 {
-                    this.CurrentMtgJsonVersion = JsonConvert.DeserializeObject<JsonVersion>(File.ReadAllText(versionFilePath));
+                    this.CurrentMtgJsonVersion = JsonConvert.DeserializeObject<JsonMeta>(File.ReadAllText(versionFilePath));
                 }
 
-                Console.WriteLine("Current Version: " + this.CurrentMtgJsonVersion.Version);
+                Console.WriteLine("Current Version: " + this.CurrentMtgJsonVersion.Data.Version);
 
-                var newVersion = JsonConvert.DeserializeObject<JsonVersion>(client.DownloadString(MtgJsonUrl + VersionFileName));
-                Console.WriteLine("Server Version:  " + newVersion.Version);
+                var newVersion = JsonConvert.DeserializeObject<JsonMeta>(client.DownloadString(MtgJsonUrl + VersionFileName));
+                Console.WriteLine("Server Version:  " + newVersion.Data.Version);
 
-                if (force || this.CurrentMtgJsonVersion != newVersion)
+                if (force || this.CurrentMtgJsonVersion?.Data?.Version != newVersion?.Data?.Version)
                 {
                     this.CurrentMtgJsonVersion = newVersion;
                     Console.WriteLine("Database will be updated.");
