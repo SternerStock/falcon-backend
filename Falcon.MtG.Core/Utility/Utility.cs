@@ -71,7 +71,7 @@
             //await db.Supertypes.LoadAsync();
 
             //await db.Colors.LoadAsync();
-            //await db.Keywords.LoadAsync();
+            await db.Keywords.LoadAsync();
             await db.Layouts.LoadAsync();
 
             await db.Borders.LoadAsync();

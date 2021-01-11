@@ -141,7 +141,7 @@
                 .Include(c => c.Legalities)
                 .Include(c => c.Keywords)
                 .Include(c => c.MainSide)
-                .Where(c => set.Cards.Select(sc => sc.Name).Contains(c.Name))
+                .Where(c => set.Cards.Select(sc => sc.CockatriceName).Contains(c.Name))
                 .LoadAsync();
 
             return set;
@@ -229,18 +229,15 @@
             var sideAUuid = jsonCard.OtherFaceIds?.FirstOrDefault();
             if (sideAUuid != null && jsonCard.Side != null && jsonCard.Side != "a")
             {
-                var mainSide = db.Cards.Local
-                    .Where(c => c.UUID == sideAUuid)
-                    .FirstOrDefault();
+                var mainSide = db.Printings
+                    .Where(p => p.UUID == sideAUuid)
+                    .SingleOrDefault()?.Card;
 
                 var altCard = db.Cards.Local
-                    .Where(c => c.Name == jsonCard.Name)
-                    .FirstOrDefault();
+                    .Where(c => c.Name == jsonCard.CockatriceName)
+                    .Single();
 
-                if (altCard != null)
-                {
-                    altCard.MainSide = mainSide;
-                }
+                altCard.MainSide = mainSide;
             }
         }
 
@@ -360,21 +357,19 @@
             var result = new UpsertResult<Card>();
 
             var dbCard = db.Cards.Local
-            .Where(c => c.Name == printing.FaceName)
-            .FirstOrDefault();
+            .Where(c => c.Name == printing.CockatriceName)
+            .SingleOrDefault();
 
             if (dbCard == null)
             {
                 dbCard = new Card()
                 {
-                    Name = printing.FaceName
+                    Name = printing.CockatriceName
                 };
 
                 result.ObjectsToAdd.Add(dbCard);
-                //db.Cards.Local.Add(dbCard);
             }
 
-            dbCard.UUID = printing.UUID;
             dbCard.CockatriceName = printing.Name;
             dbCard.ManaCost = printing.ManaCost;
             dbCard.CMC = printing.ConvertedManaCost;
@@ -510,14 +505,9 @@
                 result.ObjectsToAdd.AddRange(cardSubtypes);
             }
 
-            dbCard.Layout = UpsertSimpleLookup(db.Layouts, printing.Layout);
-
-            var legalityUpsert = legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
-            dbCard.Legalities = legalityUpsert.MainObject;
-            result.Merge(legalityUpsert);
-
-            if (dbCard.Keywords.Select(t => t.Keyword.Name).Except(printing.Keywords).Any() ||
-                printing.Keywords.Except(dbCard.Keywords.Select(t => t.Keyword.Name)).Any())
+            var keywords = printing.Keywords.Select(k => k.ToLower());
+            if (dbCard.Keywords.Select(k => k.Keyword.Name.ToLower()).Except(keywords).Any() ||
+                keywords.Except(dbCard.Keywords.Select(k => k.Keyword.Name.ToLower())).Any())
             {
                 result.ObjectsToRemove.AddRange(dbCard.Keywords);
 
@@ -534,6 +524,12 @@
 
                 db.CardKeywords.AddRange(cardKeywords);
             }
+
+            dbCard.Layout = UpsertSimpleLookup(db.Layouts, printing.Layout);
+
+            var legalityUpsert = legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
+            dbCard.Legalities = legalityUpsert.MainObject;
+            result.Merge(legalityUpsert);
 
             dbCard.Side = printing.Side;
             if (printing.Side == null || printing.Side == "a")
@@ -714,6 +710,7 @@
                 result.ObjectsToAdd.Add(dbPrinting);
             }
 
+            dbPrinting.UUID = printing.UUID;
             dbPrinting.FlavorText = printing.FlavorText;
             dbPrinting.CollectorNumber = printing.Number;
 

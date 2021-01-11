@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.RegularExpressions;
 
     public class JsonCard
     {
@@ -13,6 +14,8 @@
             this.Types = new List<string>();
             this.Subtypes = new List<string>();
             this.Keywords = new List<string>();
+            this.Printings = new List<string>();
+            this.Variations = new List<Guid>();
             this.ConvertedManaCost = 0;
             this.LeadershipSkills = new JsonLeadership()
             {
@@ -82,6 +85,28 @@
 
         public List<string> Types { get; set; }
 
+        public List<string> Printings { get; set; }
+
+        public List<Guid> Variations { get; set; }
+
         public string Watermark { get; set; }
+
+        public string CockatriceName
+        {
+            get
+            {
+                string name = FaceName ?? Name;
+                if (Printings.Contains("UST") && !Supertypes.Contains("Basic") && Variations.Count > 0)
+                {
+                    Match match = Regex.Match(Number, @"\d+([b-z])");
+                    if (match.Success)
+                    {
+                        return $"{name} ({match.Groups[1]})";
+                    }
+                }
+
+                return name;
+            }
+        }
     }
 }

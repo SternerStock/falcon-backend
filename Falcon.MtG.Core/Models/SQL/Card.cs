@@ -1,9 +1,6 @@
 namespace Falcon.MtG.Models.Sql
 {
-    using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
 
     public class Card
     {
@@ -30,12 +27,10 @@ namespace Falcon.MtG.Models.Sql
 
         public override string ToString()
         {
-            return this.CockatriceName;
+            return this.Name;
         }
 
         public int ID { get; set; }
-
-        public Guid UUID { get; set; }
 
         public string Name { get; set; }
 

@@ -1,5 +1,6 @@
 namespace Falcon.MtG.Models.Sql
 {
+    using System;
     using System.Collections.Generic;
 
     public class Printing
@@ -10,6 +11,8 @@ namespace Falcon.MtG.Models.Sql
         }
 
         public int ID { get; set; }
+
+        public Guid UUID { get; set; }
 
         public int MultiverseId { get; set; }
 
