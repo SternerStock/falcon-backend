@@ -4,14 +4,16 @@ using Falcon.MtG;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Falcon.MtG.Migrations
 {
     [DbContext(typeof(MtGDBContext))]
-    partial class MtGDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210111000214_v5")]
+    partial class v5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,6 +126,9 @@ namespace Falcon.MtG.Migrations
 
                     b.Property<string>("TypeLine")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UUID")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ID");
 
@@ -447,9 +452,6 @@ namespace Falcon.MtG.Migrations
 
                     b.Property<string>("Side")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UUID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("WatermarkID")
                         .HasColumnType("int");

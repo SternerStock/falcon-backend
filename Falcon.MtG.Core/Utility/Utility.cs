@@ -2,8 +2,10 @@
 {
     using System.Linq;
     using System.Threading.Tasks;
+    using Falcon.MtG.Models.Json;
     using Falcon.MtG.Models.Sql;
     using Microsoft.EntityFrameworkCore;
+    using Newtonsoft.Json;
 
     public static class Utility
     {
@@ -23,6 +25,17 @@
         /// phyrexian mana or twobrid symbols.
         /// </summary>
         public const string ColoredManaSymbolRegex = @"\{([WUBRG2])([\/])?([WUBRGP])?\}";
+
+        public static T ParseMtGJson<T>(string json) where T : new()
+        {
+            var meta = JsonConvert.DeserializeObject<JsonMeta<T>>(json);
+            if (meta != null)
+            {
+                return meta.Data;
+            }
+
+            return default;
+        }
 
         private static void UpsertColor(MtGDBContext db, string symbol, string name, string landName)
         {
@@ -58,7 +71,7 @@
             //await db.Supertypes.LoadAsync();
 
             //await db.Colors.LoadAsync();
-            //await db.Keywords.LoadAsync();
+            await db.Keywords.LoadAsync();
             await db.Layouts.LoadAsync();
 
             await db.Borders.LoadAsync();
