@@ -31,17 +31,21 @@
             result.MainObject.Add(brawl.MainObject);
             result.Merge(brawl);
 
-            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), legality.Commander != "Banned" && leadership.Commander || card.Name == "Gisela, the Broken Blade");
+            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), legality.Commander != "Banned" && leadership.Commander);
             result.MainObject.Add(commander.MainObject);
             result.Merge(commander);
 
-            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), legality.Duel != "Banned" && leadership.Commander || card.Name == "Gisela, the Broken Blade");
+            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), legality.Duel != "Banned" && leadership.Commander);
             result.MainObject.Add(duel.MainObject);
             result.Merge(duel);
 
             var frontier = this.UpsertLegality(card, "Frontier", IsLegal(legality.Frontier), false);
             result.MainObject.Add(frontier.MainObject);
             result.Merge(frontier);
+
+            var historic = this.UpsertLegality(card, "Historic", IsLegal(legality.Historic), false);
+            result.MainObject.Add(historic.MainObject);
+            result.Merge(historic);
 
             var future = this.UpsertLegality(card, "Future", IsLegal(legality.Future), false);
             result.MainObject.Add(future.MainObject);
@@ -54,6 +58,10 @@
             var modern = this.UpsertLegality(card, "Modern", IsLegal(legality.Modern), false);
             result.MainObject.Add(modern.MainObject);
             result.Merge(modern);
+
+            var pioneer = this.UpsertLegality(card, "Pioneer", IsLegal(legality.Pioneer), false);
+            result.MainObject.Add(pioneer.MainObject);
+            result.Merge(pioneer);
 
             var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), legality.Commander != "Banned" && card.Types.Any(c => c.CardType.Name == "creature") && card.Printings.Any(p => p.Rarity.Name == "uncommon"));
             result.MainObject.Add(pauper.MainObject);
@@ -103,7 +111,7 @@
             return result;
         }
 
-        private bool IsLegal(string text)
+        private static bool IsLegal(string text)
         {
             return text == "Legal" || text == "Restricted";
         }

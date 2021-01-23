@@ -10,11 +10,15 @@
 
         public string Frontier { get; set; }
 
+        public string Historic { get; set; }
+
         public string Future { get; set; }
 
         public string Legacy { get; set; }
 
         public string Modern { get; set; }
+
+        public string Pioneer { get; set; }
 
         public string Pauper { get; set; }
 
