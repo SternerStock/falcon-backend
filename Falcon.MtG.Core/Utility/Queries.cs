@@ -32,6 +32,9 @@
                 .ThenInclude(c => c.Supertypes)
                     .ThenInclude(st => st.Supertype)
             .Include(l => l.Card)
+                .ThenInclude(c => c.Keywords)
+                    .ThenInclude(ck => ck.Keyword)
+            .Include(l => l.Card)
                 .ThenInclude(c => c.Layout)
             .Include(l => l.Card)
                 .ThenInclude(c => c.MainSide)
@@ -54,17 +57,19 @@
                     .ThenInclude(st => st.Subtype)
             .Include(c => c.Supertypes)
                     .ThenInclude(st => st.Supertype)
+            .Include(c => c.Keywords)
+                .ThenInclude(ck => ck.Keyword)
             .Include(c => c.Layout)
             .Include(c => c.MainSide)
             .Include(c => c.OtherSides);
 
         public static IQueryable<Card> GetLegalCards(this MtGDBContext context, string format, bool allowSilver = false) => context.Legalities
-            .Where(l => l.Format == format.Replace("Penny Dreadful", "Penny").Replace(" ", string.Empty)
-                    && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Set.SetType.Name == "funny")))
-                    && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic")
-                    && !(l.Card.Layout.Name == "meld" && l.Card.Side == "c"))
-            .IncludeCardProperties()
-            .Select(l => l.Card);
+           .Where(l => l.Format == format.Replace("Penny Dreadful", "Penny").Replace(" ", string.Empty)
+                   && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Set.SetType.Name == "funny")))
+                   && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic")
+                   && !(l.Card.Layout.Name == "meld" && l.Card.Side == "c"))
+           .IncludeCardProperties()
+           .Select(l => l.Card);
 
         public static IQueryable<Card> BasicLandFilter(this IQueryable<Card> cards)
         {
@@ -109,7 +114,7 @@
         {
             return cards.Where(c => c.Types.Any(t => t.CardType.Name == "enchantment")
                                  && (c.Subtypes.Any(st => st.Subtype.Name == "aura")
-                                     || c.OracleText.Contains("Bestow {")));
+                                     || c.Keywords.Any(k => k.Keyword.Name == "bestow")));
         }
 
         public static IQueryable<Card> PlaneswalkerFilter(this IQueryable<Card> cards)
