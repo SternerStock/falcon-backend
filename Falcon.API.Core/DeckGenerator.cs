@@ -416,7 +416,7 @@
 
                 for (int i = 0; i < copies; i++)
                 {
-                    if (string.IsNullOrEmpty(card.Side) || card.Side == "a" || (card.Layout.Name == "meld" && card.Side == "b"))
+                    if (card.MainSide == null || string.IsNullOrEmpty(card.Side) || card.Side == "a" || (card.Layout.Name == "meld" && card.Side == "b"))
                     {
                         this.deck.Cards.Add(card);
                     }
