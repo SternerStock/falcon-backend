@@ -123,7 +123,7 @@
                 .Include(p => p.Rarity)
                 .Include(p => p.Border)
                 .Include(p => p.Pricings)
-                .Where(p => set.Cards.Select(c => c.MultiverseId).Contains(p.MultiverseId))
+                .Where(p => set.Cards.Select(c => c.Identifiers.MultiverseId).Contains(p.MultiverseId))
                 .LoadAsync();
 
             await db.Cards
@@ -522,7 +522,7 @@
                     });
                 }
 
-                db.CardKeywords.AddRange(cardKeywords);
+                result.ObjectsToAdd.AddRange(cardKeywords);
             }
 
             dbCard.Layout = UpsertSimpleLookup(db.Layouts, printing.Layout);
@@ -690,20 +690,20 @@
 
             var result = new UpsertResult<Printing>();
 
-            if (!printing.MultiverseId.HasValue)
+            if (!printing.Identifiers.MultiverseId.HasValue)
             {
                 return result;
             }
 
             var dbPrinting = db.Printings.Local
-                .Where(p => p.MultiverseId == printing.MultiverseId.Value && p.Side == printing.Side)
+                .Where(p => p.MultiverseId == printing.Identifiers.MultiverseId.Value && p.Side == printing.Side)
                 .FirstOrDefault();
 
             if (dbPrinting == null)
             {
                 dbPrinting = new Printing()
                 {
-                    MultiverseId = printing.MultiverseId.Value,
+                    MultiverseId = printing.Identifiers.MultiverseId.Value,
                     Side = printing.Side
                 };
 
