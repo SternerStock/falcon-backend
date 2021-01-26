@@ -53,7 +53,7 @@
 
         public string ManaCost { get; set; }
 
-        public int? MultiverseId { get; set; }
+        public JsonIdentifiers Identifiers { get; set; }
 
         public string Name { get; set; }
 
