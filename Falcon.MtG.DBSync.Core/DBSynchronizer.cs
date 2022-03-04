@@ -226,12 +226,13 @@
 
         private void LinkSides(JsonCard jsonCard)
         {
-            var sideAUuid = jsonCard.OtherFaceIds?.FirstOrDefault();
-            if (sideAUuid != null && jsonCard.Side != null && jsonCard.Side != "a")
+            Guid? sideAUuid = jsonCard.OtherFaceIds?.FirstOrDefault();
+            if (sideAUuid != null && sideAUuid != default(Guid) && jsonCard.Side != null && jsonCard.Side != "a")
             {
                 var mainSide = db.Printings
                     .Where(p => p.UUID == sideAUuid)
-                    .SingleOrDefault()?.Card;
+                    .OrderBy(p => p.MultiverseId)
+                    .FirstOrDefault()?.Card;
 
                 var altCard = db.Cards.Local
                     .Where(c => c.Name == jsonCard.CockatriceName)
@@ -716,7 +717,7 @@
 
             dbPrinting.Artist = UpsertSimpleLookup(db.Artists, printing.Artist);
             dbPrinting.Watermark = UpsertSimpleLookup(db.Watermarks, printing.Watermark);
-            dbPrinting.Frame = UpsertSimpleLookup(db.Frames, printing.FrameVersion);
+            dbPrinting.Frame = UpsertSimpleLookup(db.Frames, printing.FrameVersion);  
             dbPrinting.Rarity = UpsertSimpleLookup(db.Rarities, printing.Rarity);
             dbPrinting.Border = UpsertSimpleLookup(db.Borders, printing.BorderColor);
 
