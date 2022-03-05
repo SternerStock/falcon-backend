@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Falcon.API</AssemblyName>
     <UserSecretsId>078b1650-0c6a-423e-a144-4d45a8cb7ebd</UserSecretsId>
   </PropertyGroup>
