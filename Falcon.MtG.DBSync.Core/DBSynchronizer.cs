@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Net;
+    using System.Net.Http;
     using System.Threading.Tasks;
     using Falcon.MtG.Models.Json;
     using Falcon.MtG.Models.Sql;
@@ -25,16 +25,18 @@
         private const string MtgJsonUrl = "https://mtgjson.com/api/v5/";
         private const string VersionFileName = "Meta.json";
 
-        private MtGDBContext db;
+        private MtGDBContext _db;
+        private readonly HttpClient _client;
         private bool disposedValue = false;
-        private readonly LegalityHelper legalityHelper;
-        private readonly string workingDirectory;
+        private readonly LegalityHelper _legalityHelper;
+        private readonly string _workingDirectory;
 
         public DBSynchronizer(string workingDir)
         {
+            this._client = new HttpClient();
             this.CurrentMtgJsonVersion = new JsonVersion();
-            this.workingDirectory = workingDir;
-            this.legalityHelper = new LegalityHelper();
+            this._workingDirectory = workingDir;
+            this._legalityHelper = new LegalityHelper();
         }
 
         public DBSynchronizer() : this(Environment.CurrentDirectory)
@@ -57,7 +59,7 @@
 
                 await this.SyncKeywords();
                 await this.SyncCardTypes();
-                this.db.SeedColorData();
+                this._db.SeedColorData();
                 await this.SaveChanges();
 
                 var setList = await this.LoadSetList();
@@ -65,14 +67,14 @@
                 {
                     await this.RefreshContext();
                     var loadedSet = await this.LoadSet(setCode);
-                    await db.LoadLookups();
+                    await _db.LoadLookups();
                     await this.SyncSet(loadedSet);
                 }
 
                 await this.SaveChanges();
 
                 // Save successfully synced version number
-                var versionFilePath = Path.Combine(this.workingDirectory, VersionFileName);
+                var versionFilePath = Path.Combine(this._workingDirectory, VersionFileName);
                 File.WriteAllText(versionFilePath, JsonConvert.SerializeObject(this.CurrentMtgJsonVersion));
             }
         }
@@ -83,7 +85,7 @@
             {
                 if (disposing)
                 {
-                    this.db.Dispose();
+                    this._db.Dispose();
                 }
 
                 this.disposedValue = true;
@@ -92,29 +94,29 @@
 
         protected async Task RefreshContext()
         {
-            if (this.db != null)
+            if (this._db != null)
             {
-                await this.db.DisposeAsync();
+                await this._db.DisposeAsync();
             }
 
-            this.db = new MtGDBContext();
-            this.db.ChangeTracker.AutoDetectChangesEnabled = false;
+            this._db = new MtGDBContext();
+            this._db.ChangeTracker.AutoDetectChangesEnabled = false;
         }
 
         private async Task<JsonSet> LoadSet(string setCode)
         {
             // Conflux's file name has to be CON_ to avoid OS issues.
             var jsonFileName = setCode + (setCode == "CON" ? "_" : string.Empty) + ".json";
-            var setDataPath = Path.Combine(this.workingDirectory, SetsFolderName, jsonFileName);
+            var setDataPath = Path.Combine(this._workingDirectory, SetsFolderName, jsonFileName);
             var setData = await File.ReadAllTextAsync(setDataPath);
             var set = Utility.ParseMtGJson<JsonSet>(setData);
 
-            await db.Sets
+            await _db.Sets
                 .Include(s => s.Block)
                 .Include(s => s.SetType)
                 .Where(s => s.Code == setCode).LoadAsync();
 
-            await db.Printings
+            await _db.Printings
                 //.Include(p => p.Card)
                 //.Include(p => p.Set)
                 .Include(p => p.Artist)
@@ -126,7 +128,7 @@
                 .Where(p => set.Cards.Select(c => c.Identifiers.MultiverseId).Contains(p.MultiverseId))
                 .LoadAsync();
 
-            await db.Cards
+            await _db.Cards
                 .Include(c => c.Colors)
                     .ThenInclude(c => c.Color)
                 .Include(c => c.ColorIdentity)
@@ -149,23 +151,6 @@
 
         private async Task<IEnumerable<string>> LoadSetList()
         {
-            var setsArchiveFilePath = Path.Combine(this.workingDirectory, AllSetsArchiveFileName);
-            //var setsSubfolderPath = Path.Combine(this.workingDirectory, SetsFolderName);
-            var extractionOptions = new ExtractionOptions()
-            {
-                ExtractFullPath = true,
-                Overwrite = true
-            };
-
-            using (var stream = File.OpenRead(setsArchiveFilePath))
-            {
-                using var reader = ReaderFactory.Open(stream);
-                while (reader.MoveToNextEntry())
-                {
-                    reader.WriteEntryToDirectory(this.workingDirectory, extractionOptions);
-                }
-            }
-
             string setsText = await FileUtility.ReadAllTextAsync(SetListFileName);
             JArray parsedSetData = Utility.ParseMtGJson<JArray>(setsText);
 
@@ -180,44 +165,75 @@
             return setList.Select(s => s.Code);
         }
 
+        private async Task DownloadAndExtractFile(string fileName)
+        {
+            var extractionOptions = new ExtractionOptions()
+            {
+                ExtractFullPath = true,
+                Overwrite = true
+            };
+
+            string downloadUrl = $"{MtgJsonUrl}{fileName}{(fileName.EndsWith(".json") ? ".zip" : string.Empty)}";
+
+            using var response = await _client.GetAsync(downloadUrl);
+            using var downloadStream = await response.Content.ReadAsStreamAsync();
+            downloadStream.Position = 0;
+
+            if (downloadUrl.EndsWith(".bz2") ||
+                downloadUrl.EndsWith(".gz") ||
+                downloadUrl.EndsWith(".xz") ||
+                downloadUrl.EndsWith(".zip"))
+            {
+                using var reader = ReaderFactory.Open(downloadStream);
+                while (reader.MoveToNextEntry())
+                {
+                    reader.WriteEntryToDirectory(this._workingDirectory, extractionOptions);
+                }
+            }
+            else
+            {
+                var path = Path.Combine(this._workingDirectory, fileName);
+                using var fs = new FileStream(path, FileMode.OpenOrCreate);
+                await downloadStream.CopyToAsync(fs);
+            }
+        }
+
         /// <summary>
         /// Update JSON files from MtGJson.
         /// </summary>
         /// <param name="force">If true, update regardless of version difference.</param>
         private async Task<bool> DownloadJson(bool force)
         {
-            var versionFilePath = Path.Combine(this.workingDirectory, VersionFileName);
-            var setsFilePath = Path.Combine(this.workingDirectory, AllSetsArchiveFileName);
-            var setListFilePath = Path.Combine(this.workingDirectory, SetListFileName);
-            var keywordsFilePath = Path.Combine(this.workingDirectory, KeywordsFileName);
-            var typesFilePath = Path.Combine(this.workingDirectory, CardTypesFileName);
-
-            using (var client = new WebClient())
+            var versionFilePath = Path.Combine(this._workingDirectory, VersionFileName);
+            if (File.Exists(versionFilePath))
             {
-                client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2;)");
+                string metaFileText = await File.ReadAllTextAsync(versionFilePath);
+                this.CurrentMtgJsonVersion = Utility.ParseMtGJson<JsonVersion>(metaFileText);
+            }
 
-                if (File.Exists(versionFilePath))
+            Console.WriteLine($"Current Version: {this.CurrentMtgJsonVersion.Version}");
+
+            var versionFileContent = await _client.GetStringAsync($"{MtgJsonUrl}{VersionFileName}");
+            var newVersion = Utility.ParseMtGJson<JsonVersion>(versionFileContent);
+            Console.WriteLine("Server Version:  " + newVersion.Version);
+
+            if (force || this.CurrentMtgJsonVersion.Version != newVersion.Version)
+            {
+                this.CurrentMtgJsonVersion = newVersion;
+                Console.WriteLine("Database will be updated.");
+
+                List<Task> saveTasks = new()
                 {
-                    this.CurrentMtgJsonVersion = Utility.ParseMtGJson<JsonVersion>(File.ReadAllText(versionFilePath));
-                }
+                    DownloadAndExtractFile(AllSetsArchiveFileName),
+                    DownloadAndExtractFile(SetListFileName),
+                    DownloadAndExtractFile(KeywordsFileName),
+                    DownloadAndExtractFile(CardTypesFileName),
+                    File.WriteAllTextAsync(versionFilePath, versionFileContent)
+                };
 
-                Console.WriteLine("Current Version: " + this.CurrentMtgJsonVersion.Version);
+                await Task.WhenAll(saveTasks);
 
-                var newVersion = Utility.ParseMtGJson<JsonVersion>(client.DownloadString(MtgJsonUrl + VersionFileName));
-                Console.WriteLine("Server Version:  " + newVersion.Version);
-
-                if (force || this.CurrentMtgJsonVersion.Version != newVersion.Version)
-                {
-                    this.CurrentMtgJsonVersion = newVersion;
-                    Console.WriteLine("Database will be updated.");
-
-                    await client.DownloadFileTaskAsync(MtgJsonUrl + KeywordsFileName, keywordsFilePath);
-                    await client.DownloadFileTaskAsync(MtgJsonUrl + CardTypesFileName, typesFilePath);
-                    await client.DownloadFileTaskAsync(MtgJsonUrl + AllSetsArchiveFileName, setsFilePath);
-                    await client.DownloadFileTaskAsync(MtgJsonUrl + SetListFileName, setListFilePath);
-
-                    return true;
-                }
+                return true;
             }
 
             Console.WriteLine("Version matches; no need to sync.");
@@ -229,12 +245,12 @@
             Guid? sideAUuid = jsonCard.OtherFaceIds?.FirstOrDefault();
             if (sideAUuid != null && sideAUuid != default(Guid) && jsonCard.Side != null && jsonCard.Side != "a")
             {
-                var mainSide = db.Printings
+                var mainSide = _db.Printings
                     .Where(p => p.UUID == sideAUuid)
                     .OrderBy(p => p.MultiverseId)
                     .FirstOrDefault()?.Card;
 
-                var altCard = db.Cards.Local
+                var altCard = _db.Cards.Local
                     .Where(c => c.Name == jsonCard.CockatriceName)
                     .Single();
 
@@ -246,10 +262,10 @@
         {
             try
             {
-                this.db.ChangeTracker.DetectChanges();
-                if (this.db.ChangeTracker.HasChanges())
+                this._db.ChangeTracker.DetectChanges();
+                if (this._db.ChangeTracker.HasChanges())
                 {
-                    await this.db.SaveChangesAsync();
+                    await this._db.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -262,7 +278,7 @@
         private async Task SyncCardTypes()
         {
             Console.WriteLine("Syncing card types...");
-            var typesFilePath = Path.Combine(this.workingDirectory, CardTypesFileName);
+            var typesFilePath = Path.Combine(this._workingDirectory, CardTypesFileName);
             string cardTypesText = await FileUtility.ReadAllTextAsync(typesFilePath);
             JObject parsedCardTypes = Utility.ParseMtGJson<JObject>(cardTypesText);
 
@@ -276,7 +292,7 @@
         {
             Console.WriteLine("Syncing keywords...");
 
-            var keywordsFilePath = Path.Combine(this.workingDirectory, KeywordsFileName);
+            var keywordsFilePath = Path.Combine(this._workingDirectory, KeywordsFileName);
             string keywordsText = await FileUtility.ReadAllTextAsync(keywordsFilePath);
             var keywords = Utility.ParseMtGJson<JsonKeywords>(keywordsText);
 
@@ -309,40 +325,40 @@
 
             foreach (var artist in artists)
             {
-                UpsertSimpleLookup(db.Artists, artist);
+                UpsertSimpleLookup(_db.Artists, artist);
             }
 
             foreach (var watermark in watermarks)
             {
-                UpsertSimpleLookup(db.Watermarks, watermark);
+                UpsertSimpleLookup(_db.Watermarks, watermark);
             }
 
             foreach (var frame in frames)
             {
-                UpsertSimpleLookup(db.Frames, frame);
+                UpsertSimpleLookup(_db.Frames, frame);
             }
 
             foreach (var rarity in rarities)
             {
-                UpsertSimpleLookup(db.Rarities, rarity);
+                UpsertSimpleLookup(_db.Rarities, rarity);
             }
 
             foreach (var border in borders)
             {
-                UpsertSimpleLookup(db.Borders, border);
+                UpsertSimpleLookup(_db.Borders, border);
             }
 
             foreach (var layout in layouts)
             {
-                UpsertSimpleLookup(db.Layouts, layout);
+                UpsertSimpleLookup(_db.Layouts, layout);
             }
 
             await this.SaveChanges();
 
             var setUpsert = this.UpsertSet(set);
 
-            db.RemoveRange(setUpsert.ObjectsToRemove);
-            db.AddRange(setUpsert.ObjectsToAdd);
+            _db.RemoveRange(setUpsert.ObjectsToRemove);
+            _db.AddRange(setUpsert.ObjectsToAdd);
 
             var multiSideCards = set.Cards.Where(c => c.Side != null && c.Side != "a");
             foreach (var card in multiSideCards)
@@ -357,7 +373,7 @@
         {
             var result = new UpsertResult<Card>();
 
-            var dbCard = db.Cards.Local
+            var dbCard = _db.Cards.Local
             .Where(c => c.Name == printing.CockatriceName)
             .SingleOrDefault();
 
@@ -388,7 +404,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Colors);
 
-                var colors = db.Colors.Where(c => printing.Colors.Contains(c.Symbol));
+                var colors = _db.Colors.Where(c => printing.Colors.Contains(c.Symbol));
                 var cardColors = new List<CardColor>();
                 foreach (var color in colors)
                 {
@@ -435,7 +451,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.ColorIdentity);
 
-                var colors = db.Colors.Where(c => printing.ColorIdentity.Contains(c.Symbol));
+                var colors = _db.Colors.Where(c => printing.ColorIdentity.Contains(c.Symbol));
                 var cardColorIdentity = new List<CardColorIdentity>();
                 foreach (var color in colors)
                 {
@@ -454,7 +470,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Supertypes);
 
-                var supertypes = db.Supertypes.Where(t => printing.Supertypes.Contains(t.Name));
+                var supertypes = _db.Supertypes.Where(t => printing.Supertypes.Contains(t.Name));
                 var cardSupertypes = new List<CardSupertype>();
                 foreach (var supertype in supertypes)
                 {
@@ -473,7 +489,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Types);
 
-                var cardTypes = db.CardTypes.Where(t => printing.Types.Contains(t.Name));
+                var cardTypes = _db.CardTypes.Where(t => printing.Types.Contains(t.Name));
                 var cardCardTypes = new List<CardCardType>();
                 foreach (var cardType in cardTypes)
                 {
@@ -492,7 +508,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Subtypes);
 
-                var subtypes = db.Subtypes.Where(t => printing.Subtypes.Contains(t.Name));
+                var subtypes = _db.Subtypes.Where(t => printing.Subtypes.Contains(t.Name));
                 var cardSubtypes = new List<CardSubtype>();
                 foreach (var subtype in subtypes)
                 {
@@ -512,7 +528,7 @@
             {
                 result.ObjectsToRemove.AddRange(dbCard.Keywords);
 
-                var dbKeywords = db.Keywords.Where(k => printing.Keywords.Contains(k.Name));
+                var dbKeywords = _db.Keywords.Where(k => printing.Keywords.Contains(k.Name));
                 var cardKeywords = new List<CardKeyword>();
                 foreach (var keyword in dbKeywords)
                 {
@@ -526,9 +542,9 @@
                 result.ObjectsToAdd.AddRange(cardKeywords);
             }
 
-            dbCard.Layout = UpsertSimpleLookup(db.Layouts, printing.Layout);
+            dbCard.Layout = UpsertSimpleLookup(_db.Layouts, printing.Layout);
 
-            var legalityUpsert = legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
+            var legalityUpsert = _legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
             dbCard.Legalities = legalityUpsert.MainObject;
             result.Merge(legalityUpsert);
 
@@ -545,7 +561,7 @@
 
         private async Task<CardType> UpsertCardType(string cardType, JsonCardTypes cardTypeTypes)
         {
-            var dbCardType = await db.CardTypes
+            var dbCardType = await _db.CardTypes
                 .Include(t => t.Subtypes)
                     .ThenInclude(t => t.Subtype)
                 .Include(t => t.Supertypes)
@@ -560,13 +576,13 @@
                     Name = cardType
                 };
 
-                db.CardTypes.Add(dbCardType);
+                _db.CardTypes.Add(dbCardType);
             }
 
             var subtypes = new List<Subtype>();
             foreach (var subtype in cardTypeTypes.SubTypes)
             {
-                var type = UpsertSimpleLookup(db.Subtypes, subtype);
+                var type = UpsertSimpleLookup(_db.Subtypes, subtype);
                 if (type != null)
                 {
                     subtypes.Add(type);
@@ -576,7 +592,7 @@
             if (dbCardType.Subtypes.Select(t => t.Subtype.Name).Except(cardTypeTypes.SubTypes).Any() ||
                 cardTypeTypes.SubTypes.Except(dbCardType.Subtypes.Select(t => t.Subtype.Name)).Any())
             {
-                db.CardTypeSubtypes.RemoveRange(dbCardType.Subtypes);
+                _db.CardTypeSubtypes.RemoveRange(dbCardType.Subtypes);
 
                 var cardTypeSubtypes = new List<CardTypeSubtype>();
                 foreach (var subtype in subtypes)
@@ -588,13 +604,13 @@
                     });
                 }
 
-                db.CardTypeSubtypes.AddRange(cardTypeSubtypes);
+                _db.CardTypeSubtypes.AddRange(cardTypeSubtypes);
             }
 
             var supertypes = new List<Supertype>();
             foreach (var supertype in cardTypeTypes.SuperTypes)
             {
-                var type = UpsertSimpleLookup(db.Supertypes, supertype);
+                var type = UpsertSimpleLookup(_db.Supertypes, supertype);
                 if (type != null)
                 {
                     supertypes.Add(type);
@@ -604,7 +620,7 @@
             if (dbCardType.Supertypes.Select(t => t.Supertype.Name).Except(cardTypeTypes.SubTypes).Any() ||
                 cardTypeTypes.SubTypes.Except(dbCardType.Supertypes.Select(t => t.Supertype.Name)).Any())
             {
-                db.CardTypeSupertypes.RemoveRange(dbCardType.Supertypes);
+                _db.CardTypeSupertypes.RemoveRange(dbCardType.Supertypes);
 
                 var cardTypeSupertypes = new List<CardTypeSupertype>();
                 foreach (var supertype in supertypes)
@@ -616,7 +632,7 @@
                     });
                 }
 
-                db.CardTypeSupertypes.AddRange(cardTypeSupertypes);
+                _db.CardTypeSupertypes.AddRange(cardTypeSupertypes);
             }
 
             return dbCardType;
@@ -629,7 +645,7 @@
                 return null;
             }
 
-            var existingKeyword = await db.Keywords.Where(k => k.Name == keyword).FirstOrDefaultAsync();
+            var existingKeyword = await _db.Keywords.Where(k => k.Name == keyword).FirstOrDefaultAsync();
             if (existingKeyword == null)
             {
                 existingKeyword = new Keyword()
@@ -637,7 +653,7 @@
                     Name = keyword
                 };
 
-                db.Keywords.Add(existingKeyword);
+                _db.Keywords.Add(existingKeyword);
             }
 
             existingKeyword.Type = keywordType;
@@ -681,12 +697,12 @@
 
             if (card.ObjectsToRemove.Count > 0)
             {
-                db.RemoveRange(card.ObjectsToRemove);
+                _db.RemoveRange(card.ObjectsToRemove);
             }
 
             if (card.ObjectsToAdd.Count > 0)
             {
-                db.AddRange(card.ObjectsToAdd);
+                _db.AddRange(card.ObjectsToAdd);
             }
 
             var result = new UpsertResult<Printing>();
@@ -696,7 +712,7 @@
                 return result;
             }
 
-            var dbPrinting = db.Printings.Local
+            var dbPrinting = _db.Printings.Local
                 .Where(p => p.MultiverseId == printing.Identifiers.MultiverseId.Value && p.Side == printing.Side)
                 .FirstOrDefault();
 
@@ -715,11 +731,11 @@
             dbPrinting.FlavorText = printing.FlavorText;
             dbPrinting.CollectorNumber = printing.Number;
 
-            dbPrinting.Artist = UpsertSimpleLookup(db.Artists, printing.Artist);
-            dbPrinting.Watermark = UpsertSimpleLookup(db.Watermarks, printing.Watermark);
-            dbPrinting.Frame = UpsertSimpleLookup(db.Frames, printing.FrameVersion);  
-            dbPrinting.Rarity = UpsertSimpleLookup(db.Rarities, printing.Rarity);
-            dbPrinting.Border = UpsertSimpleLookup(db.Borders, printing.BorderColor);
+            dbPrinting.Artist = UpsertSimpleLookup(_db.Artists, printing.Artist);
+            dbPrinting.Watermark = UpsertSimpleLookup(_db.Watermarks, printing.Watermark);
+            dbPrinting.Frame = UpsertSimpleLookup(_db.Frames, printing.FrameVersion);  
+            dbPrinting.Rarity = UpsertSimpleLookup(_db.Rarities, printing.Rarity);
+            dbPrinting.Border = UpsertSimpleLookup(_db.Borders, printing.BorderColor);
 
             if (printing.Prices?.Paper != null)
             {
@@ -744,7 +760,7 @@
         {
             var result = new UpsertResult<Set>();
 
-            var dbSet = db.Sets.Local
+            var dbSet = _db.Sets.Local
                 .Where(s => s.Name == set.Name)
                 .FirstOrDefault();
 
@@ -762,8 +778,8 @@
             dbSet.KeyruneCode = set.KeyruneCode;
             dbSet.Date = set.ReleaseDate;
 
-            dbSet.SetType = UpsertSimpleLookup(db.SetTypes, set.Type);
-            dbSet.Block = UpsertSimpleLookup(db.Blocks, set.Block);
+            dbSet.SetType = UpsertSimpleLookup(_db.SetTypes, set.Type);
+            dbSet.Block = UpsertSimpleLookup(_db.Blocks, set.Block);
 
             foreach (var card in set.Cards)
             {
