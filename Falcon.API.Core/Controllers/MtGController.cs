@@ -16,7 +16,7 @@
     [ApiController]
     public class MtGController : ControllerBase
     {
-        private readonly string[] SetTypes = new string[] { "core", "expansion", "masters", "planechase", "archenemy", "commander" };
+        private readonly string[] SetTypes = new string[] { "core", "expansion", "masters", "planechase", "archenemy", "commander", "draft_innovation" };
         private readonly string[] Rarities = new string[] { "common", "uncommon", "rare", "mythic" };
         private readonly MtGDBContext context;
 
@@ -53,39 +53,56 @@
         public async Task<IEnumerable<CardDto>> GetPartners(int cmdrId, string variant = "Commander", bool allowSilver = false)
         {
             var cmdr = await context.Cards.SingleAsync(c => c.ID == cmdrId);
-            if (!cmdr.OracleText.Contains("Partner"))
-            {
-                return new List<CardDto>();
-            }
 
-            var legalities = context.Legalities
+            if (cmdr.OracleText.Contains("Partner"))
+            {
+                var legalities = context.Legalities
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander
                          && (l.Legal
                       || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
                                         || !l.Card.Printings.Any())));
 
-            if (cmdr.OracleText.Contains("Partner with"))
-            {
-                var match = Regex.Match(cmdr.OracleText, @"Partner with ([\w, ]*)( \(|$)", RegexOptions.Multiline);
-                if (match.Success && match.Groups.Count > 1)
+                if (cmdr.OracleText.Contains("Partner with"))
                 {
-                    string partnerName = match.Groups[1].Value;
-                    if (!string.IsNullOrEmpty(partnerName))
+                    var match = Regex.Match(cmdr.OracleText, @"Partner with ([\w, ]*)( \(|$)", RegexOptions.Multiline);
+                    if (match.Success && match.Groups.Count > 1)
                     {
-                        legalities = legalities.Where(l => l.Card.Name == partnerName);
+                        string partnerName = match.Groups[1].Value;
+                        if (!string.IsNullOrEmpty(partnerName))
+                        {
+                            legalities = legalities.Where(l => l.Card.Name == partnerName);
+                        }
                     }
                 }
+                else
+                {
+                    legalities = legalities.Where(l => l.Card.OracleText.Contains("Partner") && !l.Card.OracleText.Contains("Partner with"));
+                }
+
+                return await legalities
+                .IncludeCardProperties()
+                .OrderBy(l => l.Card.Name)
+                .Select(l => new CardDto(l.Card))
+                .ToListAsync();
+            }
+            else if (cmdr.OracleText.Contains("Choose a Background"))
+            {
+                var legalities = context.Legalities
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.TypeLine.Contains("Legendary") && l.Card.TypeLine.Contains("Enchantment") && l.Card.TypeLine.Contains("Background")
+                         && (l.Legal
+                      || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
+                                        || !l.Card.Printings.Any())));
+
+                return await legalities
+                .IncludeCardProperties()
+                .OrderBy(l => l.Card.Name)
+                .Select(l => new CardDto(l.Card))
+                .ToListAsync();
             }
             else
             {
-                legalities = legalities.Where(l => l.Card.OracleText.Contains("Partner") && !l.Card.OracleText.Contains("Partner with"));
+                return new List<CardDto>();
             }
-
-            return await legalities
-            .IncludeCardProperties()
-            .OrderBy(l => l.Card.Name)
-            .Select(l => new CardDto(l.Card))
-            .ToListAsync();
         }
 
         [HttpGet("SignatureSpells")]
