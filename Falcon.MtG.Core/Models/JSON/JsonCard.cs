@@ -16,7 +16,7 @@
             this.Keywords = new List<string>();
             this.Printings = new List<string>();
             this.Variations = new List<Guid>();
-            this.ConvertedManaCost = 0;
+            this.ManaValue = 0;
             this.LeadershipSkills = new JsonLeadership()
             {
                 Brawl = false,
@@ -35,7 +35,7 @@
 
         public List<string> Colors { get; set; }
 
-        public float ConvertedManaCost { get; set; }
+        public float ManaValue { get; set; }
 
         public int EDHRECRank { get; set; }
 

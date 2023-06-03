@@ -190,9 +190,9 @@
                 cards = cards.Where(c => !c.Supertypes.Select(c => c.SupertypeID).Contains(disabledCardSupertypeId));
             }
 
-            if (settings.CmcRange.Min > 0 || settings.CmcRange.Max < 16)
+            if (settings.ManaValueRange.Min > 0 || settings.ManaValueRange.Max < 16)
             {
-                cards = cards.Where(c => c.CMC >= settings.CmcRange.Min && c.CMC <= settings.CmcRange.Max);
+                cards = cards.Where(c => c.CMC >= settings.ManaValueRange.Min && c.CMC <= settings.ManaValueRange.Max);
             }
 
             if (settings.SetIds.Length > 0)

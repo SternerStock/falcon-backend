@@ -389,7 +389,7 @@
 
             dbCard.CockatriceName = printing.Name;
             dbCard.ManaCost = printing.ManaCost;
-            dbCard.CMC = printing.ConvertedManaCost;
+            dbCard.CMC = printing.ManaValue;
             dbCard.TypeLine = printing.Type;
             dbCard.OracleText = printing.Text ?? string.Empty;
             dbCard.Power = printing.Power;
