@@ -20,7 +20,7 @@
 
             if (args.Contains("/?") || args.Contains("/help"))
             {
-                Console.WriteLine("USAGE: MtGSync.exe [/?] [/path:<target directory>] [/force]");
+                Console.WriteLine("USAGE: MtGSync.exe [/?] [/force]");
                 Console.WriteLine("/?: Displays this help.");
                 Console.WriteLine("/force: Forces download of all set files.");
             }
@@ -31,7 +31,7 @@
                 var timer = new Stopwatch();
                 timer.Start();
 
-                var synchronizer = new DBSynchronizer();
+                var synchronizer = new DBSynchronizer(configuration.GetConnectionString("MtGDBContext"));
                 await synchronizer.Sync(force);
 
                 Console.WriteLine("Database sync completed in " + timer.Elapsed);

@@ -30,17 +30,15 @@
         private bool disposedValue = false;
         private readonly LegalityHelper _legalityHelper;
         private readonly string _workingDirectory;
+        private readonly string _connectionString;
 
-        public DBSynchronizer(string workingDir)
+        public DBSynchronizer(string connectionString)
         {
             this._client = new HttpClient();
             this.CurrentMtgJsonVersion = new JsonVersion();
-            this._workingDirectory = workingDir;
             this._legalityHelper = new LegalityHelper();
-        }
-
-        public DBSynchronizer() : this(Environment.CurrentDirectory)
-        {
+            this._workingDirectory = Environment.CurrentDirectory;
+            this._connectionString = connectionString;
         }
 
         public JsonVersion CurrentMtgJsonVersion { get; set; }
@@ -99,7 +97,10 @@
                 await this._db.DisposeAsync();
             }
 
-            this._db = new MtGDBContext();
+            var builder = new DbContextOptionsBuilder<MtGDBContext>()
+                .UseMySql(this._connectionString, ServerVersion.AutoDetect(this._connectionString));
+
+            this._db = new MtGDBContext(builder.Options);
             this._db.ChangeTracker.AutoDetectChangesEnabled = false;
         }
 

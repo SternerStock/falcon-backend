@@ -34,7 +34,7 @@
 
         [HttpGet("RandomAppName")]
         public async Task<string> GetAppName() => await context.AlsoKnownAs
-            .OrderBy(a => Guid.NewGuid())
+            .OrderBy(a => EF.Functions.Random())
             .Select(a => a.Name)
             .FirstOrDefaultAsync();
 
@@ -125,7 +125,7 @@
         [HttpGet("RandomFlavor")]
         public async Task<FlavorDto> GetRandomFlavorText() => await context.Printings
             .Where(p => !string.IsNullOrEmpty(p.FlavorText))
-            .OrderBy(p => Guid.NewGuid())
+            .OrderBy(p => EF.Functions.Random())
             .Select(p => new FlavorDto
             {
                 FlavorText = p.FlavorText,

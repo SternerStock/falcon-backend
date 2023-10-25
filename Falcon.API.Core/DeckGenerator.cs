@@ -192,7 +192,7 @@
 
             if (settings.ManaValueRange.Min > 0 || settings.ManaValueRange.Max < 16)
             {
-                cards = cards.Where(c => c.CMC >= settings.ManaValueRange.Min && c.CMC <= settings.ManaValueRange.Max);
+                cards = cards.Where(c => c.Types.Any(t => t.CardType.Name == "land") || (c.CMC >= settings.ManaValueRange.Min && c.CMC <= settings.ManaValueRange.Max));
             }
 
             if (settings.SetIds.Length > 0)
@@ -398,7 +398,7 @@
                          && (settings.PartnerId == null || c.ID != settings.PartnerId)
                          && (settings.SignatureSpellId == null || c.ID != settings.SignatureSpellId))
                 .Where(c => !deck.Cards.Select(dc => (string.IsNullOrEmpty(dc.Side) || dc.Side == "a" || (dc.Layout.Name == "meld" && dc.Side == "b")) ? dc.ID : dc.MainSideID).Contains(c.ID))
-                .OrderBy(c => Guid.NewGuid())
+                .OrderBy(c => EF.Functions.Random())
                 .Take(numberToPick);
 
             int cardsAdded = 0;

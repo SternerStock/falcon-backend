@@ -25,14 +25,15 @@ namespace Falcon.API
         {
             services.AddControllers();
 
-            services.AddDbContext<MtGDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MtGDBContext")));
+            string connectionString = Configuration.GetConnectionString("MtGDBContext");
+            services.AddDbContext<MtGDBContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
             services.AddCors();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("Falcon", new OpenApiInfo
                 {
-                    Version = "3.0.0",
+                    Version = "3.1.0",
                     Title = "Falcon",
                     Description = "Falcon Syndicate Site API",
                     TermsOfService = null,

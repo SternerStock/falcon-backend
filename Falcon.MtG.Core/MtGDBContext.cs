@@ -50,15 +50,18 @@
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var basePath = Directory.GetParent(AppContext.BaseDirectory).FullName;
+            if (!optionsBuilder.IsConfigured)
+            {
+                var basePath = Directory.GetParent(AppContext.BaseDirectory).FullName;
 
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", false)
-                .Build();
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(basePath)
+                    .AddJsonFile("appsettings.json", false)
+                    .Build();
 
-            var connectionString = configuration.GetConnectionString("MtGDBContext");
-            optionsBuilder.UseSqlServer(connectionString);
+                var connectionString = configuration.GetConnectionString("MtGDBContext");
+                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            }
 
             base.OnConfiguring(optionsBuilder);
         }
