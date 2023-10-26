@@ -14,7 +14,7 @@
 
     [Route("api/[controller]")]
     [ApiController]
-    public class MtGController : ControllerBase
+    public partial class MtGController : ControllerBase
     {
         private readonly string[] SetTypes = new string[] { "core", "expansion", "masters", "planechase", "archenemy", "commander", "draft_innovation" };
         private readonly string[] Rarities = new string[] { "common", "uncommon", "rare", "mythic" };
@@ -64,7 +64,7 @@
 
                 if (cmdr.OracleText.Contains("Partner with"))
                 {
-                    var match = Regex.Match(cmdr.OracleText, @"Partner with ([\w, ]*)( \(|$)", RegexOptions.Multiline);
+                    var match = PartnerWithRegex().Match(cmdr.OracleText);
                     if (match.Success && match.Groups.Count > 1)
                     {
                         string partnerName = match.Groups[1].Value;
@@ -92,6 +92,30 @@
                          && (l.Legal
                       || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
                                         || !l.Card.Printings.Any())));
+
+                return await legalities
+                .IncludeCardProperties()
+                .OrderBy(l => l.Card.Name)
+                .Select(l => new CardDto(l.Card))
+                .ToListAsync();
+            }
+            else if (cmdr.OracleText.Contains("Doctor's companion"))
+            {
+                var legalities = context.Legalities
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.TypeLine.Contains("Time Lord Doctor")
+                         && l.Legal);
+
+                return await legalities
+                .IncludeCardProperties()
+                .OrderBy(l => l.Card.Name)
+                .Select(l => new CardDto(l.Card))
+                .ToListAsync();
+            }
+            else if (cmdr.TypeLine.Contains("Time Lord Doctor"))
+            {
+                var legalities = context.Legalities
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.OracleText.Contains("Doctor's companion")
+                         && l.Legal);
 
                 return await legalities
                 .IncludeCardProperties()
@@ -138,7 +162,7 @@
             .GetLegalCards(variant, allowSilver)
             .SelectMany(c => c.Printings)
             .Select(p => p.Set)
-            .Where(s => SetTypes.Contains(s.SetType.Name) || (allowSilver && s.SetType.Name == "funny"))
+            .Where(s => SetTypes.Contains(s.SetType.Name) || allowSilver && s.SetType.Name == "funny")
             .Distinct()
             .OrderByDescending(s => s.Date)
             .Select(s => new SetDto(s))
@@ -203,5 +227,8 @@
 
             return new DeckResponseDto(deck);
         }
+
+        [GeneratedRegex("Partner with ([\\w, ]*)( \\(|$)", RegexOptions.Multiline)]
+        private static partial Regex PartnerWithRegex();
     }
 }
