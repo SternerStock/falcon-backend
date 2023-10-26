@@ -12,6 +12,7 @@
         public int? SignatureSpellId { get; set; }
         public string[] ColorIdentity { get; set; }
         public SimpleRange EdhRecRange { get; set; }
+        public SimpleRange EdhRecSaltRange { get; set; }
         public SimpleRange ManaValueRange { get; set; }
         public int[] SetIds { get; set; }
         public int[] RarityIds { get; set; }

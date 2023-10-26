@@ -39,6 +39,8 @@
 
         public int EDHRECRank { get; set; }
 
+        public float EDHRECSaltiness { get; set; }
+
         public string FlavorText { get; set; }
 
         public string FrameVersion { get; set; }

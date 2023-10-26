@@ -397,6 +397,7 @@
             dbCard.Toughness = printing.Toughness;
             dbCard.Loyalty = printing.Loyalty;
             dbCard.EDHRECRank = printing.EDHRECRank;
+            dbCard.EDHRECSalt = printing.EDHRECSaltiness;
 
             printing.Types = printing.Types.ConvertAll(t => t.ToLower());
 

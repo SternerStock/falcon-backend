@@ -58,6 +58,8 @@ namespace Falcon.MtG.Models.Sql
 
         public int? EDHRECRank { get; set; }
 
+        public float? EDHRECSalt { get; set; }
+
         public ICollection<CardColor> Colors { get; set; }
 
         public ICollection<CardColorIdentity> ColorIdentity { get; set; }

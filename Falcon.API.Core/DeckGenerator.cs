@@ -224,6 +224,15 @@
                 cards = cards.Where(c => c.EDHRECRank <= lowerBand && c.EDHRECRank >= upperBand);
             }
 
+            if (settings.EdhRecSaltRange.Min > 0 || settings.EdhRecSaltRange.Max < 100)
+            {
+                var ranks = cards.Where(c => c.EDHRECSalt.HasValue && c.EDHRECSalt > 0).Select(c => c.EDHRECSalt.Value).Distinct().OrderBy(r => r).ToList();
+                float lowerBand = ranks[Math.Max(0, settings.EdhRecSaltRange.Min * ranks.Count / 100)];
+                float upperBand = ranks[Math.Min(ranks.Count - 1, settings.EdhRecSaltRange.Max * (ranks.Count - 1) / 100)];
+
+                cards = cards.Where(c => c.EDHRECSalt >= lowerBand && c.EDHRECSalt <= upperBand);
+            }
+
             return cards;
         }
 
