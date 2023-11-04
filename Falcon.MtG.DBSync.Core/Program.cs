@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Configuration.UserSecrets;
 
     internal class Program
     {
@@ -14,8 +15,8 @@
         private static async Task Main(string[] args)
         {
             configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
-                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile("appsettings.json")
+                .AddUserSecrets<Program>()
                 .Build();
 
             if (args.Contains("/?") || args.Contains("/help"))

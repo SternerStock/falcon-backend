@@ -27,15 +27,15 @@
                 MainObject = new List<Legality>()
             };
 
-            var brawl = this.UpsertLegality(card, "Brawl", IsLegal(legality.Brawl), IsLegal(legality.Brawl) && card.Types.Any(c => c.CardType.Name == "creature" || c.CardType.Name == "planeswalker") && card.Supertypes.Any(c => c.Supertype.Name == "Legendary"));
+            var brawl = this.UpsertLegality(card, "Brawl", IsLegal(legality.Brawl), IsLegal(legality.Brawl) && leadership.Brawl);
             result.MainObject.Add(brawl.MainObject);
             result.Merge(brawl);
 
-            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), legality.Commander != "Banned" && leadership.Commander);
+            var commander = this.UpsertLegality(card, "Commander", IsLegal(legality.Commander), IsLegal(legality.Commander) && leadership.Commander);
             result.MainObject.Add(commander.MainObject);
             result.Merge(commander);
 
-            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), legality.Duel != "Banned" && leadership.Commander);
+            var duel = this.UpsertLegality(card, "Duel", IsLegal(legality.Duel), IsLegal(legality.Duel) && leadership.Commander);
             result.MainObject.Add(duel.MainObject);
             result.Merge(duel);
 
@@ -46,6 +46,10 @@
             var historic = this.UpsertLegality(card, "Historic", IsLegal(legality.Historic), false);
             result.MainObject.Add(historic.MainObject);
             result.Merge(historic);
+
+            var historicBrawl = this.UpsertLegality(card, "HistoricBrawl", IsLegal(legality.HistoricBrawl), IsLegal(legality.HistoricBrawl) && leadership.Brawl);
+            result.MainObject.Add(historicBrawl.MainObject);
+            result.Merge(historicBrawl);
 
             var future = this.UpsertLegality(card, "Future", IsLegal(legality.Future), false);
             result.MainObject.Add(future.MainObject);
@@ -63,13 +67,25 @@
             result.MainObject.Add(pioneer.MainObject);
             result.Merge(pioneer);
 
-            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), legality.Commander != "Banned" && card.Types.Any(c => c.CardType.Name == "creature") && card.Printings.Any(p => p.Rarity.Name == "uncommon"));
+            var pauper = this.UpsertLegality(card, "Pauper", IsLegal(legality.Pauper), false);
             result.MainObject.Add(pauper.MainObject);
             result.Merge(pauper);
+
+            var pauperCmdr = this.UpsertLegality(card, "PauperCommander", IsLegal(legality.PauperCommander), IsLegal(legality.PauperCommander) && leadership.Commander);
+            result.MainObject.Add(pauperCmdr.MainObject);
+            result.Merge(pauperCmdr);
 
             var penny = this.UpsertLegality(card, "Penny", IsLegal(legality.Penny), false);
             result.MainObject.Add(penny.MainObject);
             result.Merge(penny);
+
+            var predh = this.UpsertLegality(card, "PreDH", IsLegal(legality.Predh), IsLegal(legality.Predh) && leadership.Commander);
+            result.MainObject.Add(predh.MainObject);
+            result.Merge(predh);
+
+            var premodern = this.UpsertLegality(card, "PreModern", IsLegal(legality.Premodern), false);
+            result.MainObject.Add(premodern.MainObject);
+            result.Merge(premodern);
 
             var standard = this.UpsertLegality(card, "Standard", IsLegal(legality.Standard), false);
             result.MainObject.Add(standard.MainObject);
@@ -79,14 +95,7 @@
             result.MainObject.Add(vintage.MainObject);
             result.Merge(vintage);
 
-            string obLegality = legality.Vintage;
-            var OathbreakerBans = configuration.GetSection("BanLists:Oathbreaker").Get<List<string>>();
-            if (OathbreakerBans.Contains(card.Name))
-            {
-                obLegality = "Banned";
-            }
-
-            var oathbreaker = this.UpsertLegality(card, "Oathbreaker", IsLegal(obLegality), leadership.Oathbreaker);
+            var oathbreaker = this.UpsertLegality(card, "Oathbreaker", IsLegal(legality.Oathbreaker), leadership.Oathbreaker);
             result.MainObject.Add(oathbreaker.MainObject);
             result.Merge(oathbreaker);
 
