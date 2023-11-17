@@ -133,14 +133,14 @@
         public async Task<IEnumerable<CardDto>> GetSignatureSpells(int obId, bool allowSilver = false)
         {
             var colorIdentity = context.CardColorIdentities.Where(c => c.CardID == obId)
-                .Include(c => c.Color).Select(c => c.Color.Symbol);
+                .Include(c => c.Color).Select(c => c.ColorID);
 
             return await context
             .GetLegalCards("Oathbreaker", allowSilver)
             .Where(c =>
                 c.Types.Any(t => t.CardType.Name == "instant" || t.CardType.Name == "sorcery")
                 && (string.IsNullOrEmpty(c.Side) || c.Side == "a")
-                && !c.ColorIdentity.Select(ci => ci.Color.Symbol).Except(colorIdentity).Any())
+                && !c.ColorIdentity.Where(ci => !colorIdentity.Contains(ci.ColorID)).Any())
             .OrderBy(c => c.Name)
             .Select(c => new CardDto(c))
             .ToListAsync();
