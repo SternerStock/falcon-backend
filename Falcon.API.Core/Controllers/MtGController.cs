@@ -85,6 +85,20 @@
                 .Select(l => new CardDto(l.Card))
                 .ToListAsync();
             }
+            else if (cmdr.OracleText.Contains("Friends forever"))
+            {
+                var legalities = context.Legalities
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander && l.Card.OracleText.Contains("Friends forever")
+                         && (l.Legal
+                      || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
+                                        || !l.Card.Printings.Any())));
+
+                return await legalities
+                .IncludeCardProperties()
+                .OrderBy(l => l.Card.Name)
+                .Select(l => new CardDto(l.Card))
+                .ToListAsync();
+            }
             else if (cmdr.OracleText.Contains("Choose a Background"))
             {
                 var legalities = context.Legalities
