@@ -281,7 +281,8 @@
             Console.WriteLine("Syncing card types...");
             var typesFilePath = Path.Combine(this._workingDirectory, CardTypesFileName);
             string cardTypesText = await FileUtility.ReadAllTextAsync(typesFilePath);
-            JObject parsedCardTypes = Utility.ParseMtGJson<JObject>(cardTypesText);
+            JsonCardTypesWrapper parsedCardTypes_ = Utility.ParseMtGJson<JsonCardTypesWrapper>(cardTypesText);
+            JObject parsedCardTypes = parsedCardTypes_.Types as JObject;
 
             foreach (var cardType in parsedCardTypes)
             {
