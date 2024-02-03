@@ -10,7 +10,6 @@
     using Falcon.MtG.Models.Sql;
     using Falcon.MtG.Utility;
     using Microsoft.EntityFrameworkCore;
-    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using SharpCompress.Common;
     using SharpCompress.Readers;
@@ -50,9 +49,43 @@
 
         public async Task Sync(bool force)
         {
-            var update = await this.DownloadJson(force);
-            if (update)
+            var versionFilePath = Path.Combine(this._workingDirectory, VersionFileName);
+            if (File.Exists(versionFilePath))
             {
+                string metaFileText = await File.ReadAllTextAsync(versionFilePath);
+                this.CurrentMtgJsonVersion = Utility.ParseMtGJson<JsonVersion>(metaFileText);
+            }
+
+            Console.WriteLine($"Current Version: {this.CurrentMtgJsonVersion.Version}");
+
+            var versionFileContent = await _client.GetStringAsync($"{MtgJsonUrl}{VersionFileName}");
+            var newVersion = Utility.ParseMtGJson<JsonVersion>(versionFileContent);
+            Console.WriteLine("Server Version:  " + newVersion.Version);
+
+            string currentVersionNo = this.CurrentMtgJsonVersion.Version.Contains('+') ? this.CurrentMtgJsonVersion.Version[..this.CurrentMtgJsonVersion.Version.IndexOf('+')] : this.CurrentMtgJsonVersion.Version;
+            string newVersionNo = newVersion.Version.Contains('+') ? newVersion.Version[..newVersion.Version.IndexOf('+')] : newVersion.Version;
+
+            bool update = force || currentVersionNo != newVersionNo;
+            if (!update)
+            {
+                Console.WriteLine("Version matches; no need to sync.");
+                return;
+            }
+            else
+            {
+                this.CurrentMtgJsonVersion = newVersion;
+                Console.WriteLine("Database will be updated.");
+
+                List<Task> saveTasks = new()
+                {
+                    DownloadAndExtractFile(AllSetsArchiveFileName),
+                    DownloadAndExtractFile(SetListFileName),
+                    DownloadAndExtractFile(KeywordsFileName),
+                    DownloadAndExtractFile(CardTypesFileName)
+                };
+
+                await Task.WhenAll(saveTasks);
+
                 await this.RefreshContext();
 
                 await this.SyncKeywords();
@@ -72,8 +105,8 @@
                 await this.SaveChanges();
 
                 // Save successfully synced version number
-                var versionFilePath = Path.Combine(this._workingDirectory, VersionFileName);
-                File.WriteAllText(versionFilePath, JsonConvert.SerializeObject(this.CurrentMtgJsonVersion));
+                File.WriteAllText(versionFilePath, versionFileContent);
+                Console.WriteLine("Saved MtGJSON Version.");
             }
         }
 
@@ -197,48 +230,6 @@
                 using var fs = new FileStream(path, FileMode.OpenOrCreate);
                 await downloadStream.CopyToAsync(fs);
             }
-        }
-
-        /// <summary>
-        /// Update JSON files from MtGJson.
-        /// </summary>
-        /// <param name="force">If true, update regardless of version difference.</param>
-        private async Task<bool> DownloadJson(bool force)
-        {
-            var versionFilePath = Path.Combine(this._workingDirectory, VersionFileName);
-            if (File.Exists(versionFilePath))
-            {
-                string metaFileText = await File.ReadAllTextAsync(versionFilePath);
-                this.CurrentMtgJsonVersion = Utility.ParseMtGJson<JsonVersion>(metaFileText);
-            }
-
-            Console.WriteLine($"Current Version: {this.CurrentMtgJsonVersion.Version}");
-
-            var versionFileContent = await _client.GetStringAsync($"{MtgJsonUrl}{VersionFileName}");
-            var newVersion = Utility.ParseMtGJson<JsonVersion>(versionFileContent);
-            Console.WriteLine("Server Version:  " + newVersion.Version);
-
-            if (force || this.CurrentMtgJsonVersion.Version != newVersion.Version)
-            {
-                this.CurrentMtgJsonVersion = newVersion;
-                Console.WriteLine("Database will be updated.");
-
-                List<Task> saveTasks = new()
-                {
-                    DownloadAndExtractFile(AllSetsArchiveFileName),
-                    DownloadAndExtractFile(SetListFileName),
-                    DownloadAndExtractFile(KeywordsFileName),
-                    DownloadAndExtractFile(CardTypesFileName),
-                    File.WriteAllTextAsync(versionFilePath, versionFileContent)
-                };
-
-                await Task.WhenAll(saveTasks);
-
-                return true;
-            }
-
-            Console.WriteLine("Version matches; no need to sync.");
-            return false;
         }
 
         private void LinkSides(JsonCard jsonCard)
