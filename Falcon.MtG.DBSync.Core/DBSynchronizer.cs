@@ -272,12 +272,11 @@
             Console.WriteLine("Syncing card types...");
             var typesFilePath = Path.Combine(this._workingDirectory, CardTypesFileName);
             string cardTypesText = await FileUtility.ReadAllTextAsync(typesFilePath);
-            JsonCardTypesWrapper parsedCardTypes_ = Utility.ParseMtGJson<JsonCardTypesWrapper>(cardTypesText);
-            JObject parsedCardTypes = parsedCardTypes_.Types as JObject;
+            JObject parsedCardTypes_ = Utility.ParseMtGJson<JObject>(cardTypesText);
 
-            foreach (var cardType in parsedCardTypes)
+            foreach (var cardType in parsedCardTypes_.Properties())
             {
-                await this.UpsertCardType(cardType.Key, cardType.Value.ToObject<JsonCardTypes>());
+                await this.UpsertCardType(cardType.Name, cardType.Value.ToObject<JsonCardTypes>());
             }
         }
 
