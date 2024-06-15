@@ -62,10 +62,10 @@
             var newVersion = Utility.ParseMtGJson<JsonVersion>(versionFileContent);
             Console.WriteLine("Server Version:  " + newVersion.Version);
 
-            string currentVersionNo = this.CurrentMtgJsonVersion.Version.Contains('+') ? this.CurrentMtgJsonVersion.Version[..this.CurrentMtgJsonVersion.Version.IndexOf('+')] : this.CurrentMtgJsonVersion.Version;
-            string newVersionNo = newVersion.Version.Contains('+') ? newVersion.Version[..newVersion.Version.IndexOf('+')] : newVersion.Version;
+            //string currentVersionNo = this.CurrentMtgJsonVersion.Version.Contains('+') ? this.CurrentMtgJsonVersion.Version[..this.CurrentMtgJsonVersion.Version.IndexOf('+')] : this.CurrentMtgJsonVersion.Version;
+            //string newVersionNo = newVersion.Version.Contains('+') ? newVersion.Version[..newVersion.Version.IndexOf('+')] : newVersion.Version;
 
-            bool update = force || currentVersionNo != newVersionNo;
+            bool update = force || this.CurrentMtgJsonVersion.Version != newVersion.Version;
             if (!update)
             {
                 Console.WriteLine("Version matches; no need to sync.");
