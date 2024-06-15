@@ -1,5 +1,6 @@
 ﻿namespace Falcon.MtG.Utility
 {
+    using System.Collections.Generic;
     using System.Linq;
     using Falcon.MtG;
     using Falcon.MtG.Models.Sql;
@@ -7,6 +8,9 @@
 
     public static class Queries
     {
+        private readonly static List<string> _invalidTypes = ["conspiracy", "scheme", "plane", "phenomenon"];
+        private readonly static List<string> _invalidSubtypes = ["Dungeon", "Attraction", "Contraption"];
+
         public static IQueryable<Legality> IncludeCardProperties(this IQueryable<Legality> legality) => legality
             .Include(l => l.Card)
                 .ThenInclude(c => c.Colors)
@@ -67,6 +71,8 @@
            .Where(l => l.Format == format.Replace("Penny Dreadful", "Penny").Replace(" ", string.Empty)
                    && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Set.SetType.Name == "funny")))
                    && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic")
+                   && !l.Card.Types.Any(t => _invalidTypes.Contains(t.CardType.Name))
+                   && !l.Card.Subtypes.Any(t => _invalidSubtypes.Contains(t.Subtype.Name))
                    && !(l.Card.Layout.Name == "meld" && l.Card.Side == "c"))
            .IncludeCardProperties()
            .Select(l => l.Card);
