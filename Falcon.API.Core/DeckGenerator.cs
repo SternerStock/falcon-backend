@@ -343,7 +343,7 @@
 
             cardPool = ApplyRestrictions(cardPool);
 
-            int aurasToPick = settings.Equipment - deck.Equipment;
+            int aurasToPick = settings.Auras - deck.Auras;
             if (aurasToPick > 0)
             {
                 var aurasToAdd = cardPool.AuraFilter();
