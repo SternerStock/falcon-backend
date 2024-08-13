@@ -30,6 +30,7 @@
         private readonly LegalityHelper _legalityHelper;
         private readonly string _workingDirectory;
         private readonly string _connectionString;
+        private readonly List<string> _illegalSetTypes;
 
         public DBSynchronizer(string connectionString)
         {
@@ -38,6 +39,8 @@
             this._legalityHelper = new LegalityHelper();
             this._workingDirectory = Environment.CurrentDirectory;
             this._connectionString = connectionString;
+
+            this._illegalSetTypes = new() { "alchemy", "token", "memorabilia", "minigame", "vanguard" };
         }
 
         public JsonVersion CurrentMtgJsonVersion { get; set; }
@@ -361,7 +364,7 @@
             await this.SaveChanges();
         }
 
-        private UpsertResult<Card> UpsertCard(JsonCard printing)
+        private UpsertResult<Card> UpsertCard(JsonCard printing, bool ignoreLegalities)
         {
             var result = new UpsertResult<Card>();
 
@@ -537,9 +540,12 @@
 
             dbCard.Layout = UpsertSimpleLookup(_db.Layouts, printing.Layout);
 
-            var legalityUpsert = _legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
-            dbCard.Legalities = legalityUpsert.MainObject;
-            result.Merge(legalityUpsert);
+            if (!ignoreLegalities)
+            {
+                var legalityUpsert = _legalityHelper.UpsertLegalities(dbCard, printing.Legalities, printing.LeadershipSkills);
+                dbCard.Legalities = legalityUpsert.MainObject;
+                result.Merge(legalityUpsert);
+            }
 
             dbCard.Side = printing.Side;
             if (printing.Side == null || printing.Side == "a")
@@ -684,9 +690,9 @@
             return result;
         }
 
-        private UpsertResult<Printing> UpsertPrinting(JsonCard printing)
+        private UpsertResult<Printing> UpsertPrinting(JsonCard printing, bool ignoreLegalities)
         {
-            var card = this.UpsertCard(printing);
+            var card = this.UpsertCard(printing, ignoreLegalities);
 
             if (card.ObjectsToRemove.Count > 0)
             {
@@ -776,7 +782,7 @@
 
             foreach (var card in set.Cards)
             {
-                var printingUpsert = this.UpsertPrinting(card);
+                var printingUpsert = this.UpsertPrinting(card, _illegalSetTypes.Any(st => st == set.Type));
                 result.Merge(printingUpsert);
                 if (printingUpsert.MainObject != null)
                 {
