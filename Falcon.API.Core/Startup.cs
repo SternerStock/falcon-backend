@@ -11,14 +11,9 @@ namespace Falcon.API
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
 
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; set; }
+        public IConfiguration Configuration { get; set; } = configuration;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)

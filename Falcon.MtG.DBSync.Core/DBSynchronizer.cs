@@ -14,7 +14,7 @@
     using SharpCompress.Common;
     using SharpCompress.Readers;
 
-    public class DBSynchronizer : IDisposable
+    public class DBSynchronizer(string connectionString) : IDisposable
     {
         private const string AllSetsArchiveFileName = "AllSetFiles.tar.bz2";
         private const string SetsFolderName = "AllSetFiles";
@@ -25,28 +25,18 @@
         private const string VersionFileName = "Meta.json";
 
         private MtGDBContext _db;
-        private readonly HttpClient _client;
+        private readonly HttpClient _client = new();
         private bool disposedValue = false;
-        private readonly LegalityHelper _legalityHelper;
-        private readonly string _workingDirectory;
-        private readonly string _connectionString;
-        private readonly List<string> _illegalSetTypes;
+        private readonly LegalityHelper _legalityHelper = new();
+        private readonly string _workingDirectory = Environment.CurrentDirectory;
+        private readonly string _connectionString = connectionString;
+        private readonly List<string> _illegalSetTypes = ["alchemy", "token", "memorabilia", "minigame", "vanguard"];
 
-        public DBSynchronizer(string connectionString)
-        {
-            this._client = new HttpClient();
-            this.CurrentMtgJsonVersion = new JsonVersion();
-            this._legalityHelper = new LegalityHelper();
-            this._workingDirectory = Environment.CurrentDirectory;
-            this._connectionString = connectionString;
-
-            this._illegalSetTypes = new() { "alchemy", "token", "memorabilia", "minigame", "vanguard" };
-        }
-
-        public JsonVersion CurrentMtgJsonVersion { get; set; }
+        public JsonVersion CurrentMtgJsonVersion { get; set; } = new JsonVersion();
 
         public void Dispose()
         {
+            GC.SuppressFinalize(this);
             this.Dispose(true);
         }
 
@@ -79,13 +69,13 @@
                 this.CurrentMtgJsonVersion = newVersion;
                 Console.WriteLine("Database will be updated.");
 
-                List<Task> saveTasks = new()
-                {
+                List<Task> saveTasks =
+                [
                     DownloadAndExtractFile(AllSetsArchiveFileName),
                     DownloadAndExtractFile(SetListFileName),
                     DownloadAndExtractFile(KeywordsFileName),
                     DownloadAndExtractFile(CardTypesFileName)
-                };
+                ];
 
                 await Task.WhenAll(saveTasks);
 
@@ -96,7 +86,7 @@
                 this._db.SeedColorData();
                 await this.SaveChanges();
 
-                var setList = await this.LoadSetList();
+                var setList = await LoadSetList();
                 foreach (var setCode in setList)
                 {
                     await this.RefreshContext();
@@ -186,7 +176,7 @@
             return set;
         }
 
-        private async Task<IEnumerable<string>> LoadSetList()
+        private static async Task<IEnumerable<string>> LoadSetList()
         {
             string setsText = await FileUtility.ReadAllTextAsync(SetListFileName);
             JArray parsedSetData = Utility.ParseMtGJson<JArray>(setsText);
@@ -660,7 +650,7 @@
             return existingKeyword;
         }
 
-        private UpsertResult<Pricing> UpsertPricing(Printing printing, JObject prices, bool foil)
+        private static UpsertResult<Pricing> UpsertPricing(Printing printing, JObject prices, bool foil)
         {
             var result = new UpsertResult<Pricing>();
 
@@ -795,7 +785,7 @@
             return result;
         }
 
-        private T UpsertSimpleLookup<T>(DbSet<T> lookups, string name) where T : class, ISimpleLookup, new()
+        private static T UpsertSimpleLookup<T>(DbSet<T> lookups, string name) where T : class, ISimpleLookup, new()
         {
             if (string.IsNullOrEmpty(name))
             {

@@ -6,6 +6,7 @@
     using Falcon.MtG.Utility;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.IdentityModel.Tokens;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -14,16 +15,10 @@
 
     [Route("api/[controller]")]
     [ApiController]
-    public partial class MtGController : ControllerBase
+    public partial class MtGController(MtGDBContext context) : ControllerBase
     {
-        private readonly string[] SetTypes = new string[] { "core", "expansion", "masters", "planechase", "archenemy", "commander", "draft_innovation" };
-        private readonly string[] Rarities = new string[] { "common", "uncommon", "rare", "mythic" };
-        private readonly MtGDBContext context;
-
-        public MtGController(MtGDBContext context)
-        {
-            this.context = context;
-        }
+        private readonly string[] SetTypes = ["core", "expansion", "masters", "planechase", "archenemy", "commander", "draft_innovation"];
+        private readonly string[] Rarities = ["common", "uncommon", "rare", "mythic"];
 
         [HttpGet("Card/{id}")]
         public async Task<CardDto> GetCard(int id) => await context.Cards
@@ -43,7 +38,7 @@
             .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander
                      && (l.Legal
                       || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || !l.Card.Printings.Any())))
+                                        || l.Card.Printings.IsNullOrEmpty())))
             .IncludeCardProperties()
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
@@ -60,7 +55,7 @@
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander
                          && (l.Legal
                       || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || !l.Card.Printings.Any())));
+                                        || l.Card.Printings.IsNullOrEmpty())));
 
                 if (cmdr.OracleText.Contains("Partner with"))
                 {
@@ -91,7 +86,7 @@
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander && l.Card.OracleText.Contains("Friends forever")
                          && (l.Legal
                       || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || !l.Card.Printings.Any())));
+                                        || l.Card.Printings.IsNullOrEmpty())));
 
                 return await legalities
                 .IncludeCardProperties()
@@ -105,7 +100,7 @@
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.TypeLine.Contains("Legendary") && l.Card.TypeLine.Contains("Enchantment") && l.Card.TypeLine.Contains("Background")
                          && (l.Legal
                       || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || !l.Card.Printings.Any())));
+                                        || l.Card.Printings.IsNullOrEmpty())));
 
                 return await legalities
                 .IncludeCardProperties()
@@ -139,7 +134,7 @@
             }
             else
             {
-                return new List<CardDto>();
+                return [];
             }
         }
 

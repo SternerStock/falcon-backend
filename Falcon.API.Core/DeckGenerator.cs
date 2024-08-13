@@ -43,7 +43,7 @@
                     partner = context.GetCardById(settings.PartnerId.Value);
                 }
 
-                commanderCreatureTypeIds = new List<int>();
+                commanderCreatureTypeIds = [];
                 if (commander?.OracleText?.Contains("is every creature type") != true && partner?.OracleText?.Contains("is every creature type") != true)
                 {
                     var creatureTypes = context.Subtypes
@@ -90,7 +90,7 @@
 
             format = settings.Format.Replace("Penny Dreadful", "Penny").Replace(" ", string.Empty);
 
-            disabledColorIdentityIds = context.Colors.Where(c => c.Symbol != "C" && !settings.ColorIdentity.Contains(c.Symbol)).Select(t => t.ID).ToList();
+            disabledColorIdentityIds = [.. context.Colors.Where(c => c.Symbol != "C" && !settings.ColorIdentity.Contains(c.Symbol)).Select(t => t.ID)];
 
             var disabledCardSupertypes = new List<string>();
             var disabledCardTypes = new List<string>();
@@ -152,9 +152,9 @@
                 disabledCardSupertypes.Add("Legendary");
             }
 
-            disabledCardSupertypeIds = context.Supertypes.Where(t => disabledCardSupertypes.Contains(t.Name)).Select(t => t.ID).ToList();
-            disabledCardTypeIds = context.CardTypes.Where(t => disabledCardTypes.Contains(t.Name)).Select(t => t.ID).ToList();
-            disabledCardSubtypeIds = context.Subtypes.Where(t => disabledCardSubtypes.Contains(t.Name)).Select(t => t.ID).ToList();
+            disabledCardSupertypeIds = [.. context.Supertypes.Where(t => disabledCardSupertypes.Contains(t.Name)).Select(t => t.ID)];
+            disabledCardTypeIds = [.. context.CardTypes.Where(t => disabledCardTypes.Contains(t.Name)).Select(t => t.ID)];
+            disabledCardSubtypeIds = [.. context.Subtypes.Where(t => disabledCardSubtypes.Contains(t.Name)).Select(t => t.ID)];
 
             if (settings.SharesType < 0)
             {
