@@ -50,7 +50,7 @@ namespace Falcon.API
                 app.UseDeveloperExceptionPage();
 
                 app.UseCors(
-                    options => options.WithOrigins("http://localhost:8000").AllowAnyMethod().AllowAnyHeader()
+                    options => options.WithOrigins("http://localhost:8000", "http://localhost:5173").AllowAnyMethod().AllowAnyHeader()
                 );
             } else
             {

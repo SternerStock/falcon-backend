@@ -19,31 +19,15 @@
             Color = sqlCard.Colors.Select(c => c.Color.Symbol).ToArray();
             ColorIdentity = sqlCard.ColorIdentity.Select(c => c.Color.Symbol).ToArray();
 
-            Printing printing;
-            int printings = sqlCard.Printings.Count;
-            if (printings > 1)
-            {
-                int randomIndex = (new Random()).Next(0, printings);
-                printing = sqlCard.Printings.ElementAt(randomIndex);
-            }
-            else
-            {
-                printing = sqlCard.Printings.FirstOrDefault();
-            }
+            var shuffledPrintings = sqlCard.Printings.OrderBy(p => Guid.NewGuid());
 
-            if (printing != default)
-            {
-                MultiverseId = printing.MultiverseId;
-                FlavorText = printing.FlavorText;
-                Artist = printing.Artist.Name;
-                Watermark = printing.Watermark?.Name;
-                Set = printing.Set.Name;
-            }
+            MultiverseId = shuffledPrintings.Select(p => p.MultiverseId).ToArray();
+            FlavorText = shuffledPrintings.Where(p => !string.IsNullOrEmpty(p.FlavorText)).FirstOrDefault()?.FlavorText;
         }
 
         public int ID { get; set; }
 
-        public int MultiverseId { get; set; }
+        public int[] MultiverseId { get; set; }
 
         public string Name { get; set; }
 
@@ -64,11 +48,5 @@
         public string[] Color { get; set; }
 
         public string[] ColorIdentity { get; set; }
-
-        public string Artist { get; set; }
-
-        public string Watermark { get; set; }
-
-        public string Set { get; set; }
     }
 }
