@@ -69,7 +69,7 @@
 
         public static IQueryable<Card> GetLegalCards(this MtGDBContext context, string format, bool allowSilver = false) => context.Legalities
            .Where(l => l.Format == format.Replace("Penny Dreadful", "Penny").Replace(" ", string.Empty)
-                   && (l.Legal || (allowSilver && l.Card.Printings.All(p => p.Set.SetType.Name == "funny")))
+                   && (l.Legal || (allowSilver && l.Card.Printings.FirstOrDefault().Set.SetType.Name == "funny"))
                    && !l.Card.Supertypes.Any(t => t.Supertype.Name == "Basic")
                    && !l.Card.Types.Any(t => _invalidTypes.Contains(t.CardType.Name))
                    && !l.Card.Subtypes.Any(t => _invalidSubtypes.Contains(t.Subtype.Name))

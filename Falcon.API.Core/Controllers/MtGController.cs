@@ -6,7 +6,6 @@
     using Falcon.MtG.Utility;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.IdentityModel.Tokens;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -35,10 +34,12 @@
 
         [HttpGet("Commanders")]
         public async Task<IEnumerable<CardDto>> GetCommanders(string variant = "Commander", bool allowSilver = false) => await context.Legalities
-            .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander
-                     && (l.Legal
-                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")))
+            .Where(l => l.Format == variant.Replace(" ", string.Empty)
+                     && ((l.Legal && l.LegalAsCommander)
+                      || (allowSilver && l.Card.Printings.FirstOrDefault().Set.SetType.Name == "funny"
+                            && l.Card.TypeLine.Contains("Legendary") && l.Card.TypeLine.Contains("Creature"))))
             .OrderBy(l => l.Card.Name)
+            .IncludeCardProperties()
             .Select(l => new CardDto(l.Card))
             .ToListAsync();
 
@@ -50,9 +51,10 @@
             if (cmdr.OracleText.Contains("Partner"))
             {
                 var legalities = context.Legalities
-                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander
-                         && (l.Legal
-                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")));
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId
+                     && ((l.Legal && l.LegalAsCommander)
+                      || (allowSilver && l.Card.Printings.FirstOrDefault().Set.SetType.Name == "funny"
+                            && l.Card.TypeLine.Contains("Legendary") && l.Card.TypeLine.Contains("Creature"))));
 
                 if (cmdr.OracleText.Contains("Partner with"))
                 {
@@ -80,9 +82,10 @@
             else if (cmdr.OracleText.Contains("Friends forever"))
             {
                 var legalities = context.Legalities
-                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander && l.Card.OracleText.Contains("Friends forever")
-                         && (l.Legal
-                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")));
+                .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.OracleText.Contains("Friends forever")
+                     && ((l.Legal && l.LegalAsCommander)
+                      || (allowSilver && l.Card.Printings.FirstOrDefault().Set.SetType.Name == "funny"
+                            && l.Card.TypeLine.Contains("Legendary") && l.Card.TypeLine.Contains("Creature"))));
 
                 return await legalities
                 .IncludeCardProperties()
@@ -95,7 +98,7 @@
                 var legalities = context.Legalities
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.TypeLine.Contains("Legendary") && l.Card.TypeLine.Contains("Enchantment") && l.Card.TypeLine.Contains("Background")
                          && (l.Legal
-                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")));
+                      || (allowSilver && l.Card.Printings.FirstOrDefault().Set.SetType.Name == "funny")));
 
                 return await legalities
                 .IncludeCardProperties()
@@ -107,7 +110,8 @@
             {
                 var legalities = context.Legalities
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.TypeLine.Contains("Time Lord Doctor")
-                         && l.Legal);
+                         && (l.Legal
+                      || (allowSilver && l.Card.Printings.FirstOrDefault().Set.SetType.Name == "funny")));
 
                 return await legalities
                 .IncludeCardProperties()
@@ -119,7 +123,8 @@
             {
                 var legalities = context.Legalities
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.OracleText.Contains("Doctor's companion")
-                         && l.Legal);
+                         && (l.Legal
+                      || (allowSilver && l.Card.Printings.FirstOrDefault().Set.SetType.Name == "funny")));
 
                 return await legalities
                 .IncludeCardProperties()
