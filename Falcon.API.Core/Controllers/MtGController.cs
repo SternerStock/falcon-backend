@@ -37,9 +37,7 @@
         public async Task<IEnumerable<CardDto>> GetCommanders(string variant = "Commander", bool allowSilver = false) => await context.Legalities
             .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.LegalAsCommander
                      && (l.Legal
-                      || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || l.Card.Printings.IsNullOrEmpty())))
-            .IncludeCardProperties()
+                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")))
             .OrderBy(l => l.Card.Name)
             .Select(l => new CardDto(l.Card))
             .ToListAsync();
@@ -54,8 +52,7 @@
                 var legalities = context.Legalities
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander
                          && (l.Legal
-                      || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || l.Card.Printings.IsNullOrEmpty())));
+                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")));
 
                 if (cmdr.OracleText.Contains("Partner with"))
                 {
@@ -85,8 +82,7 @@
                 var legalities = context.Legalities
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.LegalAsCommander && l.Card.OracleText.Contains("Friends forever")
                          && (l.Legal
-                      || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || l.Card.Printings.IsNullOrEmpty())));
+                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")));
 
                 return await legalities
                 .IncludeCardProperties()
@@ -99,8 +95,7 @@
                 var legalities = context.Legalities
                 .Where(l => l.Format == variant.Replace(" ", string.Empty) && l.CardID != cmdrId && l.Card.TypeLine.Contains("Legendary") && l.Card.TypeLine.Contains("Enchantment") && l.Card.TypeLine.Contains("Background")
                          && (l.Legal
-                      || allowSilver && (l.Card.Printings.All(p => p.Set.SetType.Name == "funny")
-                                        || l.Card.Printings.IsNullOrEmpty())));
+                      || (allowSilver && l.Card.Printings != null && l.Card.Printings.First().Set.SetType.Name == "funny")));
 
                 return await legalities
                 .IncludeCardProperties()

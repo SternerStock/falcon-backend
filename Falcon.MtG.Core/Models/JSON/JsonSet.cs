@@ -17,6 +17,8 @@
         public DateTime ReleaseDate { get; set; }
 
         public string Type { get; set; }
+
+        public bool IsPartialPreview { get; set; }
     }
 
     public class JsonSetComparer : IComparer<JsonSet>

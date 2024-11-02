@@ -91,8 +91,11 @@
                 {
                     await this.RefreshContext();
                     var loadedSet = await this.LoadSet(setCode);
-                    await _db.LoadLookups();
-                    await this.SyncSet(loadedSet);
+                    if (!loadedSet.IsPartialPreview)
+                    {
+                        await _db.LoadLookups();
+                        await this.SyncSet(loadedSet);
+                    }
                 }
 
                 await this.SaveChanges();
