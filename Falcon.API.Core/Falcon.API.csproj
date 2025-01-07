@@ -7,21 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.7.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi" Version="6.7.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUi" Version="7.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Falcon.MtG.Core\Falcon.MtG.csproj" />
+    <ProjectReference Include="..\Falcon.XorYDatabase\Falcon.XorYDatabase.csproj" />
   </ItemGroup>
 
 </Project>

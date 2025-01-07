@@ -2,6 +2,7 @@ namespace Falcon.API
 {
     using System;
     using Falcon.MtG;
+    using Falcon.XorYDatabase;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.HttpOverrides;
@@ -20,8 +21,11 @@ namespace Falcon.API
         {
             services.AddControllers();
 
-            string connectionString = Configuration.GetConnectionString("MtGDBContext");
-            services.AddDbContext<MtGDBContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+            string mtgConnectionString = Configuration.GetConnectionString("MtGDBContext");
+            services.AddDbContext<MtGDBContext>(options => options.UseMySql(mtgConnectionString, ServerVersion.AutoDetect(mtgConnectionString)));
+
+            string xoryConnectionString = Configuration.GetConnectionString("XorYDBContext");
+            services.AddDbContext<XorYDBContext>(options => options.UseMySql(xoryConnectionString, ServerVersion.AutoDetect(xoryConnectionString)));
 
             services.AddCors();
             services.AddSwaggerGen(c =>
@@ -55,7 +59,7 @@ namespace Falcon.API
             } else
             {
                 app.UseCors(
-                    options => options.WithOrigins("http://www.falconsyndicate.net").AllowAnyMethod().AllowAnyHeader()
+                    options => options.WithOrigins("https://www.falconsyndicate.net").AllowAnyMethod().AllowAnyHeader()
                 );
             }
 
