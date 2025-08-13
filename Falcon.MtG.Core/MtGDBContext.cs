@@ -60,7 +60,7 @@
                     .Build();
 
                 var connectionString = configuration.GetConnectionString("MtGDBContext");
-                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), b => b.MigrationsAssembly("Falcon.MtG"));
             }
 
             base.OnConfiguring(optionsBuilder);

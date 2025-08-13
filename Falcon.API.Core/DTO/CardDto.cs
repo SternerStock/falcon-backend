@@ -21,13 +21,19 @@
 
             var shuffledPrintings = sqlCard.Printings.OrderBy(p => Guid.NewGuid());
 
-            MultiverseId = shuffledPrintings.Select(p => p.MultiverseId).ToArray();
+            ScryfallId = shuffledPrintings.Where(p => p.ScryfallId.HasValue).Select(p => p.ScryfallId.Value.ToString()).ToArray();
+            MultiverseId = shuffledPrintings.Where(p => p.MultiverseId.HasValue).Select(p => p.MultiverseId.Value).ToArray();
+            ScryfallIllustrationId = shuffledPrintings.Where(p => p.ScryfallIllustrationId.HasValue).Select(p => p.ScryfallIllustrationId.Value.ToString()).ToArray();
             FlavorText = shuffledPrintings.Where(p => !string.IsNullOrEmpty(p.FlavorText)).FirstOrDefault()?.FlavorText;
         }
 
         public int ID { get; set; }
 
         public int[] MultiverseId { get; set; }
+
+        public string[] ScryfallId { get; set; }
+
+        public string[] ScryfallIllustrationId { get; set; }
 
         public string Name { get; set; }
 

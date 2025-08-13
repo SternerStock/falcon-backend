@@ -424,6 +424,10 @@
                 {
                     copies = RNG.Next(1, numberToPick - cardsAdded + 1);
                 }
+                else if (card.OracleText.Contains("a deck can have up to seven"))
+                {
+                    copies = 7;
+                }
                 else if (deck.Singleton)
                 {
                     copies = 1;
@@ -431,6 +435,11 @@
                 else
                 {
                     copies = RNG.Next(1, Math.Min(5, numberToPick - cardsAdded + 1));
+                }
+
+                if (deck.Cards.Count(c => c.CockatriceName.Equals(card.CockatriceName)) >= copies)
+                {
+                    break;
                 }
 
                 for (int i = 0; i < copies; i++)

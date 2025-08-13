@@ -1,5 +1,6 @@
 namespace Falcon.MtG.Models.Sql
 {
+    using System;
     using System.Collections.Generic;
 
     public class Card
@@ -31,6 +32,8 @@ namespace Falcon.MtG.Models.Sql
         }
 
         public int ID { get; set; }
+
+        public Guid ScryfallOracleId { get; set; }
 
         public string Name { get; set; }
 

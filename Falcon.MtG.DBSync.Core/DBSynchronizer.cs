@@ -155,7 +155,7 @@
                 .Include(p => p.Rarity)
                 .Include(p => p.Border)
                 .Include(p => p.Pricings)
-                .Where(p => set.Cards.Select(c => c.Identifiers.MultiverseId).Contains(p.MultiverseId))
+                .Where(p => set.Cards.Select(c => c.Identifiers.ScryfallId).Contains(p.ScryfallId) || set.Cards.Select(c => c.Identifiers.MultiverseId).Contains(p.MultiverseId) || set.Cards.Select(c => c.Identifiers.ScryfallIllustrationId).Contains(p.ScryfallIllustrationId))
                 .LoadAsync();
 
             await _db.Cards
@@ -699,20 +699,24 @@
 
             var result = new UpsertResult<Printing>();
 
-            if (!printing.Identifiers.MultiverseId.HasValue)
+            if (!printing.Identifiers.MultiverseId.HasValue && !printing.Identifiers.ScryfallIllustrationId.HasValue)
             {
                 return result;
             }
 
             var dbPrinting = _db.Printings.Local
-                .Where(p => p.MultiverseId == printing.Identifiers.MultiverseId.Value && p.Side == printing.Side)
+                .Where(p => ((printing.Identifiers.ScryfallId.HasValue && p.ScryfallId == printing.Identifiers.ScryfallId.Value)
+                       || (printing.Identifiers.MultiverseId.HasValue && p.MultiverseId == printing.Identifiers.MultiverseId.Value)
+                       || (printing.Identifiers.ScryfallIllustrationId.HasValue && p.ScryfallIllustrationId == printing.Identifiers.ScryfallIllustrationId.Value) && p.Side == printing.Side))
                 .FirstOrDefault();
 
             if (dbPrinting == null)
             {
                 dbPrinting = new Printing()
                 {
-                    MultiverseId = printing.Identifiers.MultiverseId.Value,
+                    ScryfallId = printing.Identifiers.ScryfallId,
+                    MultiverseId = printing.Identifiers.MultiverseId,
+                    ScryfallIllustrationId = printing.Identifiers.ScryfallIllustrationId,
                     Side = printing.Side
                 };
 
@@ -723,9 +727,13 @@
             dbPrinting.FlavorText = printing.FlavorText;
             dbPrinting.CollectorNumber = printing.Number;
 
+            dbPrinting.ScryfallId = printing.Identifiers.ScryfallId;
+            dbPrinting.MultiverseId = printing.Identifiers.MultiverseId;
+            dbPrinting.ScryfallIllustrationId = printing.Identifiers.ScryfallIllustrationId;
+
             dbPrinting.Artist = UpsertSimpleLookup(_db.Artists, printing.Artist);
             dbPrinting.Watermark = UpsertSimpleLookup(_db.Watermarks, printing.Watermark);
-            dbPrinting.Frame = UpsertSimpleLookup(_db.Frames, printing.FrameVersion);  
+            dbPrinting.Frame = UpsertSimpleLookup(_db.Frames, printing.FrameVersion);
             dbPrinting.Rarity = UpsertSimpleLookup(_db.Rarities, printing.Rarity);
             dbPrinting.Border = UpsertSimpleLookup(_db.Borders, printing.BorderColor);
 

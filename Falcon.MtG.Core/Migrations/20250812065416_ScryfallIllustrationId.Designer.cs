@@ -4,6 +4,7 @@ using Falcon.MtG;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Falcon.MtG.Migrations
 {
     [DbContext(typeof(MtGDBContext))]
-    partial class MtGDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250812065416_ScryfallIllustrationId")]
+    partial class ScryfallIllustrationId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -464,9 +467,6 @@ namespace Falcon.MtG.Migrations
 
                     b.Property<int>("RarityID")
                         .HasColumnType("int");
-
-                    b.Property<Guid?>("ScryfallId")
-                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("ScryfallIllustrationId")
                         .HasColumnType("char(36)");

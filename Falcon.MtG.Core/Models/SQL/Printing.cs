@@ -14,7 +14,11 @@ namespace Falcon.MtG.Models.Sql
 
         public Guid UUID { get; set; }
 
-        public int MultiverseId { get; set; }
+        public int? MultiverseId { get; set; }
+
+        public Guid? ScryfallId { get; set; }
+
+        public Guid? ScryfallIllustrationId { get; set; }
 
         public string FlavorText { get; set; }
 
